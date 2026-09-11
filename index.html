@@ -2,43 +2,229 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#5c94fc" />
-  <title>Pixel Plumber</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pixel Plumber — Project Page</title>
+  <style>
+    :root {
+      --bg: #101425;
+      --panel: #171c33;
+      --text: #eef1fb;
+      --muted: #a6adc8;
+      --accent: #ffcc00;
+      --accent-2: #5c94fc;
+      --ok: #4caf50;
+      --border: #2a3055;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    .wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    h1 {
+      font-size: clamp(28px, 6vw, 44px);
+      margin: 0 0 6px;
+      color: var(--accent);
+      text-shadow: 3px 3px 0 #c1440e;
+      letter-spacing: 1px;
+    }
+    .byline {
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .cta {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 22px 0 8px;
+    }
+    .btn {
+      display: inline-block;
+      font-weight: bold;
+      text-decoration: none;
+      padding: 12px 22px;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    .btn.primary {
+      background: var(--accent);
+      color: #3a2a00;
+      box-shadow: 0 4px 0 #b38600;
+    }
+    .btn.secondary {
+      background: var(--panel);
+      color: var(--text);
+      border: 2px solid var(--border);
+    }
+    figure {
+      margin: 28px 0;
+      text-align: center;
+    }
+    figure img {
+      max-width: 100%;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      image-rendering: pixelated;
+    }
+    figcaption {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: var(--accent-2);
+    }
+    ul { padding-left: 22px; }
+    li { margin-bottom: 6px; }
+    code {
+      background: #0c0f1e;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 0.92em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14.5px;
+      margin-top: 8px;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--muted); font-weight: 600; }
+    .pass { color: var(--ok); font-weight: bold; }
+    .foot {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 12px;
+    }
+    .foot a { color: var(--accent-2); }
+  </style>
 </head>
 <body>
-  <div id="game-wrap">
-    <canvas id="game" width="800" height="450"></canvas>
-
-    <div id="hud">
-      <div id="hud-score">SCORE 0</div>
-      <div id="hud-coins">🪙 0</div>
-      <div id="hud-lives">❤️ x3</div>
-    </div>
-
-    <div id="rotate-hint">Rotate your phone for the best view 🔄</div>
-
-    <div id="overlay" class="hidden">
-      <div id="overlay-card">
-        <h1 id="overlay-title">Pixel Plumber</h1>
-        <p id="overlay-msg">Reach the flag, stomp the goombas, grab the coins!</p>
-        <button id="overlay-btn">Start Game</button>
+  <div class="wrap">
+    <header>
+      <h1>Pixel Plumber 🍄</h1>
+      <div class="byline">Yi-Tsai Liang — Project 1, TIGP Basic Skills for Experimentalists (2026)</div>
+      <div class="cta">
+        <a class="btn primary" href="app/">▶ Play it</a>
+        <a class="btn secondary" href="https://github.com/tojestspacja/md-simulation">Code on GitHub</a>
       </div>
-    </div>
+    </header>
 
-    <!-- Touch controls (also work with mouse) -->
-    <div id="touch-controls">
-      <div class="dpad">
-        <button id="btn-left" class="ctrl-btn" aria-label="Left">◀</button>
-        <button id="btn-right" class="ctrl-btn" aria-label="Right">▶</button>
-      </div>
-      <div class="action-pad">
-        <button id="btn-jump" class="ctrl-btn ctrl-jump" aria-label="Jump">⤒</button>
-      </div>
+    <figure>
+      <img src="images/screenshot.png" alt="Pixel Plumber gameplay: a Mario-like character mid-jump between floating brick platforms, with score/coin/life HUD at the top and on-screen touch controls at the bottom." />
+      <figcaption>Mid-air between two platforms — on-screen touch controls (bottom) work alongside arrow keys / Space.</figcaption>
+    </figure>
+
+    <section>
+      <h2>What it is</h2>
+      <p>
+        A tiny Super-Mario-like side-scrolling platformer, built as plain HTML5 Canvas + JavaScript —
+        no game engine, no build step, one <code>&lt;canvas&gt;</code> element and a
+        <code>requestAnimationFrame</code> loop. It runs equally well typed into a laptop browser or
+        tapped on a phone, which made it a good first project: the whole "AI-assisted app" loop
+        (spec → build → deploy → verify) end-to-end, on something small enough to reason about by hand.
+      </p>
+      <p>
+        Run and jump across floating platforms, stomp goombas from above, collect coins, and reach the
+        flag at the far end of a ~4000&nbsp;px-wide level, camera scrolling to follow you. Three lives;
+        touching an enemy from the side costs one.
+      </p>
+    </section>
+
+    <section>
+      <h2>How it works — the rules</h2>
+      <p>The whole simulation is a fixed-timestep-ish loop: read input → integrate physics → resolve collisions → draw.</p>
+      <ul>
+        <li><strong>Gravity &amp; jumping.</strong> Constant downward acceleration
+          <code>g = 2200 px/s²</code>. A jump sets vertical velocity to
+          <code>v₀ = −680 px/s</code>. Releasing the jump button early clips the rise
+          (velocity snapped up to <code>−420 px/s</code>) — a standard platformer trick
+          for a variable jump height: tap for a short hop, hold for a full jump.</li>
+        <li><strong>Collision.</strong> Axis-separated AABB collision against a list of solid
+          rectangles (ground segments + floating platforms): move on <em>x</em>, resolve; move on
+          <em>y</em>, resolve. Falling past the bottom of the world (a pit) costs a life and
+          respawns you at the start.</li>
+        <li><strong>Enemies.</strong> Goombas patrol a fixed horizontal range and reverse at its
+          ends. Landing on one from above (falling, and was above it the previous frame) kills it
+          and bounces you; touching one from the side costs a life.</li>
+        <li><strong>Scoring.</strong> +10 per coin, +100 per goomba stomped.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>What was verified</h2>
+      <p>
+        Checked with a scripted headless browser (Playwright) driving the actual deployed page —
+        not just read from the source — comparing a value predicted from the constants above against
+        the value measured live in the running game.
+      </p>
+      <table>
+        <tr><th>Check</th><th>Predicted</th><th>Measured</th><th></th></tr>
+        <tr>
+          <td>Full jump apex height,<br /><span style="color:var(--muted)">h = v₀²/(2g)</span></td>
+          <td>105.1 px</td>
+          <td>99.5 px</td>
+          <td class="pass">✓ within ~5%</td>
+        </tr>
+        <tr>
+          <td>Short-tap jump apex (jump-cut at ~60 ms),<br /><span style="color:var(--muted)">two-phase kinematics</span></td>
+          <td>≈76.9 px</td>
+          <td>75.9 px</td>
+          <td class="pass">✓ within ~1%</td>
+        </tr>
+        <tr>
+          <td>Coin scoring after collecting 2 coins,<br /><span style="color:var(--muted)">2 × 10 pts</span></td>
+          <td>20</td>
+          <td>20</td>
+          <td class="pass">✓ exact</td>
+        </tr>
+      </table>
+      <p style="color:var(--muted); font-size: 13.5px; margin-bottom: 0;">
+        The small (~5%) undershoot on the full-jump apex is expected: the game integrates motion with
+        discrete ~16&nbsp;ms steps (semi-implicit Euler), which systematically loses a little height
+        against the continuous closed-form solution — the two-phase short-hop case matches almost
+        exactly since it was derived the same discrete way. Collision (no falling through platforms),
+        camera scrolling, enemy stomping, and mobile/touch rendering at phone viewport sizes were also
+        exercised and rendered correctly.
+      </p>
+    </section>
+
+    <section>
+      <h2>Built with</h2>
+      <p>Plain HTML5 Canvas, CSS and JavaScript — zero dependencies, zero build step. Physics, level
+      data, and rendering all live in one <code>app/game.js</code>. Built and verified with Claude Code.</p>
+    </section>
+
+    <div class="foot">
+      <a href="app/">Open the app →</a> · <a href="https://github.com/tojestspacja/md-simulation">Repository</a>
     </div>
   </div>
-
-  <script src="game.js"></script>
 </body>
 </html>

@@ -4,15 +4,20 @@ A tiny Super-Mario-like platformer built with plain HTML5 Canvas + JavaScript �
 no build step, no dependencies. Works on desktop (keyboard) and on phones
 (on-screen touch controls).
 
+- **Project page** (this readme's counterpart, for humans): `index.html` at the repo root — [live](https://tojestspacja.github.io/md-simulation/)
+- **The game itself**: [`app/`](app/) — [live](https://tojestspacja.github.io/md-simulation/app/)
+
 ## Play locally
 
-Just open `index.html` in a browser, or serve the folder:
+Serve the repo root (so both the project page and `app/` resolve):
 
 ```bash
 npx serve .
 # or
 python -m http.server 8000
 ```
+
+Then open `app/index.html` to play directly, or `/` for the project page.
 
 ## Controls
 

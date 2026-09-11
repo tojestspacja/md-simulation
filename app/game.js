@@ -537,4 +537,11 @@
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+
+  // Small read-only debug hook (used to verify the physics claims on the
+  // project page — e.g. jump apex height — against the live game).
+  window.PixelPlumber = {
+    getState: () => ({ x: player.x, y: player.y, vy: player.vy, onGround: player.onGround, score, coinCount, lives, state }),
+    constants: { GRAVITY, JUMP_VELOCITY, MOVE_MAX },
+  };
 })();
