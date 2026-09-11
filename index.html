@@ -142,6 +142,11 @@
       <figcaption>Mid-air between two platforms — on-screen touch controls (bottom) work alongside arrow keys / Space.</figcaption>
     </figure>
 
+    <figure>
+      <img src="images/moon-zone.png" alt="The same jump in the low-gravity zone: a dotted trail traces a much taller, almost vertical arc from the ground to near the top of the screen, with a live physics readout panel on the right showing g = 650 px/s² and a predicted jump apex of 356 px." />
+      <figcaption>Same jump, low-gravity zone: g drops from 2200 to 650 px/s², the dotted trail traces the actual arc, and the 🔬 physics panel shows the live numbers — apex jumps from 105 px to 356 px.</figcaption>
+    </figure>
+
     <section>
       <h2>What it is</h2>
       <p>
@@ -155,6 +160,13 @@
         Run and jump across floating platforms, stomp goombas from above, collect coins, and reach the
         flag at the far end of a ~4000&nbsp;px-wide level, camera scrolling to follow you. Three lives;
         touching an enemy from the side costs one.
+      </p>
+      <p>
+        Two stretches of the level swap out Earth-normal physics for something else, sign-posted and
+        tinted so you feel it coming: a 🌙 <strong>low-gravity zone</strong> and a 🧊 <strong>frictionless
+        ice zone</strong>. Tap <strong>🔬 Physics</strong> any time for a live readout of the current
+        <code>g</code>, friction, height and velocity — the same numbers the "what was verified" table
+        below checks by hand.
       </p>
     </section>
 
@@ -175,6 +187,11 @@
           ends. Landing on one from above (falling, and was above it the previous frame) kills it
           and bounces you; touching one from the side costs a life.</li>
         <li><strong>Scoring.</strong> +10 per coin, +100 per goomba stomped.</li>
+        <li><strong>Physics zones.</strong> The moon zone drops <code>g</code> to <code>650 px/s²</code>
+          (same jump impulse, much higher arc — <code>h = v₀²/2g</code> directly); the ice zone drops
+          friction to <code>130 px/s²</code> (from <code>1600</code>), so releasing the direction key no
+          longer stops you — Newton's first law, and a real risk right before the next pit. Both are
+          just the same equations with different constants, run live.</li>
       </ul>
     </section>
 
@@ -204,6 +221,18 @@
           <td>20</td>
           <td>20</td>
           <td class="pass">✓ exact</td>
+        </tr>
+        <tr>
+          <td>Moon-zone jump apex,<br /><span style="color:var(--muted)">g = 650 instead of 2200</span></td>
+          <td>355.7 px</td>
+          <td>≈292 px risen mid-flight</td>
+          <td class="pass">✓ consistent<br />(still rising when sampled)</td>
+        </tr>
+        <tr>
+          <td>Ice-zone coast distance vs. normal ground,<br /><span style="color:var(--muted)">ratio ≈ friction<sub>normal</sub>/friction<sub>ice</sub> = 1600/130</span></td>
+          <td>≈12.3×</td>
+          <td>≈10.9× (201.5 px vs. 18.5 px)</td>
+          <td class="pass">✓ within ~11%</td>
         </tr>
       </table>
       <p style="color:var(--muted); font-size: 13.5px; margin-bottom: 0;">

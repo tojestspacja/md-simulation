@@ -19,6 +19,45 @@
   const GROUND_Y = 418; // top of the ground strip
   const WORLD_H = VH;
 
+  // ---------- Physics zones ----------
+  // Two stretches of the level run at different gravity / friction than
+  // Earth-normal, as a hands-on illustration of what those constants do to
+  // the same jump equations. The physics HUD (🔬 button) shows the live
+  // numbers; the project page derives them properly.
+  const DEFAULT_ZONE = {
+    key: 'normal', label: null, banner: null,
+    gravity: GRAVITY, friction: FRICTION,
+    sky: ['#6fb3ff', '#bfe6ff'],
+  };
+  const ZONES = [
+    {
+      key: 'moon', label: 'MOON', x1: 1250, x2: 1750,
+      gravity: 650, friction: FRICTION,
+      sky: ['#0b0c2a', '#2a2a55'],
+      banner: '🌙 LOW GRAVITY — g = 650 px/s² (Earth-normal here is 2200). Same jump, way more height: h = v₀²/2g.',
+    },
+    {
+      key: 'ice', label: 'ICE', x1: 2540, x2: 3000,
+      gravity: GRAVITY, friction: 130,
+      sky: ['#cdeeff', '#f2fcff'],
+      banner: "🧊 ICE — almost no friction. Newton's 1st law: once you're moving, you keep sliding until something stops you.",
+    },
+  ];
+  function getZone(x) {
+    for (const z of ZONES) if (x >= z.x1 && x < z.x2) return z;
+    return DEFAULT_ZONE;
+  }
+
+  // A short physics fact shown every few coins — flavour text, not required reading.
+  const PHYSICS_FACTS = [
+    '💡 Projectile motion: your left/right speed and your fall are worked out independently, then added together — that’s why you can move and fall at the same time.',
+    '💡 h = v₀²/2g: half the gravity gives double the jump height. Try the moon zone.',
+    '💡 Terminal velocity: your fall speed is capped at 1400 px/s here, the same way air resistance caps a real skydiver’s fall speed.',
+    '💡 Tap vs. hold jump: releasing early cuts your rise short — the same trick real rockets use to throttle a burn.',
+    '💡 Without friction (the ice zone), Newton’s 1st law takes over: no force, no change in motion — you just keep sliding.',
+    '💡 Stomping a goomba converts your fall into a bounce — a real collision like that loses energy to heat and sound; this game just hands it back.',
+  ];
+
   // ---------- Level data ----------
   // Solid rectangles: ground + floating platforms. All in world pixels.
   const solids = [];
@@ -90,6 +129,16 @@
 
   // ---------- Game state ----------
   let player, camX, score, coinCount, lives, state, invulnTimer, winTimer;
+  let trail = [];              // recent airborne positions, for the projectile-motion trail
+  let currentZoneKey = 'normal';
+  let toastText = null, toastTimer = 0;
+  let factIndex = 0;
+  let physicsHudOn = false;
+
+  function showToast(text, duration = 3.4) {
+    toastText = text;
+    toastTimer = duration;
+  }
 
   function resetPlayer(x, y) {
     player = {
@@ -111,6 +160,11 @@
     lives = 3;
     invulnTimer = 0;
     winTimer = 0;
+    trail = [];
+    currentZoneKey = 'normal';
+    toastText = null;
+    toastTimer = 0;
+    factIndex = 0;
     state = 'playing';
     updateHud();
   }
@@ -119,6 +173,8 @@
     resetPlayer(PLAYER_START.x, PLAYER_START.y);
     camX = 0;
     invulnTimer = 1.5;
+    trail = [];
+    currentZoneKey = 'normal';
   }
 
   // ---------- Input ----------
@@ -159,6 +215,13 @@
   bindHoldButton(document.getElementById('btn-jump'),
     () => { if (!jumpHeld) jumpBuffered = true; jumpHeld = true; },
     () => { jumpHeld = false; });
+
+  const physicsBtn = document.getElementById('btn-physics');
+  physicsBtn.addEventListener('click', () => {
+    physicsHudOn = !physicsHudOn;
+    physicsBtn.classList.toggle('on', physicsHudOn);
+  });
+  physicsBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
 
   // ---------- HUD ----------
   const hudScore = document.getElementById('hud-score');
@@ -236,7 +299,17 @@
 
   // ---------- Update ----------
   function update(dt) {
+    if (toastTimer > 0) {
+      toastTimer -= dt;
+      if (toastTimer <= 0) toastText = null;
+    }
     if (state !== 'playing') return;
+
+    const zone = getZone(player.x);
+    if (zone.key !== currentZoneKey) {
+      currentZoneKey = zone.key;
+      if (zone.banner) showToast(zone.banner, 4);
+    }
 
     // Horizontal input
     if (keys.left && !keys.right) {
@@ -246,7 +319,7 @@
       player.vx += MOVE_ACCEL * dt;
       player.facing = 1;
     } else {
-      const f = FRICTION * dt;
+      const f = zone.friction * dt;
       if (player.vx > 0) player.vx = Math.max(0, player.vx - f);
       else if (player.vx < 0) player.vx = Math.min(0, player.vx + f);
     }
@@ -265,7 +338,7 @@
       player.vy = STOMP_BOUNCE;
     }
 
-    player.vy += GRAVITY * dt;
+    player.vy += zone.gravity * dt;
     player.vy = Math.min(player.vy, 1400);
 
     moveAndCollide(player, player.vx * dt, 0);
@@ -273,6 +346,14 @@
 
     player.walkT += Math.abs(player.vx) * dt * 0.02;
     if (player.x < 0) player.x = 0;
+
+    // Projectile-motion trail: only while airborne, cleared on landing.
+    if (!player.onGround) {
+      trail.push({ x: player.x + player.w / 2, y: player.y + player.h / 2 });
+      if (trail.length > 30) trail.shift();
+    } else if (trail.length) {
+      trail = [];
+    }
 
     if (invulnTimer > 0) invulnTimer -= dt;
 
@@ -315,6 +396,10 @@
         coinCount += 1;
         score += 10;
         updateHud();
+        if (coinCount % 5 === 0) {
+          showToast(PHYSICS_FACTS[factIndex % PHYSICS_FACTS.length]);
+          factIndex += 1;
+        }
       }
     }
 
@@ -355,12 +440,15 @@
 
   // ---------- Drawing ----------
   function draw() {
-    // Sky
+    const zone = getZone(player.x);
+
+    // Sky — tints per physics zone (moon: dark; ice: pale)
     const grad = ctx.createLinearGradient(0, 0, 0, VH);
-    grad.addColorStop(0, '#6fb3ff');
-    grad.addColorStop(1, '#bfe6ff');
+    grad.addColorStop(0, zone.sky[0]);
+    grad.addColorStop(1, zone.sky[1]);
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, VW, VH);
+    if (zone.key === 'moon') drawStars();
 
     ctx.save();
     ctx.translate(-camX, 0);
@@ -368,12 +456,106 @@
     drawHills();
     drawClouds();
     drawSolids();
+    drawZoneSigns();
     drawFlag();
     drawCoins();
     drawEnemies();
+    drawTrail();
     drawPlayer();
 
     ctx.restore();
+
+    drawToast();
+    if (physicsHudOn && state === 'playing') drawPhysicsHud(zone);
+  }
+
+  function drawStars() {
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    for (let i = 0; i < 40; i++) {
+      const sx = (i * 137.5) % VW;
+      const sy = (i * 71.3) % (VH * 0.6);
+      ctx.fillRect(sx, sy, 2, 2);
+    }
+  }
+
+  // Small floating signs at the start of each physics zone, in world space.
+  function drawZoneSigns() {
+    ctx.font = 'bold 13px "Trebuchet MS", sans-serif';
+    ctx.textAlign = 'center';
+    for (const z of ZONES) {
+      if (z.x1 < camX - 40 || z.x1 > camX + VW + 40) continue;
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(z.x1 - 44, GROUND_Y - 130, 88, 26);
+      ctx.fillStyle = '#ffcc00';
+      ctx.fillText(z.label, z.x1, GROUND_Y - 111);
+    }
+    ctx.textAlign = 'left';
+  }
+
+  function drawTrail() {
+    for (let i = 0; i < trail.length; i++) {
+      const p = trail[i];
+      const a = (i + 1) / trail.length;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(255, 221, 87, ${a * 0.65})`;
+      ctx.arc(p.x, p.y, 2 + a * 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Screen-space toast banner (zone intros + physics facts).
+  function drawToast() {
+    if (!toastText) return;
+    const fadeIn = Math.min(1, (4 - toastTimer) / 0.3);
+    const fadeOut = Math.min(1, toastTimer / 0.4);
+    const alpha = Math.min(fadeIn, fadeOut, 1);
+    const maxWidth = VW - 80;
+    ctx.font = '14px "Trebuchet MS", sans-serif';
+    const words = toastText.split(' ');
+    const lines = [];
+    let line = '';
+    for (const w of words) {
+      const test = line ? line + ' ' + w : w;
+      if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = w; }
+      else line = test;
+    }
+    if (line) lines.push(line);
+
+    const boxH = 16 + lines.length * 19;
+    const boxY = 66;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = 'rgba(10, 12, 24, 0.82)';
+    ctx.fillRect(40, boxY, VW - 80, boxH);
+    ctx.strokeStyle = 'rgba(255, 204, 0, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(40, boxY, VW - 80, boxH);
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    lines.forEach((l, i) => ctx.fillText(l, VW / 2, boxY + 22 + i * 19));
+    ctx.textAlign = 'left';
+    ctx.globalAlpha = 1;
+  }
+
+  // Screen-space live physics readout (toggled with the 🔬 button).
+  function drawPhysicsHud(zone) {
+    const heightAboveGround = Math.max(0, Math.round(GROUND_Y - (player.y + player.h)));
+    const apex = (JUMP_VELOCITY * JUMP_VELOCITY) / (2 * zone.gravity);
+    const lines = [
+      `g = ${zone.gravity} px/s²   (normal = ${GRAVITY})`,
+      `friction = ${zone.friction} px/s²   (normal = ${FRICTION})`,
+      `height: ${heightAboveGround} px    v_y: ${player.vy.toFixed(0)} px/s`,
+      `full-hold jump apex here: h = v₀²/2g ≈ ${apex.toFixed(0)} px`,
+    ];
+    const boxW = 320, boxH = 16 + lines.length * 17;
+    const boxX = VW - boxW - 16, boxY = 120;
+    ctx.fillStyle = 'rgba(10, 12, 24, 0.78)';
+    ctx.fillRect(boxX, boxY, boxW, boxH);
+    ctx.strokeStyle = 'rgba(92, 148, 252, 0.9)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(boxX, boxY, boxW, boxH);
+    ctx.font = '12px monospace';
+    ctx.fillStyle = '#eaf1ff';
+    lines.forEach((l, i) => ctx.fillText(l, boxX + 10, boxY + 20 + i * 17));
   }
 
   function drawHills() {
@@ -541,7 +723,13 @@
   // Small read-only debug hook (used to verify the physics claims on the
   // project page — e.g. jump apex height — against the live game).
   window.PixelPlumber = {
-    getState: () => ({ x: player.x, y: player.y, vy: player.vy, onGround: player.onGround, score, coinCount, lives, state }),
-    constants: { GRAVITY, JUMP_VELOCITY, MOVE_MAX },
+    getState: () => ({
+      x: player.x, y: player.y, vy: player.vy, onGround: player.onGround,
+      score, coinCount, lives, state,
+      zone: getZone(player.x).key, toastText, physicsHudOn,
+    }),
+    constants: { GRAVITY, JUMP_VELOCITY, MOVE_MAX, FRICTION },
+    zones: ZONES.map(z => ({ key: z.key, x1: z.x1, x2: z.x2, gravity: z.gravity, friction: z.friction })),
+    setPlayerX: (x) => { player.x = x; }, // test-only: jump straight to a zone
   };
 })();
