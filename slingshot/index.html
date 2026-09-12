@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#05060d" />
+  <title>SLINGSHOT — one push, and the planets do the rest</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="wrap">
+    <canvas id="sky" width="960" height="540"></canvas>
+
+    <div id="hud">
+      <div id="h-left"><span id="h-num"></span> <span id="h-name"></span></div>
+      <div id="h-right">
+        <button id="b-retry" title="try again">retry</button>
+        <button id="b-phys" title="show the numbers">physics</button>
+      </div>
+    </div>
+
+    <div id="hint"></div>
+
+    <div id="ov">
+      <div class="card">
+        <h1>SLINGSHOT</h1>
+        <p class="tag">one push, and the planets do the rest</p>
+        <div id="ov-body"></div>
+        <button id="ov-go" class="go">launch</button>
+      </div>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>

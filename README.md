@@ -1,4 +1,53 @@
-# THROUGH
+# SLINGSHOT
+
+**One push, and the planets do the rest.**
+
+Drag back from the probe and let go. Everything after that is Newtonian gravity
+with nothing added. Seven levels; by the last one your engine is provably too
+weak to leave, and the only way out is a gravity assist off a moving moon.
+
+Play: <https://tojestspacja.github.io/md-simulation/slingshot/>
+
+## Proved before it was drawn
+
+A headless harness answered the design questions first, before a line of the
+game existed:
+
+| Question | Answer |
+|---|---|
+| does an orbit stay an orbit? | 20 laps, radius 200.0-200.0 px, 0.000% energy drift |
+| is there a crash/orbit/escape band? | crash <50 px/s, orbit 50-130, escape >130 |
+| does an assist gain speed? | +43 px/s off a moon moving 130 |
+| can level 7 be impossible without it? | yes - furthest reachable r = 1006 analytically AND by brute force; ring at 1150 |
+
+## Is it playable?
+
+The claim is that missing tells you where to go. A bot that only ever adjusts
+toward a smaller miss - no knowledge of the answer - solves all seven in
+13, 15, 10, 13, 9, 40, 21 shots. The 40 is the three-body level and that spike
+is deliberate.
+
+Design rules, each earned from a bug that test found:
+
+- the camera must never zoom out so far the level is unreadable;
+- a miss must not cost more than a few seconds before you can retry;
+- level N must not be harder than level N+1 (level 2 was harder than level 6);
+- every level geometry gets verified in the harness before it is drawn.
+
+## The trilogy
+
+| | Game | Physics | Shape | Status |
+|---|---|---|---|---|
+| 1 | SLINGSHOT | gravity | aim and release | built |
+| 2 | PRECESS | angular momentum | hold a direction | [spec](ANGULAR-SPEC.md) |
+| 3 | - | resonance | timing | sketch |
+
+Together they are the physics underneath magnetic resonance, taken apart. Each
+stands alone and none of them mentions it.
+
+---
+
+# The earlier builds
 
 **You can walk through walls. Sometimes.**
 

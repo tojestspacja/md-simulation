@@ -3,170 +3,176 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>THROUGH — hard physics, ordinary platformer</title>
+  <title>SLINGSHOT — one push, and the planets do the rest</title>
   <style>
     :root {
-      --bg: #06060f; --panel: #10101f; --line: #23233c; --text: #e8ebff;
-      --muted: #8a8fc8; --mint: #7ef0d0; --gold: #ffd166; --rose: #ff7b93;
+      --bg: #05060d; --panel: #0f1220; --line: #1f2439; --text: #e6ebff;
+      --muted: #8089ad; --blue: #7fb0ff; --gold: #ffd27a; --ok: #6fe0b0;
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--text);
       font-family: "Segoe UI", "Trebuchet MS", sans-serif; line-height: 1.65; }
-    .wrap { max-width: 820px; margin: 0 auto; padding: 40px 20px 70px; }
-    header { text-align: center; margin-bottom: 8px; }
-    h1 { font-size: clamp(38px, 10vw, 74px); margin: 0; letter-spacing: 10px; font-weight: 800;
-      text-shadow: 0 0 30px rgba(126,240,208,0.35); }
-    .tag { color: var(--mint); font-size: clamp(14px, 3.2vw, 19px); letter-spacing: 1px; margin-top: 4px; }
+    .wrap { max-width: 820px; margin: 0 auto; padding: 42px 20px 70px; }
+    header { text-align: center; }
+    h1 { font-size: clamp(34px, 9vw, 64px); margin: 0; letter-spacing: 9px; font-weight: 800;
+         text-shadow: 0 0 30px rgba(127,176,255,0.4); }
+    .tag { color: var(--blue); font-size: clamp(13px, 3vw, 18px); letter-spacing: 1px; margin-top: 6px; }
     .byline { color: var(--muted); font-size: 13.5px; margin-top: 14px; }
-    .cta { text-align: center; margin: 22px 0 6px; }
+    .cta { text-align: center; margin: 24px 0 8px; }
     .btn { display: inline-block; font-weight: 800; text-decoration: none; letter-spacing: 2px;
-      padding: 14px 40px; border-radius: 9px; font-size: 17px;
-      background: var(--mint); color: #032019; box-shadow: 0 5px 0 #3fae94; }
-    .btn.small { background: var(--panel); color: var(--text); border: 1px solid var(--line);
-      box-shadow: none; font-size: 13px; letter-spacing: 1px; padding: 9px 18px; font-weight: 600; }
-    figure { margin: 26px 0; }
+      padding: 14px 42px; border-radius: 9px; font-size: 17px;
+      background: var(--blue); color: #041028; box-shadow: 0 5px 0 #3f6cb5; }
+    figure { margin: 28px 0; }
     figure img { width: 100%; border-radius: 8px; border: 1px solid var(--line); display: block; }
     figcaption { color: var(--muted); font-size: 13px; margin-top: 9px; }
     section { background: var(--panel); border: 1px solid var(--line);
       border-radius: 10px; padding: 20px 24px; margin-bottom: 18px; }
-    h2 { margin-top: 0; font-size: 19px; color: var(--mint); }
-    ul { padding-left: 20px; } li { margin-bottom: 9px; }
-    code { background: #030308; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; font-size: 0.9em; }
+    h2 { margin-top: 0; font-size: 19px; color: var(--blue); }
+    ul { padding-left: 20px; } li { margin-bottom: 8px; }
+    code { background: #03040a; border: 1px solid var(--line); border-radius: 4px;
+           padding: 1px 5px; font-size: 0.9em; }
     table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 10px; }
     th, td { text-align: left; padding: 8px 9px; border-bottom: 1px solid var(--line); vertical-align: top; }
     th { color: var(--muted); font-weight: 600; }
     .note { color: var(--muted); font-size: 13px; }
     .big { font-size: 16px; color: #fff; }
+    .ok { color: var(--ok); font-weight: 600; }
+    pre { background: #03040a; border: 1px solid var(--line); border-radius: 6px;
+          padding: 12px 14px; overflow-x: auto; font-size: 12px; color: #9fb0dd; line-height: 1.5; }
     .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 18px; }
-    .foot a { color: var(--mint); }
+    .foot a { color: var(--blue); }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1>THROUGH</h1>
-      <div class="tag">you can walk through walls. sometimes.</div>
+      <h1>SLINGSHOT</h1>
+      <div class="tag">one push, and the planets do the rest</div>
       <div class="byline">Yi-Tsai Liang — Project 1, TIGP Basic Skills for Experimentalists (2026)</div>
     </header>
 
-    <div class="cta">
-      <a class="btn" href="quantum/">PLAY</a>
-    </div>
-    <p class="note" style="text-align:center">runs in any browser, phone included · about three minutes</p>
+    <div class="cta"><a class="btn" href="slingshot/">PLAY</a></div>
+    <p class="note" style="text-align:center">any browser, phone included · one gesture · seven levels</p>
 
     <section>
       <h2>What it is</h2>
-      <p class="big">
-        An ordinary platformer. Run, jump, reach the light at the end. Anyone can play it in five
-        seconds without being told anything.
+      <p class="big">Drag back from the probe and let go. That is the entire game.</p>
+      <p>
+        Everything after the release is Newtonian gravity with nothing added —
+        <code>a = Σ M/r²</code> toward each body, integrated with velocity Verlet. The path bends
+        because mass bends it. There is no fuel, no steering, no second chance mid-flight.
       </p>
       <p>
-        The only strange thing is that <strong>you are not solid</strong>. Every wall wears a number —
-        your chance of going straight through it. Thin walls are easy, thick walls are nearly
-        impossible, and running faster improves your odds.
-      </p>
-      <p>
-        That number is not a game balance knob. It is
-        <code>T = e<sup>−2κd</sup></code>, the real quantum tunnelling probability, with the real
-        exponential dependence on barrier thickness and the real dependence on your energy. Nobody is
-        told that while playing. They just learn, in their hands, that
-        <strong>a wall twice as thick is not twice as hard — it squares the odds.</strong>
+        Seven levels. By the last one your engine is <strong>provably too weak to leave</strong>, and
+        the only way out is to fall past a moving moon and come away carrying speed that used to be
+        the moon's. That is a gravity assist, and it is how every probe we have sent to the outer
+        planets actually got there.
       </p>
     </section>
 
     <figure>
-      <img src="images/through-walls.png" alt="Two walls in a dark corridor, one labelled 28 percent in yellow and a much thicker one labelled 8 percent in red, with a sign reading or climb over and platforms leading up over the thick wall." />
-      <figcaption>The thick wall says 8%. The thin one says 28%. Nobody has to explain the exponential —
-      you feel it, and then you notice the platforms going over the top and make a decision about it.
-      (The numbers rise as you run: energy is in the formula.)</figcaption>
+      <img src="images/sling-ghosts.png" alt="Level three: a probe at the left, a blue planet in the middle, a gold target ring at the right, and three faint curved trails from previous attempts fanning out and bending around the planet." />
+      <figcaption><strong>Every path you fly stays on screen.</strong> Those faint curves are the last
+      three attempts. Aiming straight at the target crashes into the planet, so you go around — and the
+      trails show you which way the last one bent. This is the whole tutorial; there is no text.</figcaption>
     </figure>
 
     <section>
-      <h2>The physics, and where it hides</h2>
-      <table>
-        <tr><th>Real physics</th><th>What the player experiences</th></tr>
-        <tr>
-          <td><strong>Quantum tunnelling.</strong> <code>T = e<sup>−2κd</sup></code>,
-            <code>κ = √(2m(V−E))/ħ</code></td>
-          <td>Walls have odds. Thin is easy, thick is hopeless, speed helps. Doubling thickness
-            squares the chance</td>
-        </tr>
-        <tr>
-          <td><strong>Measurement collapse.</strong> An observed particle has a definite position</td>
-          <td>A detector sweeps the corridor. While its light is on you, you are solid — and so are
-            the walls. Time your run between sweeps</td>
-        </tr>
-        <tr>
-          <td><strong>Superposition.</strong> One particle takes both paths</td>
-          <td>You become two. One set of controls, two bodies, two corridors, and both have to make
-            it</td>
-        </tr>
-        <tr>
-          <td><strong>Interference.</strong> The path difference decides whether amplitudes add or
-            cancel</td>
-          <td>When your halves rejoin, a meter shows how far apart they travelled. In step, you come
-            out bright and score; out of step, they partly cancel</td>
-        </tr>
-      </table>
-      <p class="note" style="margin-top:14px">
-        There is a <strong>physics</strong> button in the corner. Press it and every number shows its
-        working — the formula on each wall, your energy term, the path difference in wavelengths.
-        Ignore it and the game is unchanged. That is the whole design: play first, and the physics is
-        underneath for anyone who goes looking.
-      </p>
-    </section>
-
-    <figure>
-      <img src="images/through-split.png" alt="The player split into two glowing packets in two stacked corridors joined by a dashed line, with a meter at the top reading the two halves are 0 apart, and both walls ahead labelled 67 percent." />
-      <figcaption>In two places at once. One set of controls drives both halves; the meter tracks how
-      far each has travelled, because when they rejoin that difference is what decides whether they
-      add up or cancel.</figcaption>
-    </figure>
-
-    <section>
-      <h2>How I got here</h2>
+      <h2>Why gravity, after four attempts at something else</h2>
       <p>
-        Four builds, three of them wrong, and the wrongness is the useful part:
+        Three earlier builds tried to make a game out of NMR and out of quantum tunnelling. They
+        failed in different ways, and the diagnosis that came out of it is the useful part:
       </p>
+      <p class="big">A game mechanic has to be visible, deterministic, and steerable.</p>
       <ul>
-        <li><strong>A Mario clone with physics zones.</strong> The physics was decoration.</li>
-        <li><strong>An NMR platformer.</strong> Worse — it turned parameters into props. A pulse
-          became a floor pad you walked over. Jumping has nothing to do with magnetization, so
-          nothing read.</li>
-        <li><strong>A faithful instrument trainer,</strong> then <strong>an abstract puzzle about
-          coherence.</strong> Both accurate, both only legible to someone who already knew the
-          subject. Lost in the middle: not a real game, not a real instrument.</li>
-        <li><strong>This.</strong> Start from a game everyone can already play, then make the hard
-          physics the thing that makes it fun. Tunnelling is not a lesson bolted onto a platformer —
-          it is the best mechanic in it.</li>
+        <li><strong>Visible</strong> — you can watch the cause produce the effect.</li>
+        <li><strong>Deterministic</strong> — the same input gives the same result, so you can
+          <em>learn</em>.</li>
+        <li><strong>Steerable</strong> — your skill changes the outcome.</li>
       </ul>
+      <p>
+        Quantum tunnelling fails the last two: a coin flip carries no information, so missing teaches
+        nothing. NMR dephasing fails the first — it is invisible. Newtonian gravity passes all three
+        cleanly, which is why <em>Spacewar!</em> managed it in 1962 on a machine with no memory to spare.
+      </p>
+    </section>
+
+    <section>
+      <h2>The physics was proved before any of it was drawn</h2>
       <p class="note">
-        The test I held it to: <em>can someone who only presses right and jump finish it?</em> Yes —
-        verified by script, repeatedly. And the failures that test found were real design bugs, not
-        physics bugs: a thick wall with no way round it was a toll booth, and an interference miss
-        used to kill you for a number you could not steer. Both are fixed.
+        A headless harness answered the questions first, so no design decision rested on hope.
+      </p>
+      <table>
+        <tr><th>Question</th><th>Answer</th></tr>
+        <tr><td>Does an orbit stay an orbit?</td>
+            <td class="ok">20 laps: radius held 200.0–200.0 px, energy drift 0.000%</td></tr>
+        <tr><td>Is there a band between crashing and escaping?</td>
+            <td class="ok">crash below 50 px/s, orbit 50–130, escape above — 85 px/s wide</td></tr>
+        <tr><td>Does a gravity assist really gain speed?</td>
+            <td class="ok">+43 px/s off a moon moving 130</td></tr>
+        <tr><td>Can the last level be made <em>impossible</em> without the moon?</td>
+            <td class="ok">yes, and provably</td></tr>
+      </table>
+      <p style="margin-top:14px">
+        That last one is the part I am happiest with. Cap the launcher below escape velocity and the
+        furthest any launch can possibly reach follows from the energy — <code>r = 1006</code>. Brute
+        force over every angle and every power agrees exactly: <strong>1006</strong>. The boundary
+        ring sits at 1150, so it is unreachable by 144 px no matter what you do. Not a playtest — a
+        proof. With the moon, 13.9% of launches get out.
+      </p>
+    </section>
+
+    <figure>
+      <img src="images/sling-level7.png" alt="The final level: a probe near a blue planet, a white moon on its orbit, a large faint boundary ring, and a long looping gold dashed preview curling around and back." />
+      <figcaption><strong>The last level.</strong> The dashed line is the full predicted path — and it
+      loops back, every time, because you cannot get out on your own. The moon is the answer.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Is it actually playable?</h2>
+      <p>
+        The claim is that <em>missing tells you where to go</em>. Sweeping aim across level 3 at fixed
+        power:
+      </p>
+      <pre>-40°  394 px  ################################
+-28°  248 px  #####################
+-20°  128 px  ###########
+-12°  <b>HIT</b>
+ -8..+8       crash        &lt;- straight at it
++12°  <b>HIT</b>
++40°  394 px  ################################</pre>
+      <p>
+        A clean funnel on both sides: every step toward the solution shrinks the miss.
+      </p>
+      <p>
+        So the test is whether a player who <em>only</em> ever adjusts toward a smaller miss can finish.
+        A bot that does exactly that — no knowledge of the answer, no cleverness — solved all seven:
+        <strong>13, 15, 10, 13, 9, 40, 21 shots</strong>. The 40 is level 6, the three-body one, and
+        that spike is deliberate.
+      </p>
+      <p class="note">
+        The same test caught the real bugs, as usual: a bad shot used to zoom the camera out until the
+        level was unreadable, a miss could cost eighteen seconds before you could try again, and level
+        2 was harder than level 6. All fixed.
       </p>
     </section>
 
     <section>
       <h2>Also here</h2>
       <p class="note">
-        The earlier builds are still playable, and honest about what they are:
-        <a href="spin/" style="color:var(--gold)">an NMR shimming trainer</a> (a real drill — the
-        lineshape tells you which shim is wrong),
-        <a href="spin/sandbox.html" style="color:var(--gold)">a spin sandbox</a> on a Bloch engine
-        verified against closed form, <a href="echo/" style="color:var(--gold)">Agreement</a>, and
-        <a href="app/" style="color:var(--gold)">Pixel Plumber</a>, where all of this started.
-      </p>
-      <p class="note">
-        Plain HTML5 canvas, CSS and JavaScript throughout — no engine, no dependencies, no build
-        step. Built and verified with Claude Code.
+        The earlier builds, kept and honestly labelled:
+        <a href="quantum/" style="color:var(--gold)">THROUGH</a> (a platformer on real quantum
+        tunnelling), <a href="spin/" style="color:var(--gold)">an NMR shimming trainer</a> and its
+        <a href="spin/sandbox.html" style="color:var(--gold)">Bloch sandbox</a>,
+        <a href="echo/" style="color:var(--gold)">Agreement</a>, and
+        <a href="app/" style="color:var(--gold)">Pixel Plumber</a>, where it started.
+        Plain canvas throughout — no engine, no dependencies, no build step.
       </p>
     </section>
 
     <div class="foot">
-      <a href="quantum/">Through →</a> · <a href="spin/">Shim →</a> ·
-      <a href="spin/sandbox.html">Sandbox →</a> · <a href="echo/">Agreement →</a> ·
+      <a href="slingshot/">Slingshot →</a> · <a href="quantum/">Through →</a> ·
+      <a href="spin/">Shim →</a> · <a href="echo/">Agreement →</a> ·
       <a href="app/">Pixel Plumber →</a> ·
       <a href="https://github.com/tojestspacja/md-simulation">Repository</a>
     </div>
