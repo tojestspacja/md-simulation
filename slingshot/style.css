@@ -71,3 +71,31 @@ canvas#sky {
   box-shadow: 0 5px 0 #3f6cb5;
 }
 #ov .go:active { transform: translateY(2px); box-shadow: 0 3px 0 #3f6cb5; }
+
+/* the seven levels, and where you are in them */
+#dots {
+  position: absolute; left: 0; right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 42px);
+  display: flex; justify-content: center; gap: 9px; z-index: 5;
+}
+#dots .dot {
+  width: 9px; height: 9px; padding: 0; border-radius: 50%; cursor: pointer;
+  background: transparent; border: 1px solid rgba(150, 170, 240, 0.38);
+  transition: transform .12s ease, background .12s ease;
+}
+#dots .dot:hover { transform: scale(1.35); }
+#dots .dot.done { background: rgba(127, 176, 255, 0.55); border-color: rgba(127, 176, 255, 0.7); }
+#dots .dot.now { background: #ffd27a; border-color: #ffd27a; transform: scale(1.3); }
+#dots .dot.locked { border-color: rgba(120, 132, 170, 0.22); cursor: default; }
+#dots .dot.locked:hover { transform: none; }
+
+/* a phone held sideways is only ~390px tall: the card must not run off it */
+#ov { overflow-y: auto; }
+@media (max-height: 460px) {
+  #ov { align-items: flex-start; padding: 12px 20px 20px; }
+  #ov h1 { font-size: clamp(24px, 6vw, 34px); letter-spacing: 6px; }
+  #ov .tag { margin: 5px 0 10px; }
+  #ov-body { line-height: 1.5; }
+  #ov-body p { margin: 0 0 7px; }
+  #ov .go { padding: 10px 34px; margin-top: 2px; }
+}

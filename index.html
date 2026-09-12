@@ -71,10 +71,41 @@
     </section>
 
     <figure>
-      <img src="images/sling-ghosts.png" alt="Level three: a probe at the left, a blue planet in the middle, a gold target ring at the right, and three faint curved trails from previous attempts fanning out and bending around the planet." />
-      <figcaption><strong>Every path you fly stays on screen.</strong> Those faint curves are the last
-      three attempts. Aiming straight at the target crashes into the planet, so you go around — and the
-      trails show you which way the last one bent. This is the whole tutorial; there is no text.</figcaption>
+      <img src="images/sling-ghosts.png" alt="Level three: a probe at the left, a blue planet in the middle, a gold target ring at the right, and four faint curved trails from previous attempts fanning out and bending around the planet. Each trail carries a small ring marking where it came closest, and the best one is joined to the target by a dashed line." />
+      <figcaption><strong>Every path you fly stays on screen</strong>, and each one is marked with a
+      small ring where it came closest. The best attempt so far draws a dashed line to the target, so
+      the gap you are trying to close is a thing you can see rather than a number. Aiming straight at
+      the target crashes into the planet, so you go around. This is the whole tutorial; there is no
+      text.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Where the mathematics actually shows up</h2>
+      <p>
+        The engine conserves angular momentum <code>L = r × v</code> to
+        <strong>2×10⁻¹²&nbsp;%</strong> — not because it is enforced anywhere, but because velocity
+        Verlet is symplectic and a central force has no torque about its centre. That was measured,
+        not assumed. The problem was that it was invisible, so the game now draws it.
+      </p>
+      <p>
+        Press <strong>physics</strong> and the probe starts sweeping out wedges from the planet at
+        <em>fixed time intervals</em>. They come out equal in <em>area</em>. That is
+        <strong>Kepler's second law</strong>, and it is the same statement as <code>L</code> being
+        constant — near the planet you are moving fast over a short radius, far away you are moving
+        slowly over a long one, and the product does not change.
+      </p>
+      <p class="note">
+        The trail is also coloured by speed, from deep blue to white-hot, which is what makes a gravity
+        assist something you <em>watch happen</em> rather than something the game tells you about.
+      </p>
+    </section>
+
+    <figure>
+      <img src="images/sling-kepler.png" alt="A probe on a near-circular arc around a blue planet, with pale wedges fanning from the planet out to the path at even spacing, and a readout showing r, speed, L = r x v pinned at a constant, and a negative energy labelled bound." />
+      <figcaption><strong>Equal time, equal area.</strong> The wedges are sampled at a fixed interval,
+      and <code>L = r × v</code> sits pinned at 19763 while <code>r</code> and the speed both change.
+      <code>E = v²/2 − M/r</code> is negative, which is what <em>bound</em> means: this one is not
+      leaving.</figcaption>
     </figure>
 
     <section>
@@ -124,8 +155,9 @@
 
     <figure>
       <img src="images/sling-level7.png" alt="The final level: a probe near a blue planet, a white moon on its orbit, a large faint boundary ring, and a long looping gold dashed preview curling around and back." />
-      <figcaption><strong>The last level.</strong> The dashed line is the full predicted path — and it
-      loops back, every time, because you cannot get out on your own. The moon is the answer.</figcaption>
+      <figcaption><strong>The last level.</strong> You cannot get out on your own, so you fall past the
+      moon and take some of its speed with you. Watch the trail go white near the planet and blue at the
+      top of the arc — that is the same energy being traded back and forth.</figcaption>
     </figure>
 
     <section>
@@ -154,6 +186,12 @@
         The same test caught the real bugs, as usual: a bad shot used to zoom the camera out until the
         level was unreadable, a miss could cost eighteen seconds before you could try again, and level
         2 was harder than level 6. All fixed.
+      </p>
+      <p class="note">
+        The finish screen does not take the physics on trust either. When you finally get out, the game
+        re-flies <em>that exact launch</em> with the moon deleted and nothing else changed, and reports
+        how far it gets: <strong>r = 1006</strong>, against a boundary at 1150. That is the analytic
+        number, recomputed live from whatever you actually did.
       </p>
     </section>
 

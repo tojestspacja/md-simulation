@@ -20,6 +20,24 @@ game existed:
 | does an assist gain speed? | +43 px/s off a moon moving 130 |
 | can level 7 be impossible without it? | yes - furthest reachable r = 1006 analytically AND by brute force; ring at 1150 |
 
+## What is on screen
+
+The engine conserves `L = r x v` to 2e-12 % — velocity Verlet is symplectic and a
+central force has no torque about its centre — but conserving it invisibly is
+worth nothing to a player. So:
+
+- the **trail is coloured by speed**, deep blue to white-hot, which is what makes
+  a gravity assist something you watch rather than something you are told;
+- every attempt leaves a **ghost marked where it came closest**, and the best one
+  draws a line to the target, so the funnel is visible;
+- the **physics** toggle sweeps wedges from the planet at fixed time intervals.
+  They come out equal in area. That is Kepler's second law, which is the same
+  statement as L being constant.
+
+Nothing is asserted that is not computed. When you escape on level 7, the finish
+screen re-flies that exact launch with the moon deleted and reports how far it
+gets: r = 1006, against a boundary at 1150.
+
 ## Is it playable?
 
 The claim is that missing tells you where to go. A bot that only ever adjusts

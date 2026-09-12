@@ -1,20 +1,21 @@
 // SLINGSHOT — get the probe to the flag. You get one push; the planets do the rest.
 //
-// One gesture: drag back from the probe, let go. Everything after that is
-// Newtonian gravity with nothing added — a = sum of M/r^2 toward each body,
-// integrated with velocity Verlet.
+// Newtonian gravity with nothing added: a = sum of M/r^2 toward each body,
+// velocity Verlet at 1/240 s. Chosen because a mechanic has to be VISIBLE,
+// DETERMINISTIC and STEERABLE, and gravity is the only candidate that passes all
+// three without compromise.
 //
-// Why this physics and not something more exotic: it is VISIBLE (you watch the
-// path bend), DETERMINISTIC (the same launch gives the same flight, so you can
-// learn), and STEERABLE (angle and power are pure skill). A miss tells you which
-// way to go, which is the whole teaching mechanism — that and the ghost trails
-// of everything you already tried.
+// Every level geometry was verified in a headless harness before it was drawn.
+// Level 7 was proved impossible without the moon: capped below escape velocity,
+// the furthest any launch can reach is r = 1006 — analytically and by brute force
+// over every angle and power. The boundary ring sits at 1150.
 //
-// Every level geometry here was verified in a headless harness before it was
-// drawn: solvable, with a miss-distance landscape you can walk down. Level 7 was
-// additionally PROVED impossible without the moon — capped below escape velocity,
-// the furthest any launch can reach is r = 1006, analytically and by brute force
-// over every angle and power. The boundary sits at 1150.
+// Two things the picture is doing that are not decoration:
+//   * the trail is coloured by SPEED, so a gravity assist is something you watch
+//     happen rather than something you are told about;
+//   * with the maths layer on, the wedges swept out from the planet are drawn at
+//     equal time intervals. They come out equal in AREA — Kepler's second law —
+//     because r x v is conserved, which this engine does to 2e-12 %.
 (() => {
   "use strict";
 
@@ -23,19 +24,18 @@
   const CW = cv.width, CH = cv.height;
   const $ = (id) => document.getElementById(id);
 
-  const DT = 1 / 240;              // physics step; several per frame
-  const TRAIL_KEEP = 5;            // how many past attempts stay on screen
+  const DT = 1 / 240;
+  const TRAIL_KEEP = 5;
+  const SWEEP_EVERY = 0.22;        // seconds between Kepler wedges
 
   // ---------- bodies ----------
   const planet = (x, y, M, r) => ({ kind: "planet", x, y, M, r });
   const moon = (cx, cy, R, M, r, omega, phase) =>
     ({ kind: "moon", cx, cy, R, M, r, omega, phase });
 
-  function bodyAt(b, t) {
-    if (b.kind === "planet") return [b.x, b.y];
-    const a = b.phase + b.omega * t;
-    return [b.cx + Math.cos(a) * b.R, b.cy + Math.sin(a) * b.R];
-  }
+  const bodyAt = (b, t) => b.kind === "planet" ? [b.x, b.y]
+    : [b.cx + Math.cos(b.phase + b.omega * t) * b.R,
+       b.cy + Math.sin(b.phase + b.omega * t) * b.R];
 
   function accel(x, y, bodies, t) {
     let ax = 0, ay = 0;
@@ -49,8 +49,6 @@
     }
     return [ax, ay];
   }
-
-  // velocity Verlet: holds an orbit to 0.2 px over 20 laps at this step size
   function integrate(s, bodies, t, dt) {
     const [ax, ay] = accel(s.x, s.y, bodies, t);
     s.x += s.vx * dt + 0.5 * ax * dt * dt;
@@ -60,11 +58,11 @@
     s.vy += 0.5 * (ay + b2) * dt;
   }
 
-  // ---------- the seven ----------
-  const MOON_OM = Math.sqrt(6e6 / 460) / 460;     // the moon at its own circular speed
+  // ---------- the seven (all geometries verified before drawing) ----------
+  const MOON_OM = Math.sqrt(6e6 / 460) / 460;
 
   const LEVELS = [
-    { name: "the push", hint: "drag back from the probe, then let go",
+    { name: "the push", hint: "pull back from the probe, then let go",
       start: [120, 400], flag: [830, 400], flagR: 30, bodies: [], maxP: 300, maxT: 6 },
 
     { name: "it bends", hint: "something out there is pulling",
@@ -88,36 +86,39 @@
       bodies: [planet(360, 160, 9e5, 34), planet(620, 390, 9e5, 34)],
       maxP: 300, maxT: 10 },
 
-    { name: "the way out", hint: "your engine is not strong enough. the moon is",
-      start: [170, 250], ring: 1150, ringAt: [430, 250], flagR: 0,
+    { name: "the way out", hint: "your engine cannot do it. the moon can",
+      start: [170, 250], ring: 1150, ringAt: [430, 250],
       bodies: [planet(430, 250, 6e6, 46), moon(430, 250, 460, 2.5e6, 34, MOON_OM, 3.14)],
       maxP: 185, maxT: 30, fullPreview: true, zoomOut: 2.6 },
   ];
 
   // ---------- state ----------
-  let li = 0, lv = null;
-  let mode = "aim";                // aim | fly | done
+  let li = 0, lv = null, reached = 0;
+  let mode = "aim";
   let probe = null, t = 0;
-  let path = [], ghosts = [];
+  let path = [], sweep = [], ghosts = [];
+  let closest = null, nextSweep = 0;
+  let launchIC = null;
   let aimFrom = null, aimTo = null;
   let view = { cx: 480, cy: 270, w: 960 };
-  let viewTarget = { cx: 480, cy: 270, w: 960 };
-  let baseView = { cx: 480, cy: 270, w: 960 };    // the level, without the probe
-  let tries = 0, showPhys = false, flash = null, flashT = 0;
+  let viewTarget = { ...view }, baseView = { ...view };
+  let tries = 0, bestTries = {}, showMath = false;
+  let flash = null, flashT = 0, everLaunched = false;
 
   function loadLevel(i) {
     li = i; lv = LEVELS[i];
+    reached = Math.max(reached, i);
     mode = "aim"; probe = null; t = 0;
-    path = []; ghosts = []; tries = 0;
-    aimFrom = null; aimTo = null;
-    computeBase();
-    frameNow(true);
+    path = []; sweep = []; ghosts = []; tries = 0;
+    closest = null; aimFrom = null; aimTo = null;
+    computeBase(); frameNow(true);
     $("h-num").textContent = (i + 1) + "/" + LEVELS.length;
     $("h-name").textContent = lv.name;
     $("hint").textContent = lv.hint;
+    drawDots();
   }
 
-  // ---------- camera: fit everything that matters, and follow the probe out ----------
+  // ---------- camera: follow the probe, never so far the puzzle is unreadable ----------
   function boxOf(pts) {
     let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
     for (const [x, y] of pts) {
@@ -129,7 +130,6 @@
     return { cx: (x0 + x1) / 2, cy: (y0 + y1) / 2,
              w: Math.max(x1 - x0, (y1 - y0) * (CW / CH), 700) };
   }
-  // The level on its own: this is the framing the player has to be able to read.
   function levelPoints() {
     const pts = [[lv.start[0], lv.start[1]]];
     if (lv.flag) pts.push(lv.flag);
@@ -139,146 +139,172 @@
     }
     return pts;
   }
-  function computeBase() { baseView = boxOf(levelPoints()); }
-
-  // Follow the probe, but never so far that the puzzle becomes unreadable.
+  const computeBase = () => { baseView = boxOf(levelPoints()); };
   function frameNow(snap) {
     const pts = levelPoints();
     if (probe) pts.push([probe.x, probe.y]);
     const want = boxOf(pts);
     const cap = baseView.w * (lv.zoomOut || 1.5);
-    const w = Math.min(want.w, cap);
-    // as the view stops growing, let it drift toward the probe rather than clip it
     const k = want.w > cap ? 0.55 : 1;
-    viewTarget = {
-      cx: baseView.cx + (want.cx - baseView.cx) * k,
-      cy: baseView.cy + (want.cy - baseView.cy) * k,
-      w,
-    };
+    viewTarget = { cx: baseView.cx + (want.cx - baseView.cx) * k,
+                   cy: baseView.cy + (want.cy - baseView.cy) * k,
+                   w: Math.min(want.w, cap) };
     if (snap) view = { ...viewTarget };
   }
   const scale = () => CW / view.w;
   const sx = (x) => (x - view.cx) * scale() + CW / 2;
   const sy = (y) => (y - view.cy) * scale() + CH / 2;
-  // screen back to world, for the drag
   const wx = (x) => (x - CW / 2) / scale() + view.cx;
   const wy = (y) => (y - CH / 2) / scale() + view.cy;
 
-  // ---------- input: drag back, let go ----------
-  function canvasPoint(e) {
+  // ---------- input ----------
+  const canvasPoint = (e) => {
     const r = cv.getBoundingClientRect();
     return [(e.clientX - r.left) * CW / r.width, (e.clientY - r.top) * CH / r.height];
-  }
+  };
   cv.addEventListener("pointerdown", (e) => {
     if (mode !== "aim") return;
     cv.setPointerCapture(e.pointerId);
-    aimFrom = canvasPoint(e);
-    aimTo = aimFrom.slice();
+    aimFrom = canvasPoint(e); aimTo = aimFrom.slice();
   });
   cv.addEventListener("pointermove", (e) => {
-    if (mode !== "aim" || !aimFrom) return;
-    aimTo = canvasPoint(e);
+    if (mode === "aim" && aimFrom) aimTo = canvasPoint(e);
   });
   cv.addEventListener("pointerup", () => {
     if (mode !== "aim" || !aimFrom) return;
-    const v = aimVector();
-    aimFrom = null;
+    const v = aimVector(); aimFrom = null;
     if (v.power > 12) launch(v.angle, v.power);
   });
-
-  // The drag is read in WORLD units so it means the same thing at any zoom.
+  // read the drag in WORLD units, so it means the same at any zoom
   function aimVector() {
     if (!aimFrom || !aimTo) return { angle: 0, power: 0 };
     const dx = wx(aimFrom[0]) - wx(aimTo[0]);
     const dy = wy(aimFrom[1]) - wy(aimTo[1]);
-    const d = Math.hypot(dx, dy);
-    const power = Math.min(lv.maxP, d * 1.15);
-    return { angle: Math.atan2(dy, dx), power };
+    return { angle: Math.atan2(dy, dx),
+             power: Math.min(lv.maxP, Math.hypot(dx, dy) * 1.15) };
   }
 
   function launch(angle, power) {
     probe = { x: lv.start[0], y: lv.start[1],
               vx: Math.cos(angle) * power, vy: Math.sin(angle) * power };
-    t = 0; path = [[probe.x, probe.y]];
-    mode = "fly"; tries++;
+    t = 0; path = [[probe.x, probe.y, power]]; sweep = [[probe.x, probe.y]];
+    nextSweep = SWEEP_EVERY; closest = null;
+    launchIC = { x: probe.x, y: probe.y, vx: probe.vx, vy: probe.vy };
+    mode = "fly"; tries++; everLaunched = true;
   }
 
   function endFlight(msg) {
     if (path.length > 3) {
-      ghosts.push(path);
+      ghosts.push({ pts: path, best: closest });
       if (ghosts.length > TRAIL_KEEP) ghosts.shift();
     }
-    probe = null; path = []; mode = "aim";
-    flash = msg; flashT = 1.6;
+    probe = null; path = []; sweep = []; mode = "aim";
+    flash = msg; flashT = 2.0;
     frameNow(false);
+  }
+
+  // The same launch with the moon taken out: how far does it actually get?
+  function withoutTheMoon() {
+    if (!launchIC) return null;
+    const only = lv.bodies.filter((b) => b.kind !== "moon");
+    const s = { ...launchIC };
+    let tt = 0, far = 0;
+    while (tt < lv.maxT * 3) {
+      integrate(s, only, tt, DT * 2);
+      tt += DT * 2;
+      const r = Math.hypot(s.x - lv.ringAt[0], s.y - lv.ringAt[1]);
+      if (r > far) far = r;
+      for (const b of only) if (Math.hypot(b.x - s.x, b.y - s.y) < b.r) return Math.round(far);
+    }
+    return Math.round(far);
   }
 
   function win() {
     mode = "done";
     const last = li + 1 >= LEVELS.length;
-    show(last ? "OUT" : "ARRIVED",
-      last
-        ? "<p>You left the system on a push that could never have got you there.</p>" +
-          "<p>Everything you did was ordinary gravity. The moon was moving, you fell past it " +
-          "on the right side, and you came away with speed that used to be the moon's. " +
-          "<b>That is a gravity assist</b>, and it is how every probe we have sent to the outer " +
-          "planets actually got there.</p>" +
-          "<p class='sub'>Seven levels, " + tries + " attempts on the last one.</p>"
-        : "<p>" + tries + (tries === 1 ? " attempt." : " attempts.") + "</p>",
-      last ? "again" : "next");
+    const prev = bestTries[li];
+    bestTries[li] = prev === undefined ? tries : Math.min(prev, tries);
+    let body;
+    if (last) {
+      const alone = withoutTheMoon();
+      body =
+        "<p>Nothing helped you but ordinary gravity. You fell past a <b>moving</b> moon " +
+        "and came away carrying speed that used to be the moon's. That is a " +
+        "<b>gravity assist</b>, and it is how every probe we have sent to the outer " +
+        "planets actually got there.</p>" +
+        (alone !== null
+          ? "<p>That exact push, with the moon deleted and nothing else changed, only " +
+            "reaches <b>r = " + alone + "</b> before falling back. The boundary is at " +
+            "<b>1150</b>. The moon was the whole difference.</p>"
+          : "") +
+        "<p class='sub'>Seven levels done. " + tries +
+        (tries === 1 ? " attempt" : " attempts") + " on this one.</p>";
+    } else {
+      body = "<p>" + tries + (tries === 1 ? " attempt." : " attempts.") +
+        (prev !== undefined && tries < prev ? " <b>Better than last time.</b>" : "") + "</p>";
+    }
+    show(last ? "OUT" : "ARRIVED", body, last ? "again" : "next");
+    drawDots();
   }
 
   // ---------- the flight ----------
   function stepWorld(dtReal) {
     if (flashT > 0) { flashT -= dtReal; if (flashT <= 0) flash = null; }
-    // ease the camera
-    view.cx += (viewTarget.cx - view.cx) * Math.min(1, dtReal * 3);
-    view.cy += (viewTarget.cy - view.cy) * Math.min(1, dtReal * 3);
-    view.w += (viewTarget.w - view.w) * Math.min(1, dtReal * 3);
+    const k = Math.min(1, dtReal * 3);
+    view.cx += (viewTarget.cx - view.cx) * k;
+    view.cy += (viewTarget.cy - view.cy) * k;
+    view.w += (viewTarget.w - view.w) * k;
     if (mode !== "fly") return;
 
-    let left = Math.min(dtReal, 0.05) * 1.0;
-    let guard = 0;
+    let left = Math.min(dtReal, 0.05), guard = 0;
     while (left > 1e-9 && guard++ < 400) {
       const h = Math.min(left, DT);
       integrate(probe, lv.bodies, t, h);
       t += h; left -= h;
 
-      for (const b of lv.bodies) {                       // hit a body
+      for (const b of lv.bodies) {
         const [bx, by] = bodyAt(b, t);
-        if (Math.hypot(bx - probe.x, by - probe.y) < b.r) return endFlight("crashed");
+        const d = Math.hypot(bx - probe.x, by - probe.y);
+        if (d < b.r) return endFlight(b.kind === "moon" ? "into the moon" : "into the planet");
       }
       if (lv.flag) {
         const d = Math.hypot(lv.flag[0] - probe.x, lv.flag[1] - probe.y);
-        if (d < lv.flagR) { path.push([probe.x, probe.y]); ghosts.push(path); return win(); }
+        if (!closest || d < closest.d) closest = { d, x: probe.x, y: probe.y };
+        if (d < lv.flagR) { pushPoint(); ghosts.push({ pts: path, best: null }); return win(); }
       }
       if (lv.ring) {
         const d = Math.hypot(lv.ringAt[0] - probe.x, lv.ringAt[1] - probe.y);
-        if (d > lv.ring) { path.push([probe.x, probe.y]); ghosts.push(path); return win(); }
+        if (d > lv.ring) {
+          pushPoint(); ghosts.push({ pts: path, best: null }); return win();
+        }
       }
+      if (t > nextSweep) { sweep.push([probe.x, probe.y]); nextSweep += SWEEP_EVERY; }
+
       const far = Math.hypot(probe.x - baseView.cx, probe.y - baseView.cy);
-      if (far > baseView.w * (lv.zoomOut || 1.5) * 0.85) return endFlight("gone");
-      if (t > lv.maxT) return endFlight("lost");
+      if (far > baseView.w * (lv.zoomOut || 1.5) * 0.85)
+        return endFlight(lv.ring ? "fell back" : "sailed past");
+      if (t > lv.maxT) return endFlight(lv.ring ? "fell back" : "out of time");
     }
-    const lastP = path[path.length - 1];
-    if (!lastP || Math.hypot(lastP[0] - probe.x, lastP[1] - probe.y) > 3)
-      path.push([probe.x, probe.y]);
+    pushPoint();
     frameNow(false);
+  }
+  function pushPoint() {
+    const sp = Math.hypot(probe.vx, probe.vy);
+    const last = path[path.length - 1];
+    if (!last || Math.hypot(last[0] - probe.x, last[1] - probe.y) > 3)
+      path.push([probe.x, probe.y, sp]);
   }
 
   // ---------- preview ----------
-  // Short on most levels: enough to aim, not enough to solve it for you.
-  // Level 7 gets the whole path, because there it is the difference between
-  // aiming and guessing.
   function previewPath() {
     const v = aimVector();
     if (v.power < 12) return null;
     const s = { x: lv.start[0], y: lv.start[1],
                 vx: Math.cos(v.angle) * v.power, vy: Math.sin(v.angle) * v.power };
-    const span = lv.fullPreview ? lv.maxT : 0.55;
-    const pts = [[s.x, s.y]];
+    const span = lv.fullPreview ? lv.maxT : 0.6;
+    const pts = [[s.x, s.y, v.power]];
     let tt = 0, guard = 0;
-    while (tt < span && guard++ < 12000) {
+    while (tt < span && guard++ < 9000) {
       integrate(s, lv.bodies, tt, DT * 2);
       tt += DT * 2;
       for (const b of lv.bodies) {
@@ -286,99 +312,178 @@
         if (Math.hypot(bx - s.x, by - s.y) < b.r) return pts;
       }
       if (lv.ring && Math.hypot(lv.ringAt[0] - s.x, lv.ringAt[1] - s.y) > lv.ring) {
-        pts.push([s.x, s.y]); return pts;
+        pts.push([s.x, s.y, Math.hypot(s.vx, s.vy)]); return pts;
       }
-      if (pts.length === 0 || Math.hypot(pts[pts.length - 1][0] - s.x,
-                                         pts[pts.length - 1][1] - s.y) > 4) pts.push([s.x, s.y]);
+      const last = pts[pts.length - 1];
+      if (Math.hypot(last[0] - s.x, last[1] - s.y) > 4)
+        pts.push([s.x, s.y, Math.hypot(s.vx, s.vy)]);
     }
     return pts;
   }
 
   // ---------- drawing ----------
+  // slow is deep blue, fast is white-hot. This is the whole reason a gravity
+  // assist is something you SEE rather than something you are told.
+  function speedColour(sp, a) {
+    const f = Math.max(0, Math.min(1, sp / (lv.maxP * 1.25)));
+    const stops = [[74, 111, 181], [127, 176, 255], [255, 210, 122], [255, 255, 255]];
+    const g = f * (stops.length - 1);
+    const i = Math.min(stops.length - 2, Math.floor(g)), u = g - i;
+    const c = stops[i].map((v, j) => Math.round(v + (stops[i + 1][j] - v) * u));
+    return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")";
+  }
+
   function draw() {
     ctx.fillStyle = "#070812";
     ctx.fillRect(0, 0, CW, CH);
     stars();
 
-    if (lv.ring) {                                   // the boundary you must cross
+    if (lv.ring) {
       ctx.strokeStyle = "rgba(127,176,255,0.30)";
-      ctx.setLineDash([7, 9]);
-      ctx.lineWidth = 2;
+      ctx.setLineDash([7, 9]); ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.arc(sx(lv.ringAt[0]), sy(lv.ringAt[1]), lv.ring * scale(), 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
+      ctx.stroke(); ctx.setLineDash([]);
     }
-
-    for (const b of lv.bodies) {                     // moon paths
+    for (const b of lv.bodies) {
       if (b.kind !== "moon") continue;
       ctx.strokeStyle = "rgba(150,160,200,0.16)";
       ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(sx(b.cx), sy(b.cy), b.R * scale(), 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.beginPath(); ctx.arc(sx(b.cx), sy(b.cy), b.R * scale(), 0, Math.PI * 2); ctx.stroke();
     }
 
-    for (const g of ghosts) drawPath(g, "rgba(127,176,255,0.30)", 1.1);
-    if (mode === "fly") drawPath(path, "rgba(160,210,255,0.95)", 1.8);
+    if (showMath && mode === "fly") drawSweep();
+
+    let bestG = -1;
+    ghosts.forEach((g, i) => {
+      if (g.best && (bestG < 0 || g.best.d < ghosts[bestG].best.d)) bestG = i;
+    });
+    ghosts.forEach((g, i) => {
+      const a = ghosts.length === 1 ? 0.40
+              : 0.16 + 0.26 * (i / (ghosts.length - 1));
+      drawTrail(g.pts, a, 1.1);
+      if (g.best) drawClosest(g.best, a + 0.25, i === bestG);
+    });
+    if (mode === "fly") drawTrail(path, 0.95, 2);
 
     if (mode === "aim") {
       const p = previewPath();
-      if (p) drawPath(p, lv.fullPreview ? "rgba(255,210,122,0.55)" : "rgba(255,210,122,0.8)",
-                      1.4, true);
+      if (p) drawDashed(p, lv.fullPreview ? "rgba(255,210,122,0.5)" : "rgba(255,210,122,0.85)");
     }
 
     for (const b of lv.bodies) drawBody(b);
     if (lv.flag) drawFlag();
     drawProbe();
     if (mode === "aim") drawAim();
-    if (showPhys) drawNumbers();
+    if (showMath) drawMaths();
     if (flash) drawFlash();
+    if (!everLaunched && mode === "aim" && !aimFrom) drawPrompt();
   }
 
+  // a fixed scatter, hashed rather than stepped, or the stars line up diagonally
+  const STARS = (() => {
+    const out = [];
+    let h = 1234567;
+    const nx = () => { h = (h * 1103515245 + 12345) & 0x7fffffff; return h / 0x7fffffff; };
+    for (let i = 0; i < 150; i++)
+      out.push([nx() * CW, nx() * CH, 0.7 + nx() * 1.1, 0.16 + nx() * 0.4]);
+    return out;
+  })();
   function stars() {
-    ctx.fillStyle = "rgba(180,195,255,0.42)";
-    for (let i = 0; i < 70; i++) {
-      const x = (i * 149.3) % CW, y = (i * 83.7) % CH;
-      ctx.fillRect(x, y, 1.5, 1.5);
+    for (const [x, y, r, a] of STARS) {
+      ctx.fillStyle = "rgba(180,195,255," + a + ")";
+      ctx.fillRect(x, y, r, r);
     }
   }
 
-  function drawPath(pts, style, w, dashed) {
+  function drawTrail(pts, alpha, w) {
     if (!pts || pts.length < 2) return;
-    ctx.strokeStyle = style;
     ctx.lineWidth = w;
-    if (dashed) ctx.setLineDash([5, 6]);
-    ctx.beginPath();
-    for (let i = 0; i < pts.length; i++) {
-      const X = sx(pts[i][0]), Y = sy(pts[i][1]);
-      if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
+    for (let i = 1; i < pts.length; i++) {
+      ctx.strokeStyle = speedColour(pts[i][2] || 0, alpha);
+      ctx.beginPath();
+      ctx.moveTo(sx(pts[i - 1][0]), sy(pts[i - 1][1]));
+      ctx.lineTo(sx(pts[i][0]), sy(pts[i][1]));
+      ctx.stroke();
     }
-    ctx.stroke();
-    if (dashed) ctx.setLineDash([]);
+  }
+  function drawDashed(pts, style) {
+    if (!pts || pts.length < 2) return;
+    ctx.strokeStyle = style; ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 6]);
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(sx(p[0]), sy(p[1])) : ctx.moveTo(sx(p[0]), sy(p[1])));
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  // how near that attempt came: the funnel, made visible
+  function drawClosest(b, a, isBest) {
+    const X = sx(b.x), Y = sy(b.y);
+    ctx.strokeStyle = "rgba(255,210,122," + (isBest ? Math.min(1, a + 0.3) : a) + ")";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(X, Y, isBest ? 5.5 : 4, 0, Math.PI * 2); ctx.stroke();
+    if (lv.flag && isBest) {
+      ctx.setLineDash([2, 4]);
+      ctx.beginPath();
+      ctx.moveTo(X, Y); ctx.lineTo(sx(lv.flag[0]), sy(lv.flag[1]));
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+  }
+
+  // Equal time, equal area. Kepler's second law, drawn rather than claimed.
+  function drawSweep() {
+    const b = lv.bodies[0];
+    if (!b || b.kind !== "planet" || sweep.length < 2) return;
+    const PX = sx(b.x), PY = sy(b.y);
+    for (let i = 1; i < sweep.length; i++) {
+      ctx.fillStyle = i % 2 ? "rgba(127,176,255,0.13)" : "rgba(127,176,255,0.07)";
+      ctx.beginPath();
+      ctx.moveTo(PX, PY);
+      ctx.lineTo(sx(sweep[i - 1][0]), sy(sweep[i - 1][1]));
+      ctx.lineTo(sx(sweep[i][0]), sy(sweep[i][1]));
+      ctx.closePath(); ctx.fill();
+    }
   }
 
   function drawBody(b) {
     const [bx, by] = bodyAt(b, t);
-    const X = sx(bx), Y = sy(by), R = b.r * scale();
+    const X = sx(bx), Y = sy(by), R = Math.max(3, b.r * scale());
     const g = ctx.createRadialGradient(X, Y, R * 0.2, X, Y, R * 3.4);
-    g.addColorStop(0, b.kind === "moon" ? "rgba(190,200,235,0.30)" : "rgba(130,165,255,0.26)");
+    g.addColorStop(0, b.kind === "moon" ? "rgba(190,200,235,0.28)" : "rgba(130,165,255,0.24)");
     g.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(X, Y, R * 3.4, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = b.kind === "moon" ? "#c8cfe8" : "#5f7fd8";
+
+    ctx.fillStyle = b.kind === "moon" ? "#c3cbe6" : "#5878cf";
     ctx.beginPath(); ctx.arc(X, Y, R, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = b.kind === "moon" ? "#eef1ff" : "#8aa6ee";
-    ctx.beginPath(); ctx.arc(X - R * 0.3, Y - R * 0.3, R * 0.45, 0, Math.PI * 2); ctx.fill();
+    // a little surface so it reads as a world, turning slowly
+    const spin = t * (b.kind === "moon" ? 0.25 : 0.12) + b.r;
+    ctx.fillStyle = b.kind === "moon" ? "rgba(120,130,165,0.55)" : "rgba(40,62,120,0.5)";
+    for (let i = 0; i < 4; i++) {
+      const a = spin + i * 1.7, rr = R * (0.28 + 0.14 * ((i * 7) % 3));
+      const cxp = X + Math.cos(a) * R * 0.45, cyp = Y + Math.sin(a * 1.3) * R * 0.4;
+      if (Math.cos(a) < -0.25) continue;
+      ctx.beginPath(); ctx.arc(cxp, cyp, rr * 0.4, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = b.kind === "moon" ? "rgba(245,248,255,0.85)" : "rgba(140,172,245,0.85)";
+    ctx.beginPath(); ctx.arc(X - R * 0.32, Y - R * 0.32, R * 0.42, 0, Math.PI * 2); ctx.fill();
+
+    if (b.kind === "moon" && showMath) {          // the moon is MOVING: that is the point
+      const [vx, vy] = [-Math.sin(b.phase + b.omega * t), Math.cos(b.phase + b.omega * t)];
+      ctx.strokeStyle = "rgba(255,210,122,0.8)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(X, Y); ctx.lineTo(X + vx * 34, Y + vy * 34);
+      ctx.stroke();
+    }
   }
 
   function drawFlag() {
     const X = sx(lv.flag[0]), Y = sy(lv.flag[1]), R = lv.flagR * scale();
-    const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 420);
-    ctx.strokeStyle = "rgba(255,210,122," + (0.35 + pulse * 0.45) + ")";
+    const p = 0.5 + 0.5 * Math.sin(performance.now() / 420);
+    ctx.strokeStyle = "rgba(255,210,122," + (0.35 + p * 0.45) + ")";
     ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(X, Y, R, 0, Math.PI * 2); ctx.stroke();
-    ctx.fillStyle = "rgba(255,210,122,0.16)";
+    ctx.fillStyle = "rgba(255,210,122,0.14)";
     ctx.beginPath(); ctx.arc(X, Y, R, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "#ffd27a";
     ctx.beginPath(); ctx.arc(X, Y, Math.max(3, R * 0.22), 0, Math.PI * 2); ctx.fill();
@@ -387,67 +492,120 @@
   function drawProbe() {
     const p = probe || { x: lv.start[0], y: lv.start[1] };
     const X = sx(p.x), Y = sy(p.y);
-    if (!probe) {                                   // the launcher, waiting
-      ctx.strokeStyle = "rgba(160,210,255,0.35)";
+    if (!probe) {
+      ctx.strokeStyle = "rgba(160,210,255,0.30)";
       ctx.lineWidth = 1;
       ctx.beginPath(); ctx.arc(X, Y, 15, 0, Math.PI * 2); ctx.stroke();
     }
+    ctx.fillStyle = "rgba(234,241,255,0.3)";
+    ctx.beginPath(); ctx.arc(X, Y, 10, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = "#eaf1ff";
     ctx.beginPath(); ctx.arc(X, Y, 5.5, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = "rgba(234,241,255,0.35)";
-    ctx.beginPath(); ctx.arc(X, Y, 10, 0, Math.PI * 2); ctx.fill();
   }
 
+  // a slingshot you can see being pulled
   function drawAim() {
     if (!aimFrom || !aimTo) return;
     const v = aimVector();
     const X = sx(lv.start[0]), Y = sy(lv.start[1]);
-    const len = (v.power / lv.maxP) * 78;
-    ctx.strokeStyle = "rgba(255,210,122,0.85)";
-    ctx.lineWidth = 2.5;
+    const back = (v.power / lv.maxP) * 70;
+    const bx = X - Math.cos(v.angle) * back, by = Y - Math.sin(v.angle) * back;
+    ctx.strokeStyle = "rgba(255,210,122,0.35)";
+    ctx.lineWidth = 2; ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(X, Y); ctx.lineTo(bx, by); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(255,210,122,0.7)";
+    ctx.beginPath(); ctx.arc(bx, by, 4, 0, Math.PI * 2); ctx.fill();
+
+    const len = 26 + (v.power / lv.maxP) * 60;
+    ctx.strokeStyle = "#ffd27a"; ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.moveTo(X, Y);
     ctx.lineTo(X + Math.cos(v.angle) * len, Y + Math.sin(v.angle) * len);
     ctx.stroke();
-    // a small power arc, so "how hard" is visible without a number
-    ctx.strokeStyle = "rgba(255,210,122,0.4)";
-    ctx.lineWidth = 3;
+    const hx = X + Math.cos(v.angle) * len, hy = Y + Math.sin(v.angle) * len;
     ctx.beginPath();
-    ctx.arc(X, Y, 24, v.angle - 0.5, v.angle + 0.5);
-    ctx.stroke();
-    ctx.lineWidth = 3;
+    ctx.moveTo(hx, hy);
+    ctx.lineTo(hx - Math.cos(v.angle - 0.4) * 9, hy - Math.sin(v.angle - 0.4) * 9);
+    ctx.lineTo(hx - Math.cos(v.angle + 0.4) * 9, hy - Math.sin(v.angle + 0.4) * 9);
+    ctx.closePath(); ctx.fillStyle = "#ffd27a"; ctx.fill();
+
+    ctx.strokeStyle = "rgba(255,210,122,0.25)"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(X, Y, 22, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2); ctx.stroke();
     ctx.strokeStyle = "#ffd27a";
     ctx.beginPath();
-    ctx.arc(X, Y, 24, v.angle - 0.5, v.angle - 0.5 + (v.power / lv.maxP));
+    ctx.arc(X, Y, 22, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (v.power / lv.maxP));
     ctx.stroke();
   }
 
-  function drawNumbers() {
+  // The gesture is a pull AWAY from where you want to go, so the arrow always
+  // points back and down; only the label gets nudged to stay on the canvas.
+  function drawPrompt() {
+    const X = sx(lv.start[0]), Y = sy(lv.start[1]);
+    const p = 0.5 + 0.5 * Math.sin(performance.now() / 500);
+    const ex = X - 62, ey = Y + 30;
+    ctx.strokeStyle = "rgba(255,210,122," + (0.25 + p * 0.4) + ")";
+    ctx.lineWidth = 2; ctx.setLineDash([4, 5]);
+    ctx.beginPath(); ctx.moveTo(X - 14, Y + 7); ctx.lineTo(ex, ey); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(255,210,122,0.85)";
+    ctx.beginPath(); ctx.arc(ex, ey, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.font = "12px ui-monospace, Consolas, monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("pull back", Math.max(40, Math.min(CW - 40, ex)), ey + 20);
+    ctx.textAlign = "left";
+  }
+
+  // the maths layer: what is conserved, and what is not
+  function drawMaths() {
     ctx.font = "11px ui-monospace, Consolas, monospace";
-    ctx.fillStyle = "rgba(190,205,255,0.85)";
     const rows = [];
-    if (probe) {
+    const b = lv.bodies[0];
+    if (probe && b && b.kind === "planet") {
       const sp = Math.hypot(probe.vx, probe.vy);
-      rows.push("speed  " + sp.toFixed(0) + " px/s");
-      const b = lv.bodies[0];
-      if (b) {
-        const [bx, by] = bodyAt(b, t);
-        const r = Math.hypot(bx - probe.x, by - probe.y);
-        rows.push("range  " + r.toFixed(0) + " px");
-        rows.push("energy " + (0.5 * sp * sp - b.M / r).toFixed(0) +
-          (0.5 * sp * sp - b.M / r > 0 ? "  (free)" : "  (bound)"));
-      }
-      rows.push("t      " + t.toFixed(1) + " s");
+      const rx = probe.x - b.x, ry = probe.y - b.y;
+      const r = Math.hypot(rx, ry);
+      const L = rx * probe.vy - ry * probe.vx;
+      const E = 0.5 * sp * sp - b.M / r;
+      rows.push(["r", r.toFixed(0) + " px"]);
+      rows.push(["speed", sp.toFixed(0) + " px/s"]);
+      rows.push(["L = r x v", L.toFixed(0) + "   <- pinned"]);
+      rows.push(["E = v2/2 - M/r", E.toFixed(0) + (E > 0 ? "   free" : "   bound")]);
+    } else if (probe) {
+      rows.push(["speed", Math.hypot(probe.vx, probe.vy).toFixed(0) + " px/s"]);
     } else {
       const v = aimVector();
-      rows.push("push   " + v.power.toFixed(0) + " / " + lv.maxP + " px/s");
-      rows.push("a = sum of  M / r^2");
+      rows.push(["push", v.power.toFixed(0) + " / " + lv.maxP + " px/s"]);
+      rows.push(["a", "sum of M / r^2"]);
     }
-    rows.forEach((s, i) => ctx.fillText(s, 16, CH - 20 - (rows.length - 1 - i) * 15));
+    const w = 236, h = 16 + rows.length * 15;
+    ctx.fillStyle = "rgba(7,8,18,0.8)";
+    ctx.fillRect(12, CH - h - 12, w, h);
+    ctx.strokeStyle = "rgba(127,176,255,0.35)";
+    ctx.strokeRect(12, CH - h - 12, w, h);
+    rows.forEach((r, i) => {
+      ctx.fillStyle = "rgba(140,155,200,0.9)";
+      ctx.fillText(r[0], 22, CH - h + 5 + i * 15);
+      ctx.fillStyle = "#cfe0ff";
+      ctx.fillText(r[1], 130, CH - h + 5 + i * 15);
+    });
+    if (mode === "fly" && lv.bodies[0] && lv.bodies[0].kind === "planet" && sweep.length > 2) {
+      ctx.fillStyle = "rgba(140,155,200,0.75)";
+      ctx.fillText("wedges are equal time — and equal area", 12, CH - h - 20);
+    }
+    // the speed ramp, so the trail colour means something
+    const lx = CW - 168, ly = 52;
+    ctx.fillStyle = "rgba(140,155,200,0.8)";
+    ctx.fillText("slow", lx - 30, ly + 9);
+    ctx.fillText("fast", lx + 106, ly + 9);
+    for (let i = 0; i < 100; i++) {
+      ctx.fillStyle = speedColour(lv.maxP * 1.25 * i / 99, 1);
+      ctx.fillRect(lx + i, ly, 1.2, 7);
+    }
   }
 
   function drawFlash() {
-    ctx.globalAlpha = Math.min(1, flashT * 1.6);
+    ctx.globalAlpha = Math.min(1, flashT * 1.4);
     ctx.font = "600 15px ui-monospace, Consolas, monospace";
     ctx.fillStyle = "#8e9ac4";
     ctx.textAlign = "center";
@@ -456,39 +614,56 @@
     ctx.globalAlpha = 1;
   }
 
+  // ---------- level dots ----------
+  function drawDots() {
+    const host = $("dots");
+    if (!host) return;
+    host.innerHTML = "";
+    LEVELS.forEach((L, i) => {
+      const d = document.createElement("button");
+      d.className = "dot" + (i === li ? " now" : "") +
+        (bestTries[i] !== undefined ? " done" : "") + (i > reached ? " locked" : "");
+      d.title = i <= reached ? (i + 1) + ". " + L.name : "not yet";
+      d.addEventListener("click", () => { if (i <= reached) { hide(); loadLevel(i); } });
+      host.appendChild(d);
+    });
+  }
+
   // ---------- overlay ----------
   const ov = $("ov");
   function show(title, body, btn) {
     ov.querySelector("h1").textContent = title;
-    ov.querySelector(".tag").textContent = title === "SLINGSHOT"
-      ? "one push, and the planets do the rest" : "";
+    ov.querySelector(".tag").textContent =
+      title === "SLINGSHOT" ? "one push, and the planets do the rest" : "";
     $("ov-body").innerHTML = body;
     $("ov-go").textContent = btn;
     ov.classList.remove("hidden");
   }
+  const hide = () => ov.classList.add("hidden");
   $("ov-go").addEventListener("click", () => {
-    ov.classList.add("hidden");
+    hide();
     if (mode === "done") loadLevel(li + 1 >= LEVELS.length ? 0 : li + 1);
   });
   $("b-retry").addEventListener("click", () => { if (mode !== "done") endFlight(null); });
   $("b-phys").addEventListener("click", () => {
-    showPhys = !showPhys;
-    $("b-phys").classList.toggle("on", showPhys);
+    showMath = !showMath;
+    $("b-phys").classList.toggle("on", showMath);
   });
   addEventListener("keydown", (e) => {
-    if (e.code === "KeyR") { if (mode !== "done") endFlight(null); }
-    if (e.code === "KeyP") $("b-phys").click();
+    if (e.code === "KeyR" && mode !== "done") endFlight(null);
+    if (e.code === "KeyM" || e.code === "KeyP") $("b-phys").click();
     if (e.code === "Enter" && !ov.classList.contains("hidden")) $("ov-go").click();
   });
 
   // ---------- go ----------
   loadLevel(0);
   show("SLINGSHOT",
-    "<p><b>Drag back from the probe and let go.</b> That is the whole game — you only " +
-    "get the one push, and gravity does everything after it.</p>" +
-    "<p>Every path you fly stays on screen. Missing is how you aim: if you came up short, " +
-    "pull back harder; if you curled the wrong way, start from the other side.</p>" +
-    "<p class='sub'>Seven of them. The last one cannot be done with your engine at all.</p>",
+    "<p><b>Pull back from the probe and let go.</b> That is the whole game — one push, " +
+    "and gravity does everything after it.</p>" +
+    "<p>Every path you fly stays on screen, and each one is marked where it came closest. " +
+    "Missing is how you aim.</p>" +
+    "<p class='sub'>The trail is coloured by speed. Seven levels — on the last one your " +
+    "engine cannot get you out at all.</p>",
     "launch");
 
   let last = performance.now();
@@ -500,13 +675,12 @@
     requestAnimationFrame(loop);
   })(last);
 
-  // read-only hooks so the levels can be checked from a script
+  // hooks for the verification scripts
   window.Slingshot = {
     state: () => ({ level: li, mode, tries, ghosts: ghosts.length,
                     probe: probe ? { x: probe.x, y: probe.y,
                                      v: Math.hypot(probe.vx, probe.vy) } : null }),
-    goto: (i) => { ov.classList.add("hidden"); loadLevel(i); },
-    // fire a shot directly, and report how close it came
+    goto: (i) => { hide(); loadLevel(i); },
     tryShot: (angDeg, power) => {
       const a = angDeg * Math.PI / 180;
       const s = { x: lv.start[0], y: lv.start[1],
