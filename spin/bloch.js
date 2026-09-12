@@ -59,6 +59,15 @@ window.Bloch = (function () {
     }
   }
 
+  // Drive the packets straight from a field profile instead: offsets[i] is the
+  // frequency of the spins sitting at slice i of the sample. This is what makes
+  // shimming honest - the line you see is the histogram of B0 over the sample,
+  // so a badly set Z1 and a badly set Z2 give visibly different lineshapes.
+  function setOffsets(offsetsHz) {
+    const n = Math.min(packs.length, offsetsHz.length);
+    for (let i = 0; i < n; i++) packs[i].dnu = offsetsHz[i];
+  }
+
   // A pulse is a rotation of every packet about the x axis. 90 deg takes +z
   // into the plane; 180 deg both inverts mz and mirrors the phase fan, which
   // is exactly what makes the fan wind back up into an echo.
@@ -172,7 +181,7 @@ window.Bloch = (function () {
 
   return {
     cfg, packets: () => packs,
-    reset, setPackCount, seedOffsets, pulse, evolve, dephase,
+    reset, setPackCount, seedOffsets, setOffsets, pulse, evolve, dephase,
     netMxy, netMxyComplex, netMz, fft, spectrum,
   };
 })();

@@ -1,164 +1,148 @@
-# NOTES — physics, level layout, and the rules that are easy to break
+# NOTES — the models, and the rules that are easy to break
 
-Working notes for `md-simulation`. Written for whoever (or whatever) picks this
-up next. The things in **Design rules** are the ones that have already been
-broken once and cost real debugging time.
+Working notes for `md-simulation`. Two independent physics models live here.
 
 ---
 
-## 1. The spin engine (`spin/bloch.js`)
+## 1. The shim model (`spin/console.js`) — what Shim is built on
 
-One implementation, shared by `spin/game.js` and `spin/sandbox.js`. Do not
-fork it — the whole point of extracting it was to stop the game and the sandbox
-drifting apart.
+### The field
 
-The magnetization is **64 independent spin packets** (isochromats), each a
-3-vector `{dnu, mx, my, mz}`:
+Each shim coil adds its own axial profile to B0 along the tube. The sample runs
+`z = -1 .. +1`, cut into 160 slices:
 
-| Step | What happens |
+```
+Z1: z                          Z3: z^3 - 0.6z
+Z2: z^2 - 1/3                  Z4: z^4 - (6/7)z^2 + 3/35
+```
+
+The residual field is `E(z) = sum over shims of (aberration - dialled) * HZ_PER_UNIT * profile(z)`,
+with `HZ_PER_UNIT = { Z1: 1.0, Z2: 2.2, Z3: 4.0, Z4: 6.0 }` so one unit of any
+shim does comparable damage.
+
+Slices are weighted by a flat-topped coil sensitivity `exp(-(z/0.82)^8)` — the
+coil only sees the middle of the tube, which is why sample depth matters.
+
+### The line
+
+**The lineshape is the histogram of E(z) over the sample, convolved with the
+natural Lorentzian.** Computed by direct summation on a 1000-point grid over
+±50 Hz. That single fact is the whole design: the shape of the line is a
+readout of which shim is wrong.
+
+Sample T2 = 2.0 s, so the natural FWHM is 1/(pi*T2) = 0.16 Hz — far under spec,
+so everything you see is the shim and not the sample.
+
+Verified signatures (measured, not asserted):
+
+| Mis-set | FWHM | 0.55% | Shape |
+|---|---|---|---|
+| Z1 by 9 | 14.1 Hz | 21.7 Hz | flat-topped rectangle |
+| Z2 by 7 | 0.61 Hz | 16.0 Hz | narrow peak, broad one-sided base |
+| Z3 by 4 | 5.9 Hz | 10.6 Hz | symmetric double horn |
+| Z4 by 5 | 5.6 Hz | 9.8 Hz | one-sided shoulder further out |
+
+Note the Z2 row: **FWHM barely moves while the base is wrecked.** That is not a
+quirk of the model, it is why the hump test (widths at 0.55% and 0.11%) is a
+separate spec from FWHM.
+
+### Lock level
+
+Peak height of the line, normalised to the perfectly-shimmed peak. It spans
+three decades between a wrecked shim and a good one, so the meter is **log
+scaled** — a linear one looks flat everywhere except the very top.
+
+### How the levels were tuned
+
+By measurement, using `scratchpad/pw/spectune.js`:
+
+- for every sample, leaving **any one shim undialled must fail** the spec;
+- getting **every shim within ~15% of truth must pass** it.
+
+Both properties hold for all four samples. `solvable.js` / `solvable2.js` check
+the other direction — that a hill-climb on the lock reaches spec, and that the
+autoshim-then-refine route always works.
+
+**A lock-only hill climb gets stuck in a local maximum on samples 3 and 4** — a
+narrow peak on a ruined base. That is real behaviour and the reason lock-only
+shimming is not enough; do not "fix" it.
+
+---
+
+## 2. The spin engine (`spin/bloch.js`) — what the sandbox is built on
+
+64 spin packets (isochromats), each a 3-vector `{dnu, mx, my, mz}`:
+
+| Call | What it does |
 |---|---|
-| `evolve(dt)` | each packet rotates in the xy-plane at its own `dnu`; transverse part × `exp(-dt/T2)`; `mz` relaxes toward `M0/n` with T1 |
-| `pulse(deg, eff)` | rotation of every packet about **x**: 90° takes +z into the plane, 180° inverts `mz` *and* mirrors the phase fan |
-| `seedOffsets(base, inhom)` | gives each packet `base + spread[i]*inhom` Hz — called on a 90° so a packet keeps its chemical shift for the whole scan |
-| `netMxyComplex()` | the **vector sum** over packets — this is the only thing a coil sees, and why dephasing costs signal without shrinking any packet |
-| `dephase(f)` | scales transverse components only (paramagnetic relaxation enhancement) |
-
-`spread[]` is a deterministic set of Gaussian quantiles × 0.62. It must **not**
-be evenly spaced: evenly spaced offsets re-phase periodically and produce fake
-recurring echoes.
-
-### Constants that matter
-
-```
-T1 = 200 ms, T2 = 160 ms     (deliberately doped; T2 <= T1 always)
-dwell = 250 us  -> spectral width 4 kHz
-acq   = 512 points (128 ms per scan)
-nfft  = 2048     (zero-filled x4 -> 1.95 Hz/bin)
-TIME_SCALE = 0.04 spin-seconds per second of play (1:25 slow motion)
-B0 = 11.7434 T, gamma/2pi = 42.577 MHz/T -> nu0 = 500.0 MHz -> 1 ppm = 500 Hz
-```
-
-Why the sample is doped: real water has T1 ≈ 1 s and T2* ≈ 10 ms, two orders
-apart. Nothing playable can be built on that ratio, so the game states outright
-that the sample carries a relaxation agent — which is true physics, not a fudge.
+| `evolve(dt)` | each packet rotates at its own `dnu`; transverse × `exp(-dt/T2)`; `mz` relaxes with T1 |
+| `pulse(deg, eff)` | rotation of every packet about x — 90° takes +z into the plane, 180° inverts `mz` *and* mirrors the phase fan |
+| `seedOffsets(base, inhom)` | Gaussian spread of offsets (must not be evenly spaced, or the fan re-phases periodically and fakes an echo) |
+| `setOffsets(array)` | drive the packets from an explicit field profile instead |
+| `netMxyComplex()` | the **vector sum** — all a coil can see, and why dephasing costs signal without shrinking any packet |
+| `spectrum(fid, hzPerPpm)` | apodize, zero-fill ×4, radix-2 FFT, fftshift |
 
 ### Verified against closed form
 
-Driven from a script through `window.SpinRunner` / `window.Sandbox`:
-
 | Check | Predicted | Measured |
 |---|---|---|
-| Echo peak time | 34.6 ms | 35.0 ms |
-| Echo peak amplitude | 0.792 M0 | 0.791 M0 |
-| Spectrum peak positions | 0.00 and 2.10 ppm | 0.00 and 2.10 ppm |
-| Linewidth, good vs bad shim | bad is broader | 15.6 vs 33.2 Hz |
-| Beer–Lambert, middle cuvette | 25.5% | 25.5% |
+| Hahn echo peak time | 34.6 ms | 35.0 ms |
+| Hahn echo peak amplitude | 0.792 M0 | 0.791 M0 |
+| Spectrum peak positions | 0.00 / 2.10 ppm | 0.00 / 2.10 ppm |
 
 **The echo timing is the subtle one.** The naive answer is 2τ = 40 ms. The
-simulation said 35 ms and that looked like a bug for a while. It is not: the
-refocusing envelope peaks at 2τ but is multiplied by a falling `exp(-t/T2)`, so
-the observed maximum sits earlier by
-
-```
-1/(4 * pi^2 * sigma^2 * T2)  =  5.4 ms      (sigma = 5.43 Hz here)
-```
-
-Do not "fix" the 35 ms. It is right, and the project page explains why.
+refocusing envelope does peak at 2τ, but it is multiplied by a falling
+`exp(-t/T2)`, so the maximum sits earlier by `1/(4*pi^2*sigma^2*T2)` = 5.4 ms.
+Do not "fix" the 35 ms.
 
 ---
 
-## 2. Level layout (`spin/game.js`)
+## 3. Design rules (each has already been broken once)
 
-World is 5500 px wide. Ground at `y = 400`. Player is 26 × 40.
-
-```
-x        0 ---- 940 ---- 1910 ---- 3110 ---- 3960 ---- 4710 ---- 5390
-stage    1       2        3         4 (IR)   5 (Raman) 6 (UV)    detector
-instr    <------ NMR 500 MHz ------>
-```
-
-- **Pits** (fall = lose a life): 1600–1680, 2450–2530, 4620–4690. All 70–80 px,
-  clearable with room to spare (a full jump covers ~142 px horizontally).
-- **Chemical sites:** 0.00 ppm up to x = 1900 (shim ±1.5 Hz), 2.10 ppm from
-  1900–3100 (shim ±9 Hz, the badly shimmed patch).
-- **Resonance gates** at 760 (0.00 ppm) and 1960 (2.10 ppm) — solid until the
-  transmitter is within ±170 Hz.
-- **Pulse pads:** 90° at 1010, 1330, 2060; 180° at 2270, 2430, 2960.
-- **Coils:** 1160, 1450, 2620, 2750, 2880, 3010.
-- **Hazards (Gd³⁺):** patrol 1500–1572 and 3028–3092 only.
-
-### The intended solution to stage 3
-
-Fire the 90° at 2060, **jump over** the 180° pad at 2270, take the one at 2430,
-jump the pit, and the echo lands on the coils around 2750. Verified: coil
-readings 0.30 / 0.45 / 0.36 / 0.29, score ~1680. Taking the 2270 pad instead
-puts the echo at ~2434 — inside the pit, wasted. That is the whole puzzle.
-
-Timing model, useful for moving things: at full speed (230 px/s),
-
-```
-spin-milliseconds = 0.1739 * pixels
-echo position     = 2 * x(180) - x(90)
-```
-
----
-
-## 3. Design rules (each of these has already bitten)
-
-1. **Never put a platform directly above a pulse pad.** A decorative platform at
-   2150 sat over the 180° pad at 2270; the player bonked their head and could
-   not skip the pad, which made the stage unsolvable as documented. All
-   platforms are now deliberately clear of every pad.
-2. **Pads only fire when `player.onGround`.** That is what makes "jump over a
-   pad to skip it" reliable. Without it the pad fires before you are airborne.
-3. **Nothing may sit at the bottom centre of the screen.** The camera pins the
-   player there. The TUNE buttons were originally centred and permanently
-   covered the player and the phase dial.
-4. **Hints only fire when on the ground** (`checkTutorial` returns early
-   otherwise), so the game never freezes mid-jump.
-5. **Do not put a hazard between the 90° and the 180° of the echo lesson.** It
-   wipes the coherence and the lesson with it.
-6. **Plot the FID magnitude envelope, not just the real part.** On resonance a
+1. **Objects must be settings and consequences, not props.** The retired
+   platformer turned a 90° pulse into a floor pad and the receiver into a hoop.
+   That is what made the physics unreadable. If a new object is a noun invented
+   so the player has something to touch, it is wrong.
+2. **The spec is judged on a measurement, never on the live truth.** Forcing the
+   player to spend time measuring is the whole tension, and it is authentic.
+3. **Zero-fill before quoting a linewidth.** At 512 points the bin spacing is
+   7.8 Hz, so every line looks ~31 Hz wide regardless of the truth.
+4. **Plot the FID magnitude envelope, not only the real part.** On resonance a
    90x leaves the magnetization along y, so the real part is a flat line and the
-   FID looks broken. Both the game scope and the sandbox draw the envelope.
-7. **Zero-fill before measuring a linewidth.** At 512 points the bin spacing is
-   7.8 Hz, so any line looks ~31 Hz wide no matter what. ×4 zero-filling gives
-   1.95 Hz/bin.
-8. **Coils do not consume themselves on an empty pass** (`sig < 0.02` skips), so
-   arriving early costs time, not the coil.
+   FID looks broken.
+5. **Tune levels by measuring, not by feel.** Every spec number in `console.js`
+   came out of `spectune.js`.
 
 ---
 
 ## 4. Testing
 
-Playwright is installed at
-`C:\Users\Liang\AppData\Local\Temp\claude\c--Users-Liang-tigp-2026\<session>\scratchpad\pw`
-(`npm i playwright` + `npx playwright install chromium` if it is gone).
-
-Serve the repo root on port 8124, then the useful scripts are:
+Playwright lives in the session scratchpad under `pw/` (`npm i playwright` and
+`npx playwright install chromium` if it is gone). Serve the repo root on 8124.
 
 | Script | What it proves |
 |---|---|
-| `echo.js` | the Hahn echo peaks at 35.0 ms / 0.791 M0 |
-| `diag2.js` | spectral lines land on 0.00 and 2.10 ppm, bad shim is broader |
-| `autoplay2.js` | the whole level is completable without dying |
-| `solve3.js` | stage 3 is solvable as intended (skip a pad, land the echo) |
-| `sandbox.js` | the sandbox reproduces the same echo through the shared engine |
+| `shim1.js` | the lock peaks at the true aberration; shimming there reaches spec |
+| `spectune.js` | every shim matters — leaving one undialled fails the spec |
+| `solvable.js` | a lock-only hill climb solves 1–2 and sticks on 3–4 (expected) |
+| `solvable2.js` | perfect shims pass, and autoshim-then-refine passes, on all four |
+| `echo.js` / `diag2.js` | the sandbox engine still gives 0.791 M0 at 35.0 ms, peaks on 0.00/2.10 ppm |
 
-**Bots must press `T` to turn hints off**, otherwise the tutorial pauses the
-game and the bot looks stuck. More than one "bug" in this session was a test
-that had walked into a pit or a hint card.
+`window.Shim` exposes `state`, `set`, `shoot`, `goto`, `lineshapeFor`;
+`window.Sandbox` exposes the sandbox equivalents. Both are read-only apart from
+the setters, and all the numbers quoted anywhere came through them.
 
 ---
 
-## 5. Gotchas in this environment
+## 5. Environment gotchas
 
 - **Bash heredocs break on ASCII apostrophes** in this shell. Use the curly `’`
-  in prose, or write files with the editor tool instead.
+  in prose, or write files with the editor tool.
 - **Backticks inside double-quoted shell strings get command-substituted** and
-  silently eat your content. This mangled `README.md` once. Use single quotes,
-  a heredoc, or the editor tool for anything containing markdown backticks.
-- **Node resolves `/tmp/...` to `C:\tmp\...`** on this machine, so screenshots
-  written by Playwright land in `C:\tmp`, not the POSIX `/tmp` the shell shows.
-- Patch scripts must actually call `fs.writeFileSync` — an inline patch that
-  printed "ok" but never wrote the file cost a debugging round.
+  silently eat content. This mangled `README.md` once. Use the editor tool for
+  anything containing markdown backticks.
+- Patch scripts must actually call `fs.writeFileSync` — one printed "ok" without
+  writing and cost a debugging round.
+- **Node resolves `/tmp/...` to `C:\tmp\...`**, so Playwright screenshots land
+  there, not in the POSIX `/tmp` the shell shows.
+- Python is `py` (3.11), not `python`.

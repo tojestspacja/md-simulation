@@ -2,57 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b1022" />
-  <title>Spin Runner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <title>Shim — a 500 MHz you have to get to spec</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="game-wrap">
-    <canvas id="game" width="800" height="450"></canvas>
+  <div id="app">
 
-    <div id="hud">
-      <div id="hud-score">SCORE 0</div>
-      <div id="hud-mid">NMR 500 MHz</div>
-      <div id="hud-lives">LIVES x3</div>
-    </div>
+    <header id="bar">
+      <div class="slot">
+        <span class="lab">SAMPLE</span>
+        <span id="task">—</span>
+      </div>
+      <div class="slot">
+        <span class="lab">SPEC</span>
+        <span id="spec">—</span>
+      </div>
+      <div class="slot right">
+        <span class="lab">INSTRUMENT TIME</span>
+        <span id="clock">—</span>
+      </div>
+    </header>
 
-    <button id="btn-physics" aria-label="Toggle the numbers panel" title="Show the numbers (P)">numbers</button>
+    <canvas id="view" width="960" height="430"></canvas>
 
-    <div id="rotate-hint">Rotate your phone for the best view</div>
+    <div id="console">
+      <div class="panel">
+        <h2>Room-temperature shims</h2>
+        <div id="shims"></div>
+        <p class="hint">Drag a shim, or click it and use the arrow keys. The curve beside the tube is
+          the field across the sample — that is the thing you are flattening.</p>
+      </div>
 
-    <div id="overlay" class="hidden">
-      <div id="overlay-card">
-        <h1 id="overlay-title">Spin Runner</h1>
-        <p id="overlay-msg">You are the sample.</p>
-        <button id="overlay-btn">Start</button>
-        <div id="overlay-keys">
-          arrows / A D to move &nbsp;·&nbsp; space to jump &nbsp;·&nbsp; Q E to tune the transmitter<br />
-          P for the numbers &nbsp;·&nbsp; T turns the hints off &nbsp;·&nbsp; <a href="sandbox.html" style="color:#7cb0ff">open the free-play sandbox</a>
-        </div>
+      <div class="panel">
+        <h2>Acquire</h2>
+        <button id="btn-shot" class="go">take a shot &nbsp;<span class="cost">8 s</span></button>
+        <button id="btn-auto">autoshim &nbsp;<span class="cost">45 s</span></button>
+        <button id="btn-next" disabled>next sample</button>
+        <p class="hint">A shot redraws the lineshape and costs instrument time. The lock trace is free
+          and follows the shims as you turn them — which is how you actually shim.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Lineshape</h2>
+        <table id="readout">
+          <tr><td>width at half height</td><td id="r-fwhm">—</td><td id="s-fwhm"></td></tr>
+          <tr><td>width at 0.55%</td><td id="r-h055">—</td><td id="s-h055"></td></tr>
+          <tr><td>width at 0.11%</td><td id="r-h011">—</td><td id="s-h011"></td></tr>
+          <tr><td>lock level</td><td id="r-lock">—</td><td></td></tr>
+        </table>
+        <p class="hint">These fail independently. A Z2 error barely moves the half-height width and
+          still ruins the base — which is why the hump test exists at all.</p>
       </div>
     </div>
 
-    <!-- touch controls (they work with a mouse too) -->
-    <div id="touch-controls">
-      <div class="left-cluster">
-      <div class="pad">
-        <button id="btn-left" class="ctrl-btn" aria-label="Left">&#9664;</button>
-        <button id="btn-right" class="ctrl-btn" aria-label="Right">&#9654;</button>
-      </div>
-      <div class="pad tune-pad">
-        <button id="btn-tune-down" class="ctrl-btn ctrl-small" aria-label="Tune down">&#9660;</button>
-        <span class="tune-label">TUNE</span>
-        <button id="btn-tune-up" class="ctrl-btn ctrl-small" aria-label="Tune up">&#9650;</button>
-      </div>
-      </div>
-      <div class="pad">
-        <button id="btn-jump" class="ctrl-btn ctrl-jump" aria-label="Jump">&#10514;</button>
+    <div id="overlay">
+      <div class="card">
+        <h1 id="ov-title">SHIM</h1>
+        <div id="ov-body"></div>
+        <button id="ov-btn" class="go">start</button>
+        <p class="foot">
+          <a href="sandbox.html">free-play spin sandbox</a> · <a href="../">project page</a>
+        </p>
       </div>
     </div>
+
   </div>
 
   <script src="bloch.js"></script>
-  <script src="game.js"></script>
+  <script src="console.js"></script>
 </body>
 </html>
