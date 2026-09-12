@@ -29,16 +29,16 @@
   const NU0 = GAMMA_1H * B0;        // 500.0 MHz -> 1 ppm = 500 Hz
   const HZ_PER_PPM = NU0;
   const TIME_SCALE = 0.04;          // spin-seconds per second of play (1:25 slow motion)
-  const T1 = 0.20;                  // s, Gd-doped water: short on purpose so it is playable
-  const T2 = 0.16;                  // s, T2 <= T1 as it must be
-  const N_PACK = 64;                // spin packets simulated (enough that a broad line looks smooth)
+  const T1 = Bloch.cfg.T1;          // s, Gd-doped water: short on purpose so it is playable
+  const T2 = Bloch.cfg.T2;          // s, T2 <= T1 as it must be
+  const N_PACK = Bloch.cfg.nPack;   // spin packets simulated
   const N_DRAW = 9;                 // packets drawn on the phase dial
   const TUNE_MIN = -400, TUNE_MAX = 1600;  // Hz, transmitter offset range
   const TUNE_RATE = 620;            // Hz per second of holding a tune button
   const ON_RES = 60, OFF_RES = 170; // Hz: full excitation / none
-  const DWELL = 0.00025;            // s between FID samples -> spectral width 4 kHz
-  const ACQ = 512;                  // points acquired per scan (128 ms)
-  const NFFT = 2048;                // transform length: zero-filled x4, as on a real spectrometer
+  const DWELL = Bloch.cfg.dwell;    // s between FID samples -> spectral width 4 kHz
+  const ACQ = Bloch.cfg.acq;        // points acquired per scan (128 ms)
+  const NFFT = Bloch.cfg.nfft;      // transform length: zero-filled x4, as on a real spectrometer
 
   // Chemical environments along the bore. inhom = half-spread of the packet
   // offsets in Hz, i.e. how badly that patch is shimmed.
@@ -68,10 +68,12 @@
   ground(2530, 4620);       // 80 px pit at 2450-2530
   ground(4690, 5500);       // 70 px pit at 4620-4690
 
+  // Decoration only - and deliberately never directly above a pulse pad,
+  // because clipping your head on one would stop you skipping that pad.
   plat(520, GROUND_Y - 96, 90);
-  plat(1240, GROUND_Y - 104, 90);
-  plat(2150, GROUND_Y - 108, 110);
-  plat(2880, GROUND_Y - 100, 90);
+  plat(1120, GROUND_Y - 104, 90);
+  plat(1770, GROUND_Y - 108, 110);
+  plat(2660, GROUND_Y - 100, 90);
 
   const worldWidth = 5500;
 
@@ -142,31 +144,29 @@
   // Paramagnetic ions: touching one wrecks your phase coherence (relaxation
   // enhancement), which costs signal but not a life.
   const relaxersInit = [
-    { x: 1500, min: 1380, max: 1580 },
-    { x: 2200, min: 2120, max: 2400 },
-    { x: 2700, min: 2600, max: 2860 },
+    { x: 1520, min: 1500, max: 1572 },   // in the gaps, and never between the
+    { x: 3050, min: 3028, max: 3092 },   // 90 and the 180 of the echo lesson
   ];
 
   const CHECKPOINTS = [0, 940, 1910, 3110, 3960, 4710];
 
   const STAGES = [
-    { x: 30, title: "STAGE 1 — RESONANCE",
+    { x: 30, title: "STAGE 1 — RESONANCE   ν = γB₀",
       text: "You are 1H magnetization in B0 = 11.74 T, so the Larmor frequency is ν = γB0 = 500.00 MHz. Tune the transmitter (Q / E, or the TUNE buttons) until the offset reads zero — the gate only opens on resonance." },
-    { x: 940, title: "STAGE 2 — PULSE AND T1",
+    { x: 940, title: "STAGE 2 — SINGLE-PULSE ACQUIRE   90x – acquire",
       text: "A 90° pulse tips Mz into the xy-plane, and that transverse magnetization is your signal. Mz then crawls back as M0(1 − e^(−t/T1)), so pulsing again too soon leaves you almost nothing to detect." },
-    { x: 1910, title: "STAGE 3 — T2* AND THE ECHO",
+    { x: 1910, title: "STAGE 3 — HAHN ECHO   90x – τ – 180x – τ",
       text: "This patch is badly shimmed: the packets spread out, the signal dies at T2* instead of T2, and the dial fans open. A 180° pulse mirrors the fan so it winds back together — the echo arrives at 2τ." },
-    { x: 3110, title: "STAGE 4 — INFRARED",
+    { x: 3110, title: "STAGE 4 — INFRARED   Δv = ±1",
       text: "Now you are a vibrating bond. Rungs sit at E(v) = ω(v+½) − ωx(v+½)², so they close up as you climb. Your jump clears exactly one rung and never two: that is the Δv = ±1 selection rule, enforced by gravity." },
-    { x: 3960, title: "STAGE 5 — RAMAN",
+    { x: 3960, title: "STAGE 5 — RAMAN   Stokes vs anti-Stokes",
       text: "Photons scatter off you. From v = 0 only the Stokes route is open (the photon gives up a vibrational quantum). Arrive still vibrating and you scatter anti-Stokes instead — worth far more, because at 300 K hardly anything is vibrationally excited." },
-    { x: 4710, title: "STAGE 6 — UV-VIS",
+    { x: 4710, title: "STAGE 6 — UV-VIS   A = εcl",
       text: "Beer–Lambert: A = εcl and T = 10^(−A). Three cuvettes, three absorbances. Pick the clear path and your beam still reaches the detector bright." },
   ];
 
   // ---------- game state ----------
   let player, camX, score, lives, state, stageIdx;
-  let packs;                 // spin packets: {dnu, mx, my, mz}
   let nuRF;                  // transmitter offset, Hz
   let spinTime;              // seconds of simulated spin time
   let fidBuf;                // co-added FID: scans sum, exactly like signal averaging
@@ -194,121 +194,21 @@
     player = { x, y, w: 26, h: 40, vx: 0, vy: 0, onGround: false, facing: 1, walkT: 0 };
   }
 
-  // Deterministic, roughly Gaussian spread of packet offsets in units of the
-  // local inhomogeneity, so the fan-out looks like a real field distribution
-  // rather than an evenly spaced comb (which would re-phase periodically).
-  const SPREAD = [];
-  for (let i = 0; i < N_PACK; i++) {
-    const u = (i + 0.5) / N_PACK;
-    const t = Math.sqrt(-2 * Math.log(Math.min(u, 1 - u) + 1e-6));
-    const z = (u < 0.5 ? -1 : 1) * (t - (2.30753 + 0.27061 * t) / (1 + 0.99229 * t + 0.04481 * t * t));
-    SPREAD.push(z * 0.62);
-  }
+  // The spin engine lives in bloch.js so the sandbox runs the same physics.
+  // These are thin adapters, so every call site below reads as before.
+  const packs = Bloch.packets();
+  const resetSpins = () => Bloch.reset();
+  const netMxyComplex = () => Bloch.netMxyComplex();
+  const netMxy = () => Bloch.netMxy();
+  const netMz = () => Bloch.netMz();
+  const pulse = (deg, eff) => Bloch.pulse(deg, eff);
+  const evolve = (dt) => Bloch.evolve(dt);
+  const spectrumFromFid = () => Bloch.spectrum(fidBuf, HZ_PER_PPM);
 
-  function resetSpins() {
-    packs = [];
-    for (let i = 0; i < N_PACK; i++) packs.push({ dnu: 0, mx: 0, my: 0, mz: M0 / N_PACK });
-  }
-
-  // The observable signal is the vector sum over packets - exactly what a coil
-  // sees, which is why dephasing costs you signal without destroying anything.
-  function netMxyComplex() {
-    let sx = 0, sy = 0;
-    for (const p of packs) { sx += p.mx; sy += p.my; }
-    return [sx, sy];
-  }
-  function netMxy() {
-    const [sx, sy] = netMxyComplex();
-    return Math.hypot(sx, sy);
-  }
-  function netMz() {
-    let s = 0;
-    for (const p of packs) s += p.mz;
-    return s;
-  }
-
-  // Rotation of every packet about the x axis by theta.
-  function pulse(deg, efficiency) {
-    const th = (deg * Math.PI / 180) * efficiency;
-    const c = Math.cos(th), s = Math.sin(th);
-    for (const p of packs) {
-      const my = p.my * c + p.mz * s;
-      const mz = -p.my * s + p.mz * c;
-      p.my = my; p.mz = mz;
-    }
-  }
-
-  // Give every packet the offset of the environment it sits in, so a packet
-  // keeps its chemical shift for the whole acquisition.
+  // Packets take on the chemical shift of wherever they were excited.
   function reseedOffsets(x) {
     const site = siteAt(x);
-    const base = shiftHz(site);
-    for (let i = 0; i < N_PACK; i++) packs[i].dnu = base + SPREAD[i] * site.inhom;
-  }
-
-  // Free precession plus relaxation, for dtSpin seconds of spin time.
-  function evolve(dtSpin) {
-    const e2 = Math.exp(-dtSpin / T2);
-    const e1 = Math.exp(-dtSpin / T1);
-    const eq = M0 / N_PACK;
-    for (const p of packs) {
-      const ang = 2 * Math.PI * p.dnu * dtSpin;
-      const c = Math.cos(ang), s = Math.sin(ang);
-      const mx = p.mx * c - p.my * s;
-      const my = p.mx * s + p.my * c;
-      p.mx = mx * e2;
-      p.my = my * e2;
-      p.mz = eq + (p.mz - eq) * e1;
-    }
-  }
-
-  // ---------- in-place radix-2 FFT ----------
-  function fft(re, im) {
-    const n = re.length;
-    for (let i = 1, j = 0; i < n; i++) {
-      let bit = n >> 1;
-      for (; j & bit; bit >>= 1) j ^= bit;
-      j ^= bit;
-      if (i < j) {
-        let t = re[i]; re[i] = re[j]; re[j] = t;
-        t = im[i]; im[i] = im[j]; im[j] = t;
-      }
-    }
-    for (let len = 2; len <= n; len <<= 1) {
-      const ang = -2 * Math.PI / len;
-      const wr = Math.cos(ang), wi = Math.sin(ang);
-      for (let i = 0; i < n; i += len) {
-        let cr = 1, ci = 0;
-        for (let k = 0; k < len / 2; k++) {
-          const ur = re[i + k], ui = im[i + k];
-          const vr = re[i + k + len / 2] * cr - im[i + k + len / 2] * ci;
-          const vi = re[i + k + len / 2] * ci + im[i + k + len / 2] * cr;
-          re[i + k] = ur + vr; im[i + k] = ui + vi;
-          re[i + k + len / 2] = ur - vr; im[i + k + len / 2] = ui - vi;
-          const ncr = cr * wr - ci * wi;
-          ci = cr * wi + ci * wr; cr = ncr;
-        }
-      }
-    }
-  }
-
-  // Magnitude spectrum of the recorded FID, fftshifted and mapped to ppm.
-  function spectrumFromFid() {
-    const re = new Float64Array(NFFT), im = new Float64Array(NFFT);
-    for (let i = 0; i < ACQ; i++) {
-      const apod = Math.exp(-2 * i / ACQ);        // exponential apodization, ~5 Hz of broadening
-      re[i] = fidBuf[i][0] * apod;
-      im[i] = fidBuf[i][1] * apod;
-    }                                             // the remaining points stay zero: zero-filling
-    fft(re, im);
-    const mag = new Float64Array(NFFT);
-    for (let k = 0; k < NFFT; k++) {
-      const ks = (k + NFFT / 2) % NFFT;           // fftshift
-      mag[k] = Math.hypot(re[ks], im[ks]);
-    }
-    const hzPerBin = 1 / (DWELL * NFFT);
-    const ppmOf = (k) => ((k - NFFT / 2) * hzPerBin) / HZ_PER_PPM;
-    return { mag, ppmOf, hzPerBin };
+    Bloch.seedOffsets(shiftHz(site), site.inhom);
   }
 
   // ---------- lifecycle ----------
@@ -342,6 +242,7 @@
     cuvettes.forEach(cv => { cv.used = false; });
     stokes = 0; antiStokes = 0; bestSignal = 0;
     furthestX = 0;
+    seq = [];
     toastTitle = null; toastText = null; toastTimer = 0;
     flashTimer = 0; flashText = null;
     state = "playing";
@@ -378,8 +279,15 @@
       jumpHeld = true;
       e.preventDefault();
     }
+    if (state === "tutorial" && ["Space", "Enter", "KeyT"].includes(e.code)) {
+      if (e.code === "KeyT") { tutorialOn = false; }
+      dismissTutorial();
+      e.preventDefault();
+      return;
+    }
     if (e.code === "Enter") { if (state !== "playing") startOrRestart(); }
     if (e.code === "KeyP") toggleHud();
+    if (e.code === "KeyT") { tutorialOn = !tutorialOn; flash(tutorialOn ? "hints on" : "hints off"); }
   });
   window.addEventListener("keyup", (e) => {
     if (["ArrowLeft", "KeyA"].includes(e.code)) keys.left = false;
@@ -412,7 +320,10 @@
   physicsBtn.classList.add("on");
 
   // Tapping the canvas dismisses the results screen.
-  canvas.addEventListener("pointerdown", () => { if (state === "results") startOrRestart(); });
+  canvas.addEventListener("pointerdown", () => {
+    if (state === "tutorial") { dismissTutorial(); return; }
+    if (state === "results") startOrRestart();
+  });
 
   // ---------- overlay ----------
   const overlay = document.getElementById("overlay");
@@ -486,6 +397,10 @@
   // ---------- update ----------
   let vibTimer = 3;
   let lastInstKey = null;
+  let seq = [];              // pulses in the current scan, for the sequence strip
+  let tutorial = null;       // the hint card currently on screen
+  let tutorialOn = true;
+  const tutorialSeen = {};
   let results = null;
   const BEAM_Y = GROUND_Y - 100;
 
@@ -510,6 +425,7 @@
 
     const inst = instrumentAt(player.x);
     if (inst.key !== lastInstKey) { lastInstKey = inst.key; updateHud(); }
+    if (checkTutorial()) return;
     const site = siteAt(player.x);
     const offset = shiftHz(site) - nuRF;
     const eff = Math.max(0, Math.min(1, (OFF_RES - Math.abs(offset)) / (OFF_RES - ON_RES)));
@@ -551,11 +467,13 @@
       if (pad.cool > 0) pad.cool -= dt;
       if (pad.flash > 0) pad.flash -= dt;
       if (pad.cool > 0) continue;
+      if (!player.onGround) continue;      // jump over a pad to skip it - that is how you pick tau
       if (!overlaps(player, { x: pad.x - 20, y: GROUND_Y - 44, w: 40, h: 44 })) continue;
       if (eff > 0.05) {
         if (pad.deg === 90) reseedOffsets(player.x);   // packets take on the local shift
         pulse(pad.deg, eff);
-        if (pad.deg === 90) { scanIdx = 0; nScans += 1; }   // acquisition starts here
+        if (pad.deg === 90) { scanIdx = 0; nScans += 1; seq = []; }   // a 90 starts a new scan
+        if (seq.length < 8) seq.push({ deg: pad.deg, t: spinTime });
         pad.cool = 2.2; pad.flash = 0.7;
         flash(pad.deg + "° pulse" + (eff > 0.95 ? "" : "  (only " + Math.round(eff * 100) + "% effective, you are off resonance)"));
       } else {
@@ -587,7 +505,7 @@
       if (r.x > r.max) { r.x = r.max; r.dir = -1; }
       if (r.hit > 0) r.hit -= dt;
       if (r.hit <= 0 && overlaps(player, { x: r.x, y: GROUND_Y - 26, w: 26, h: 26 })) {
-        for (const p of packs) { p.mx *= 0.25; p.my *= 0.25; }
+        Bloch.dephase(0.25);
         r.hit = 1.6;
         flash("paramagnetic ion: relaxation enhanced, coherence gone");
       }
@@ -951,37 +869,52 @@
 
   // Mz can go negative after a 180, so it gets a zero-centred bar.
   function drawSpinBars() {
-    const x = 16, w = 138;
+    const x = 16, w = 120;
     const mz = netMz(), mxy = netMxy();
     ctx.font = "10px monospace";
 
-    panelBox(x, 64, w, 16, "rgba(120,170,255,0.45)");
+    panelBox(x, 62, w, 16, "rgba(120,170,255,0.45)");
     const mid = x + w / 2;
     ctx.fillStyle = mz >= 0 ? "#6fd3ff" : "#ff8a8a";
-    ctx.fillRect(mz >= 0 ? mid : mid + (mz / M0) * (w / 2), 66, Math.abs(mz / M0) * (w / 2), 12);
+    ctx.fillRect(mz >= 0 ? mid : mid + (mz / M0) * (w / 2), 64, Math.abs(mz / M0) * (w / 2), 12);
     ctx.strokeStyle = "rgba(255,255,255,0.35)";
-    ctx.beginPath(); ctx.moveTo(mid, 64); ctx.lineTo(mid, 80); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(mid, 62); ctx.lineTo(mid, 78); ctx.stroke();
     ctx.fillStyle = "#cfe0ff";
-    ctx.fillText("Mz " + mz.toFixed(2), x + w + 8, 76);
+    ctx.fillText("Mz " + mz.toFixed(2), x + w + 6, 74);
+    caption("what a 90° pulse has to work with", x, 88);
 
-    panelBox(x, 84, w, 16, "rgba(255,217,61,0.5)");
+    panelBox(x, 94, w, 16, "rgba(255,217,61,0.5)");
     ctx.fillStyle = "#ffd93d";
-    ctx.fillRect(x + 2, 86, Math.max(0, mxy / M0) * (w - 4), 12);
+    ctx.fillRect(x + 2, 96, Math.max(0, mxy / M0) * (w - 4), 12);
     ctx.fillStyle = "#ffd93d";
-    ctx.fillText("|Mxy| " + mxy.toFixed(2), x + w + 8, 96);
+    ctx.fillText("|Mxy| " + mxy.toFixed(2), x + w + 6, 106);
+    caption("transverse — all a coil can detect", x, 120);
   }
 
   // Live FID: the transverse signal as it is actually being recorded.
   function drawScope() {
-    const x = 16, y = 106, w = 200, h = 54;
+    const x = 16, y = 126, w = 200, h = 52;
     panelBox(x, y, w, h, "rgba(124,240,168,0.45)");
+    caption("the signal, as it is recorded", x, y + h + 12);
     ctx.strokeStyle = "rgba(255,255,255,0.18)";
     ctx.beginPath(); ctx.moveTo(x, y + h / 2); ctx.lineTo(x + w, y + h / 2); ctx.stroke();
     if (nScans > 0) {
       let peak = 1e-9;
-      for (let i = 0; i < ACQ; i++) peak = Math.max(peak, Math.abs(fidBuf[i][0]));
-      ctx.strokeStyle = "#7cf0a8";
+      for (let i = 0; i < ACQ; i++) peak = Math.max(peak, Math.hypot(fidBuf[i][0], fidBuf[i][1]));
+      // envelope first, so the decay and the echo read even on resonance
+      ctx.strokeStyle = "rgba(124,240,168,0.35)";
       ctx.lineWidth = 1;
+      for (const sgn of [1, -1]) {
+        ctx.beginPath();
+        for (let i = 0; i < ACQ; i++) {
+          const m = Math.hypot(fidBuf[i][0], fidBuf[i][1]);
+          const px = x + (i / (ACQ - 1)) * w;
+          const py = y + h / 2 - sgn * (m / peak) * (h / 2 - 4);
+          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+      ctx.strokeStyle = "#7cf0a8";
       ctx.beginPath();
       for (let i = 0; i < ACQ; i++) {
         const px = x + (i / (ACQ - 1)) * w;
@@ -1006,6 +939,7 @@
     ctx.font = "9px monospace";
     ctx.fillStyle = "#e08a5a";
     ctx.fillText("vibrational state", x + 6, y + 12);
+    caption("one jump = Δv of 1", x, y + h + 12);
     for (let v = 4; v >= 0; v--) {
       const ly = y + 24 + (4 - v) * 15;
       ctx.strokeStyle = v === vib ? "#ffcc33" : "rgba(224,138,90,0.45)";
@@ -1022,6 +956,7 @@
     ctx.fillStyle = "#b79bff";
     ctx.font = "9px monospace";
     ctx.fillText("beam reaching the detector", x + 6, y + 12);
+    caption("I/I0 after the cuvettes", x, y + h + 12);
     ctx.fillStyle = "rgba(255,255,255,0.12)";
     ctx.fillRect(x + 6, y + 18, w - 12, 14);
     ctx.fillStyle = "#e6dcff";
@@ -1117,9 +1052,9 @@
     ctx.font = "bold 13px monospace";
     ctx.textAlign = "center";
     const w = ctx.measureText(flashText).width + 24;
-    panelBox(VW / 2 - w / 2, 168, w, 24, "rgba(255,255,255,0.5)");
+    panelBox(VW / 2 - w / 2, 206, w, 24, "rgba(255,255,255,0.5)");
     ctx.fillStyle = "#ffffff";
-    ctx.fillText(flashText, VW / 2, 184);
+    ctx.fillText(flashText, VW / 2, 222);
     ctx.textAlign = "left";
     ctx.globalAlpha = 1;
   }
@@ -1144,9 +1079,20 @@
     ctx.beginPath(); ctx.moveTo(fx, fy + fh / 2); ctx.lineTo(fx + fw, fy + fh / 2); ctx.stroke();
     if (nScans > 0) {
       let peak = 1e-9;
-      for (let i = 0; i < ACQ; i++) peak = Math.max(peak, Math.abs(fidBuf[i][0]));
-      ctx.strokeStyle = "#7cf0a8";
+      for (let i = 0; i < ACQ; i++) peak = Math.max(peak, Math.hypot(fidBuf[i][0], fidBuf[i][1]));
+      ctx.strokeStyle = "rgba(124,240,168,0.35)";
       ctx.lineWidth = 1;
+      for (const sgn of [1, -1]) {
+        ctx.beginPath();
+        for (let i = 0; i < ACQ; i++) {
+          const m = Math.hypot(fidBuf[i][0], fidBuf[i][1]);
+          const px = fx + (i / (ACQ - 1)) * fw;
+          const py = fy + fh / 2 - sgn * (m / peak) * (fh / 2 - 8);
+          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+      }
+      ctx.strokeStyle = "#7cf0a8";
       ctx.beginPath();
       for (let i = 0; i < ACQ; i++) {
         const px = fx + (i / (ACQ - 1)) * fw;
@@ -1229,6 +1175,232 @@
     ctx.textAlign = "left";
   }
 
+  // A one-line note under a panel saying what it is and what to watch.
+  function caption(text, x, y) {
+    ctx.font = "9px monospace";
+    ctx.fillStyle = "rgba(190,205,240,0.75)";
+    ctx.fillText(text, x + 2, y);
+  }
+
+  // Which textbook experiment the pulses you have fired actually add up to.
+  function sequenceName() {
+    if (!seq.length) return ["no pulses yet", "step on a 90° pad to start a scan"];
+    const n180 = seq.filter(p => p.deg === 180).length;
+    if (seq[0].deg === 180) {
+      return seq.some(p => p.deg === 90)
+        ? ["inversion recovery", "180x – τ – 90x – acquire"]
+        : ["inversion", "180x — Mz is now negative"];
+    }
+    if (n180 === 0) return ["single-pulse acquire", "90x – acquire"];
+    if (n180 === 1) return ["Hahn echo", "90x – τ – 180x – τ – echo"];
+    return ["CPMG", "90x – (τ – 180x – τ) × " + n180];
+  }
+
+  function echoDueAt() {
+    if (!seq.length || seq[0].deg !== 90) return null;
+    let d = 0, lastT = seq[0].t, any = false;
+    for (let i = 1; i < seq.length; i++) {
+      if (seq[i].deg !== 180) continue;
+      d = -(d + (seq[i].t - lastT));
+      lastT = seq[i].t;
+      any = true;
+    }
+    if (!any || d >= 0) return null;
+    return lastT - d;                      // lastT + |d|
+  }
+
+  // The echo happens at a fixed TIME, so where you are when it lands depends
+  // on how fast you are running. Drawing that as a moving marker on the floor
+  // is the clearest way to say so.
+  function drawEchoMarker() {
+    const due = echoDueAt();
+    if (due === null || due <= spinTime) return;
+    const dt = due - spinTime;
+    if (Math.abs(player.vx) < 30) {
+      ctx.fillStyle = "#ffd93d";
+      ctx.font = "bold 11px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("echo in " + (dt * 1000).toFixed(0) + " ms", player.x + player.w / 2, player.y - 60);
+      ctx.textAlign = "left";
+      return;
+    }
+    const xAt = player.x + dt * player.vx / TIME_SCALE;
+    if (xAt < camX - 60 || xAt > camX + VW + 60) return;
+    ctx.strokeStyle = "rgba(255,217,61,0.75)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 5]);
+    ctx.beginPath(); ctx.moveTo(xAt, GROUND_Y - 150); ctx.lineTo(xAt, GROUND_Y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#ffd93d";
+    ctx.font = "bold 11px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("ECHO", xAt, GROUND_Y - 156);
+    ctx.font = "9px monospace";
+    ctx.fillText("if you keep this speed", xAt, GROUND_Y - 144);
+    ctx.textAlign = "left";
+  }
+
+  // A live pulse-programme diagram: the same picture a spectrometer manual
+  // draws, built from the pads you have actually stepped on.
+  function drawSequenceStrip() {
+    const x = 340, y = 396, w = 356, h = 48;
+    panelBox(x, y, w, h, "rgba(124,240,168,0.45)");
+    const name = sequenceName();
+    ctx.font = "bold 10px monospace";
+    ctx.fillStyle = "#7cf0a8";
+    ctx.fillText("SEQUENCE: " + name[0], x + 8, y + 12);
+    ctx.font = "10px monospace";
+    ctx.fillStyle = "#cfe0ff";
+    ctx.fillText(name[1], x + 8, y + 24);
+    if (!seq.length) return;
+
+    // time axis, from the first pulse of this scan
+    const t0 = seq[0].t;
+    const now = spinTime - t0;
+    const due = echoDueAt();
+    const echoT = due === null ? null : due - t0;
+    const span = Math.max(0.05, now * 1.15, (echoT || 0) * 1.15);
+    const ax = x + 10, aw = w - 20, ay = y + 38;
+    ctx.strokeStyle = "rgba(200,215,255,0.45)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(ax + aw, ay); ctx.stroke();
+    const px = (t) => ax + (t / span) * aw;
+
+    if (echoT !== null) {                       // where the refocus is due
+      ctx.strokeStyle = "rgba(255,217,61,0.85)";
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(px(echoT), ay - 12); ctx.lineTo(px(echoT), ay + 4); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#ffd93d";
+      ctx.font = "9px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("echo 2τ", px(echoT), ay - 14);
+      ctx.textAlign = "left";
+    }
+    for (const p of seq) {                      // the pulses themselves
+      const t = p.t - t0;
+      ctx.fillStyle = p.deg === 90 ? "#ffcc33" : "#66d4ff";
+      ctx.fillRect(px(t) - 2, ay - 10, 4, 10);
+      ctx.font = "8px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(p.deg === 90 ? "90x" : "180x", px(t), ay + 10);
+      ctx.textAlign = "left";
+    }
+    ctx.fillStyle = "rgba(255,255,255,0.85)";   // the "now" cursor
+    ctx.fillRect(px(now) - 1, ay - 6, 2, 8);
+    ctx.font = "9px monospace";
+    ctx.fillStyle = "rgba(190,205,240,0.8)";
+    ctx.fillText((now * 1000).toFixed(0) + " ms", ax + aw - 44, ay + 10);
+  }
+
+  // ---------- the guided hints ----------
+  // Each one fires once, the first time the thing it explains is in front of
+  // you, and freezes the game until it is dismissed.
+  const TUTORIAL = [
+    { id: "you", when: () => true, box: () => [player.x - camX - 34, player.y - 62, 94, 104],
+      title: "This is you",
+      body: "You are the magnetization of the sample. The dial above your head is the honest picture of it: every spoke is one spin packet, and the bright arrow is their vector sum. That sum is the only thing a detector coil can ever see." },
+    { id: "tune", when: () => player.x > 430, box: () => [232, 34, 338, 40],
+      title: "Tune the transmitter first",
+      body: "ν = γB₀ = 500.00 MHz here. The green band is the frequency of the spins in front of you; the marker is where your transmitter is parked. Hold Q / E (or the TUNE buttons) until they overlap. Off resonance, a pulse does nothing at all." },
+    { id: "pad90", when: () => nearPad(90), box: () => [pads[0].x - camX - 40, GROUND_Y - 46, 80, 46],
+      title: "90° pulse — the experiment starts here",
+      body: "Walk over the pad and it runs 90x: the magnetization is rotated out of z and into the xy-plane. Nothing more complicated than that is the commonest experiment in the building — 90x then acquire." },
+    { id: "signal", when: () => netMxy() > 0.25, box: () => [10, 52, 262, 130],
+      title: "That is your signal",
+      body: "|Mxy| is the transverse magnetization and the green trace is the FID being recorded from it. Notice Mz has gone to zero: there is nothing left to tip until T1 brings it back." },
+    { id: "t1", when: () => nearPad(90, 1) && netMz() < 0.55, box: () => [10, 52, 262, 56],
+      title: "This is why spectrometers wait",
+      body: "Mz has not recovered — T1 is 200 ms and you got here faster than that. Pulse now and there is almost nothing to tip, so the scan is nearly empty. On a real instrument that wait is the recycle delay d1, normally a few times T1." },
+    { id: "shim", when: () => player.x > 1930, box: () => [player.x - camX - 34, player.y - 62, 94, 104],
+      title: "A badly shimmed patch",
+      body: "The packets here are spread over about ±9 Hz instead of ±1.5, so they fan apart on the dial and their sum collapses. That decay is T2*, not T2: no single packet has shrunk, they have just stopped agreeing with each other." },
+    { id: "pad180", when: () => nearPad(180), box: () => [336, 392, 364, 56],
+      title: "180° — the Hahn echo",
+      body: "A 180x mirrors the fan: packets that raced ahead are now behind by the same amount, so they meet again at 2τ. Two things worth knowing: you can JUMP OVER a pad to skip it, which is how you choose τ — and the dashed ECHO marker on the floor shows where the refocus will land if you hold your speed. Put it on a coil." },
+    { id: "coil", when: () => player.x > 2560 && instrumentAt(player.x).key === "nmr",
+      box: () => [coils[2].x - camX - 30, GROUND_Y - 110, 60, 110],
+      title: "Collect it at the echo",
+      body: "A coil records whatever transverse signal you happen to have as you pass through it — and leaves itself alone if you arrive with nothing, so a wasted pass costs you nothing but time. The stage is one question: which 180 pad puts the echo on a coil?" },
+    { id: "ir", when: () => instrumentAt(player.x).key === "ir", box: () => [10, 58, 160, 110],
+      title: "Now you are a vibrating bond",
+      body: "The rungs are vibrational levels, E(v) = ω(v+½) − ωx(v+½)², so they close up as you climb. Your jump reaches exactly one rung and never two — that is the Δv = ±1 selection rule, enforced by gravity instead of by a rule sheet." },
+    { id: "raman", when: () => instrumentAt(player.x).key === "raman", box: () => [10, 58, 160, 110],
+      title: "Stokes and anti-Stokes",
+      body: "Photons cross the beam. From v = 0 the photon can only leave a quantum behind (Stokes). If you arrive still vibrating, it can take one away instead (anti-Stokes) — worth far more, because at room temperature almost nothing is vibrationally excited to begin with." },
+    { id: "uvvis", when: () => instrumentAt(player.x).key === "uvvis", box: () => [10, 58, 210, 90],
+      title: "Beer–Lambert",
+      body: "Three routes through the sample compartment, three absorbances. A = εcl and T = 10^(−A), so A = 0.15 lets 71% through and A = 1.21 only 6%. The clear sample is the highest climb: that is the trade." },
+  ];
+
+  function nearPad(deg, which) {
+    let seen = 0;
+    for (const p of pads) {
+      if (p.deg !== deg) continue;
+      if (which === undefined || seen === which) {
+        if (Math.abs(player.x - p.x) < 150) return true;
+      }
+      seen += 1;
+    }
+    return false;
+  }
+
+  function checkTutorial() {
+    if (!tutorialOn || tutorial) return false;
+    if (!player.onGround) return false;   // never freeze someone mid-jump
+    for (const step of TUTORIAL) {
+      if (tutorialSeen[step.id]) continue;
+      if (!step.when()) continue;
+      tutorialSeen[step.id] = true;
+      tutorial = step;
+      toastTitle = null; toastText = null; toastTimer = 0;
+      state = "tutorial";
+      return true;
+    }
+    return false;
+  }
+
+  function dismissTutorial() {
+    tutorial = null;
+    if (state === "tutorial") state = "playing";
+  }
+
+  function drawTutorial() {
+    if (!tutorial) return;
+    const b = tutorial.box ? tutorial.box() : null;
+    ctx.fillStyle = "rgba(4,6,16,0.82)";
+    if (b) {                                    // dim everything except the subject
+      const [bx, by, bw, bh] = b;
+      ctx.fillRect(0, 0, VW, Math.max(0, by));
+      ctx.fillRect(0, by + bh, VW, VH - (by + bh));
+      ctx.fillRect(0, by, Math.max(0, bx), bh);
+      ctx.fillRect(bx + bw, by, VW - (bx + bw), bh);
+      ctx.strokeStyle = "#ffd93d";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(bx - 2, by - 2, bw + 4, bh + 4);
+    } else {
+      ctx.fillRect(0, 0, VW, VH);
+    }
+    ctx.font = "13px monospace";
+    const lines = wrapLines(tutorial.body, 540);
+    const h = 74 + lines.length * 18;
+    // sit opposite whatever is highlighted, and never under the touch buttons
+    const subjectLow = b ? (b[1] + b[3] / 2) > VH / 2 : true;
+    const y = subjectLow ? 30 : Math.min(VH - h - 84, VH / 2 + 6);
+    panelBox(VW / 2 - 300, y, 600, h, "#ffd93d");
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#ffd93d";
+    ctx.font = "bold 15px monospace";
+    ctx.fillText(tutorial.title, VW / 2, y + 26);
+    ctx.fillStyle = "#e9f0ff";
+    ctx.font = "13px monospace";
+    lines.forEach((l, i) => ctx.fillText(l, VW / 2, y + 50 + i * 18));
+    ctx.fillStyle = "rgba(190,205,240,0.85)";
+    ctx.font = "11px monospace";
+    ctx.fillText("space / tap to carry on     ·     T turns these hints off", VW / 2, y + h - 12);
+    ctx.textAlign = "left";
+  }
+
   // ---------- draw ----------
   function draw() {
     const inst = instrumentAt(player.x);
@@ -1245,13 +1417,16 @@
     drawBeam();
     drawCuvettes();
     drawDetector();
+    if (inst.key === "nmr" && state === "playing") drawEchoMarker();
     drawPlayer();
     if (inst.key === "nmr") drawDial();
     ctx.restore();
     drawPanels(inst);
+    if (inst.key === "nmr" && state !== "results") drawSequenceStrip();
     drawToast();
     drawFlash();
     if (state === "results") drawResults();
+    if (state === "tutorial") drawTutorial();
   }
 
   // ---------- boot ----------
@@ -1290,7 +1465,10 @@
       mz: netMz(), mxy: netMxy(),
       sitePpm: siteAt(player.x).ppm, instrument: instrumentAt(player.x).key,
       scans: nScans, scanIdx, spinTime, coils: coils.map(c => c.got),
+      seq: seq.map(p => ({ deg: p.deg, ms: +((p.t) * 1000).toFixed(1) })),
+      echoDue: (() => { const e = echoDueAt(); return e === null ? null : +(e * 1000).toFixed(1); })(),
       onResonance: Math.abs(shiftHz(siteAt(player.x)) - nuRF) < OFF_RES,
+      vy: player.vy, onGround: player.onGround, jumpHeld, tutorialOn,
     }),
     constants: { B0, NU0, HZ_PER_PPM, T1, T2, TIME_SCALE, DWELL, N_PACK, WNUM, XE, OFF_RES },
     ladder: () => rungs.map(r => ({ v: r.v, cm: G(r.v), x: r.x, y: r.y })),

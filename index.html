@@ -87,6 +87,7 @@
            molecule on the IR and Raman benches, then a beam in the UV-Vis. The spectrum at the end is the
            Fourier transform of the FID you actually recorded.</p>
         <a class="btn primary" href="spin/">▶ Play Spin Runner</a>
+        <a class="btn secondary" href="spin/sandbox.html" style="margin-top:8px">Free-play sandbox</a>
       </div>
       <div class="card">
         <h2>Pixel Plumber</h2>
@@ -148,6 +149,49 @@
           <code>T = 10^(−A)</code>. The clear sample is the highest climb.</li>
       </ul>
     </section>
+
+    <figure>
+      <img src="images/spin-teaching.png" alt="Spin Runner mid-stage: a dashed ECHO marker stands on the floor next to a detector coil, a SEQUENCE strip along the bottom reads Hahn echo, 90x tau 180x tau echo with the pulses marked on a timeline, and each HUD panel carries a one-line caption." />
+      <figcaption>The teaching layer. Bottom: the pulse programme you have actually built, named and drawn
+      on a time axis with the refocus marked. On the floor: where that echo will land if you hold your
+      speed — the stage is simply getting it onto a coil.</figcaption>
+    </figure>
+
+    <section>
+      <h2>How it explains itself</h2>
+      <p>
+        The first version of this hid the physics behind a platformer: you jumped on a pad and something
+        happened to a dial, with no way to tell what any of it stood for. Four changes fixed that, and
+        they are the part worth keeping.
+      </p>
+      <ul>
+        <li><strong>Every stage is named as the real experiment.</strong> Stage 2 is titled
+          <code>SINGLE-PULSE ACQUIRE · 90x – acquire</code>, stage 3 is
+          <code>HAHN ECHO · 90x – τ – 180x – τ</code>. If you know the sequence from the bench, you know
+          what the stage wants before you read anything else.</li>
+        <li><strong>A live pulse programme.</strong> A strip along the bottom draws the pulses you have
+          fired on a time axis and names what they add up to — single-pulse acquire, Hahn echo, CPMG,
+          inversion recovery — and marks where the refocus is due. It is the same diagram a spectrometer
+          manual prints, built from your own play.</li>
+        <li><strong>Every panel says what it is.</strong> One line under each: the Mz bar is
+          <em>what a 90° pulse has to work with</em>, the Mxy bar is <em>transverse, all a coil can
+          detect</em>, the dial is <em>each spoke is a spin packet, the bright arrow is their sum</em>.</li>
+        <li><strong>Hints that stop and point.</strong> The first time each idea matters, the game pauses,
+          dims everything except the thing in question, and explains it in two sentences. They fire only
+          when you are on the ground, never mid-jump, and <code>T</code> turns them off for good.</li>
+      </ul>
+      <p>
+        There is also a <a href="spin/sandbox.html">free-play sandbox</a>: the same engine with the lid
+        off, no goals, sliders for T1, T2, shim and offset, and one-click buttons for the four named
+        experiments. It is the version to put on a projector.
+      </p>
+    </section>
+
+    <figure>
+      <img src="images/spin-sandbox.png" alt="The sandbox: a packet fan showing spokes partly regrouped, an FID whose magnitude envelope dips to a waist and swells back out into an echo, a Fourier-transformed spectrum, and a sequence strip reading Hahn echo." />
+      <figcaption>The sandbox running a Hahn echo. The FID envelope pinches to a waist as the packets
+      fan apart and swells back out as they refocus — the shape of the experiment, with nothing hidden.</figcaption>
+    </figure>
 
     <section>
       <h2>What was verified</h2>
@@ -228,13 +272,15 @@
     <section>
       <h2>Built with</h2>
       <p>
-        Plain HTML5 canvas, CSS and JavaScript — no engine, no dependencies, no build step. Spin Runner is one
-        <code>spin/game.js</code>, including its own radix-2 FFT. Both were built and verified with Claude Code.
+        Plain HTML5 canvas, CSS and JavaScript — no engine, no dependencies, no build step. The spin physics
+        lives in <code>spin/bloch.js</code>, shared by the game and the sandbox so there is only one
+        implementation to trust, and it carries its own radix-2 FFT. Built and verified with Claude Code.
       </p>
     </section>
 
     <div class="foot">
       <a href="spin/">Spin Runner →</a> ·
+      <a href="spin/sandbox.html">Sandbox →</a> ·
       <a href="app/">Pixel Plumber →</a> ·
       <a href="https://github.com/tojestspacja/md-simulation">Repository</a>
     </div>

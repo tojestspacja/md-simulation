@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spin sandbox</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: #070a15; color: #e9f0ff;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 18px 14px 40px; }
+    header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+    h1 { font-size: 21px; margin: 0; color: #ffd93d; letter-spacing: 1px; }
+    .sub { color: #8fa3d8; font-size: 13px; }
+    .sub a { color: #7cb0ff; }
+    canvas { width: 100%; height: auto; display: block; border: 1px solid #27304f; border-radius: 10px; background: #0b1022; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .card { background: #121830; border: 1px solid #27304f; border-radius: 10px; padding: 12px 14px; flex: 1 1 250px; }
+    .card h2 { font-size: 12px; margin: 0 0 10px; color: #7cb0ff; letter-spacing: 1px; text-transform: uppercase; }
+    label { display: block; font-size: 12px; color: #c4d3f5; margin-bottom: 10px; }
+    label .v { float: right; color: #ffd93d; font-family: monospace; }
+    input[type=range] { width: 100%; margin-top: 3px; accent-color: #ffd93d; }
+    button {
+      font-family: inherit; font-size: 13px; font-weight: bold;
+      background: #1d2747; color: #e9f0ff; border: 1px solid #3a4a7c;
+      border-radius: 7px; padding: 8px 12px; cursor: pointer; margin: 0 6px 6px 0;
+    }
+    button:hover { background: #27345c; }
+    button.go { background: #ffd93d; color: #2a2205; border-color: #ffd93d; }
+    button.go:hover { background: #ffe680; }
+    .note { font-size: 11.5px; color: #8fa3d8; line-height: 1.5; margin: 8px 0 0; }
+    code { background: #080b16; border: 1px solid #27304f; border-radius: 4px; padding: 0 4px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Spin sandbox</h1>
+      <div class="sub">free play, no goal &nbsp;·&nbsp; <a href="./">back to Spin Runner</a> &nbsp;·&nbsp; <a href="../">project page</a></div>
+    </header>
+    <p class="note" style="margin-bottom:10px">
+      The same Bloch engine the game runs on, with the lid off. Fire pulses by hand or run a named
+      experiment, and change the sample underneath it while it goes.
+    </p>
+
+    <canvas id="view" width="840" height="430"></canvas>
+
+    <div class="row">
+      <div class="card">
+        <h2>Pulses</h2>
+        <button id="b90" class="go">90°x</button>
+        <button id="b180">180°x</button>
+        <button id="breset">reset to equilibrium</button>
+        <p class="note">A 90° tips z into the plane; a 180° inverts z and mirrors the phase fan.
+        Each 90° starts a fresh acquisition and its FID is added to the ones before it.</p>
+      </div>
+      <div class="card">
+        <h2>Run a real experiment</h2>
+        <button id="pFid">single-pulse acquire</button>
+        <button id="pEcho">Hahn echo</button>
+        <button id="pCpmg">CPMG</button>
+        <button id="pIr">inversion recovery</button>
+        <p class="note">These schedule the pulses for you at sensible delays, so you can watch the
+        shape of each one rather than fight the timing.</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="card">
+        <h2>The sample</h2>
+        <label>T1 — longitudinal recovery <span class="v" id="vT1"></span>
+          <input type="range" id="sT1" min="40" max="600" step="10" value="200" /></label>
+        <label>T2 — transverse decay (never above T1) <span class="v" id="vT2"></span>
+          <input type="range" id="sT2" min="10" max="600" step="10" value="160" /></label>
+        <p class="note">T2 sets how fast the packets themselves die. T1 sets how fast Mz comes back,
+        which is what limits how often you can usefully pulse.</p>
+      </div>
+      <div class="card">
+        <h2>The magnet</h2>
+        <label>shim — spread of packet frequencies <span class="v" id="vShim"></span>
+          <input type="range" id="sShim" min="0" max="30" step="0.5" value="9" /></label>
+        <label>offset — how far off resonance you are <span class="v" id="vOff"></span>
+          <input type="range" id="sOff" min="-300" max="300" step="5" value="0" /></label>
+        <p class="note">Raise the shim and the packets fan apart: the signal dies at T2* long before
+        T2, and the line goes broad. A 180° pulse undoes exactly this part and nothing else — which
+        is the whole point of an echo.</p>
+      </div>
+      <div class="card">
+        <h2>Speed</h2>
+        <label>slow motion <span class="v" id="vScale"></span>
+          <input type="range" id="sScale" min="5" max="100" step="5" value="25" /></label>
+        <button id="bpause">pause</button>
+        <p class="note">1:25 means one second of your time is 40 ms of the sample's. Slow it further
+        to watch a single packet precess.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="bloch.js"></script>
+  <script src="sandbox.js"></script>
+</body>
+</html>
