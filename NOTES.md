@@ -1,5 +1,42 @@
 # NOTES — the models, and the rules that are easy to break
 
+## 0. THROUGH (quantum/game.js) — the current build
+
+One formula decides every wall:
+
+```
+T = exp(-ALPHA * d * sqrt(V - E))       ALPHA = 0.075
+E = EMAX * (speed/VMAX)^2               EMAX  = 0.55
+```
+
+which is `T = exp(-2*kappa*d)` in game units. At full speed:
+
+| thickness | odds |
+|---|---|
+| 8 px | 67% |
+| 16 px | 45% |
+| 30 px | 22% |
+| 50 px | 8% |
+
+45% is exactly 67% squared. Doubling the thickness squares the chance, and that
+is the entire lesson the game teaches without a word of text.
+
+Other mechanics: detectors collapse you (while watched, walls are solid); a
+splitter gives you two bodies on one input; the merge scores
+amp = |cos(pi*dL/LAMBDA)| with LAMBDA = 120 px.
+
+### Rules it must keep passing
+
+1. a naive player (hold right, jump when stuck) must finish — scratchpad/pw/through.js
+2. no jargon on screen unless the physics button is on
+3. never punish for something invisible: interference is a bonus, not a death
+4. a hard wall must have a route round it, or it is a toll booth
+5. never let the player run past the goal into a pit (there is a backstop block)
+
+Rules 3, 4 and 5 each came from a bug the naive-player test found.
+
+---
+
 ## 0. Agreement (echo/game.js) — the rules, and how they were tested
 
 The design rule: **digest the physics until what is left is a game rule.** Not a

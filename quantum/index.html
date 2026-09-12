@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#06060f" />
+  <title>THROUGH — you can walk through walls. sometimes.</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="wrap">
+    <canvas id="game" width="800" height="450"></canvas>
+
+    <div id="hud">
+      <div id="hud-left"><span id="h-found">0</span> / <span id="h-total">0</span></div>
+      <div id="hud-mid"></div>
+      <div id="hud-right"><button id="btn-phys" title="show the real physics">physics</button></div>
+    </div>
+
+    <div id="rotate">turn your phone sideways</div>
+
+    <div id="pads">
+      <div class="cluster">
+        <button id="p-left" class="pad" aria-label="left">&#9664;</button>
+        <button id="p-right" class="pad" aria-label="right">&#9654;</button>
+      </div>
+      <button id="p-jump" class="pad big" aria-label="jump">&#10514;</button>
+    </div>
+
+    <div id="ov">
+      <div class="card">
+        <h1>THROUGH</h1>
+        <p class="tag">you can walk through walls. sometimes.</p>
+        <div id="ov-body"></div>
+        <button id="ov-go" class="go">play</button>
+        <p class="keys">
+          <b>&larr; &rarr;</b> or <b>A D</b> to move &nbsp;·&nbsp; <b>space</b> to jump
+          &nbsp;·&nbsp; <b>R</b> to restart
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,72 +1,71 @@
-# md-simulation — Agreement
+# THROUGH
 
-A puzzle game whose rules **are** the mechanisms of NMR, plus the two earlier
-attempts that taught me what not to do. Plain HTML5 canvas: no engine, no
-dependencies, no build step.
+**You can walk through walls. Sometimes.**
 
-| | What | Live |
-|---|---|---|
-| **Agreement** | The game. A crowd that drifts apart, a move that mirrors the fan, a reserve you spend at an angle. | [`echo/`](echo/) — [play](https://tojestspacja.github.io/md-simulation/echo/) |
-| **Instrument trainer** | A real shimming drill: the lineshape tells you which shim is wrong. | [`spin/`](spin/) — [run](https://tojestspacja.github.io/md-simulation/spin/) |
-| **Spin sandbox** | Free play on the engine: T1, T2, shim, offset, one-click echo / CPMG / inversion recovery. | [`spin/sandbox.html`](spin/sandbox.html) — [open](https://tojestspacja.github.io/md-simulation/spin/sandbox.html) |
-| **Pixel Plumber** | The first build, a Mario-like platformer with physics zones. | [`app/`](app/) — [play](https://tojestspacja.github.io/md-simulation/app/) |
+An ordinary platformer — run, jump, reach the light at the end — in which you are
+a quantum particle. Every wall wears a number: your chance of tunnelling through
+it. Thin walls are easy. Thick walls are nearly impossible. Running faster helps.
 
-## Agreement
+Play it: <https://tojestspacja.github.io/md-simulation/quantum/>
+(any browser, phone included, about three minutes)
 
-A crowd of things, each running at its own fixed rate. **Your score is the
-length of their sum** — not how many, not how much each has, only whether they
-still agree. Two moves and a dial, six rounds, each adding one rule.
+That number is not a difficulty knob. It is `T = exp(-2*kappa*d)` with
+`kappa = sqrt(2m(V-E))/hbar` — the real tunnelling probability, with the real
+exponential dependence on thickness and the real dependence on your energy.
+Nobody is told that while playing. They learn in their hands that **a wall twice
+as thick is not twice as hard, it squares the odds.**
 
-### The physics, digested into rules
+## The physics, and where it hides
 
-| What the physics says | The rule |
+| Real physics | What the player experiences |
 |---|---|
-| Signal is the vector sum over the ensemble | You only score when they agree |
-| Each packet precesses at its own offset | They drift apart on their own |
-| A 180 degree pulse mirrors the phase fan | **REVERSE** — after the same time again they all meet |
-| Mz and Mxy are one budget: `sin θ` out, `cos θ` banked | A reserve you spend at an angle |
-| T1 refills slowly, T2 drains fast, T2* is reversible and T2 is not | REVERSE recovers the spreading, never the scatter |
+| Quantum tunnelling, `T = exp(-2*kappa*d)` | Walls have odds; thin is easy, thick is hopeless, speed helps |
+| Measurement collapse | A detector sweeps the corridor; while its light is on you, you and the walls are solid |
+| Superposition | You become two. One set of controls, two bodies, both must survive |
+| Interference | When the halves rejoin, their path difference decides whether they add up or cancel |
 
-No spectrometer appears anywhere. Every rule is a mechanism rather than a
-picture of one.
+Press the **physics** button and every number shows its working — the formula on
+each wall, the energy term, the path difference. Ignore it and the game is
+unchanged. Play first; the physics is underneath for anyone who looks.
 
-### Does the physics decide it?
+## Design rules this had to pass
 
-The test of a rule is whether the naive play fails. Measured by script:
+- **Can someone who only presses right and jump finish it?** Verified by script,
+  repeatedly, in `scratchpad/pw/through.js`. Four runs out of four.
+- **No jargon on screen** unless the physics button is on.
+- **Never punish for something invisible.** An early version killed you when your
+  two halves came back out of step — a number the player could not steer. Now it
+  is a bonus for getting it right, never a death.
+- **A hard wall must be a choice, not a toll booth.** The 18% wall has a route
+  over the top, so thickness is something you decide about rather than grind
+  against.
 
-| Round | Naive | Intended |
-|---|---|---|
-| 3 · echo | tip and wait → 0.01 | reverse at half time → 0.77 |
-| 4 · train | one reverse → 0.87 | three reverses → 2.43 |
-| 6 · reserve | all in at 90° → 2.39 | 45° → 3.60 |
+## The three builds before it, and why they were wrong
 
-Round 6 is the Ernst angle. `cos θ = exp(−TR/T1)` gives **35°** for these
-numbers; the measured best play is nearer **45°**, because the Ernst angle is a
-steady-state result and nine gates from a full reserve never reach steady state.
-Either way 90° loses badly.
+Kept in the repo, and honest about what they are:
 
-Controls: `Z` tips, `X` reverses, the slider sets the tip angle.
+1. **[Pixel Plumber](app/)** — Mario clone with physics zones. The physics was
+   decoration.
+2. **An NMR platformer** (deleted, in git history) — turned parameters into
+   props: a pulse became a floor pad. Jumping has nothing to do with
+   magnetization, so nothing read.
+3. **[Shim](spin/)** and **[Agreement](echo/)** — a faithful instrument trainer
+   and an abstract coherence puzzle. Both accurate; both only legible to someone
+   who already knew the subject. Lost in the middle: not a real game, not a real
+   instrument.
 
-## The two earlier attempts, and why they failed
+The lesson: start from a game anyone can already play, then make the hard physics
+the thing that makes it good. Tunnelling is not a lesson bolted onto a
+platformer — it is the best mechanic in it.
 
-Kept in git history, and worth knowing before redesigning anything here.
+## Also here
 
-1. **A platformer with NMR skinned on** — turned parameters into props. A 90°
-   pulse became a floor pad; the receiver a hoop. Unreadable, because jumping has
-   nothing to do with magnetization.
-2. **A faithful instrument trainer** (still at [`spin/`](spin/), still useful) —
-   the opposite error: real console, real shims, real lineshapes, no game.
-3. **Agreement** — digest the physics until what is left is a rule, then build
-   the game out of rules.
-
-## Under it
-
-All three run on one engine, [`spin/bloch.js`](spin/bloch.js): 64 packets, each
-a 3-vector stepped through precession, T2 decay and T1 recovery, observable =
-the vector sum. Verified against closed form — a Hahn echo peaks at 35.0 ms
-against a predicted 34.6 ms and at 0.791 M0 against 0.792. (The textbook
-2*tau = 40 ms is wrong; the falling T2 envelope pulls the maximum earlier by
-`1/(4*pi^2*sigma^2*T2)`.)
+- [`spin/`](spin/) — an NMR shimming trainer. A real drill: the lineshape tells
+  you which shim is wrong.
+- [`spin/sandbox.html`](spin/sandbox.html) — free play on a Bloch engine verified
+  against closed form (Hahn echo peaks at 35.0 ms against a predicted 34.6).
+- [`echo/`](echo/) — Agreement, the coherence puzzle.
+- [`app/`](app/) — Pixel Plumber.
 
 ## Running locally
 
@@ -83,9 +82,8 @@ GitHub Pages, `main` branch, root. Every push republishes.
 ## Layout
 
 - `index.html` — project page
-- `echo/` — Agreement (`index.html`, `style.css`, `game.js`)
-- `spin/` — instrument trainer (`console.js`), shared engine (`bloch.js`),
-  sandbox (`sandbox.html`, `sandbox.js`)
+- `quantum/` — THROUGH (`index.html`, `style.css`, `game.js`) — self-contained
+- `spin/` — shimming trainer, shared Bloch engine, sandbox
+- `echo/` — Agreement
 - `app/` — Pixel Plumber
-- `NOTES.md` — the models and the rules that are easy to break
-- `handover.md` — where things stand and what to do next
+- `NOTES.md`, `handover.md`

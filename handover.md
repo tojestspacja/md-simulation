@@ -5,66 +5,84 @@ Read this, then [NOTES.md](NOTES.md).
 ## Who and what
 
 Yi-Tsai Liang (GitHub `tojestspacja`), **Project 1** of TIGP *Basic Skills for
-Experimentalists*, 2026. Works on **NMR and other spectroscopic techniques**.
+Experimentalists*, 2026. Works on NMR and other spectroscopic techniques.
 
-Current state: **Agreement** (`echo/`) is the headline build. The instrument
-trainer (`spin/`), the sandbox and Pixel Plumber are kept alongside it.
-Live at <https://tojestspacja.github.io/md-simulation/>.
+**Current build: THROUGH** (`quantum/`) — a platformer where you are a quantum
+particle and walls are only probably solid. Live at
+<https://tojestspacja.github.io/md-simulation/quantum/>.
 
-## The design history — read this before changing direction
+Earlier builds kept and still playable: `spin/` (shimming trainer),
+`spin/sandbox.html` (Bloch sandbox), `echo/` (Agreement), `app/` (Pixel Plumber).
 
-Four shapes, three rejections. The rejections are the valuable part, because
-each was a different kind of wrong and the user named each one precisely.
+## The brief, in the user's words
 
-1. **Pixel Plumber** — Mario platformer with physics zones. Fine; physics was
-   flavour.
-2. **Spin Runner** — NMR platformer. *"you copy all interface and idea from
-   Mario… I don't know how to play it by seeing the instructions… don't
-   understand what physics you are trying to connect."* A teaching layer was
-   bolted on and helped, but the root problem stood.
-3. **The root problem, named by the user:** the objects were *"concepts rather
-   than things that really matter… far from real machine."* Correct — the game
-   had **turned parameters into props**.
-4. **Shim** (`spin/`) — I over-corrected into a faithful instrument trainer:
-   real console, real shim coils, real lineshapes. The user: *"you are wrong. i
-   want something more creative, that you digest the underlying physics but make
-   it into some game rules or objects that really matters."* Accurate again — it
-   was a simulator with no game in it.
-5. **Agreement** (`echo/`) — the current answer. Digest the physics until what
-   remains is a *rule*, then build from rules. See NOTES.md §1.
+> *"i want to turn some hard physics into some classics games like (but not
+> necessarily is) Mario accessible to general public"*
 
-**The lesson to carry forward:** the failure mode at each end is symmetrical.
-Skin a game with physics → unreadable. Reproduce the instrument → inert. The
-target is the narrow middle: rules that *are* mechanisms.
+Three constraints, and the third is the one that took four attempts to hear:
+**a classic game shape**, **hard physics**, and **accessible to the general
+public**.
 
-## State
+## The design history — read before changing direction
 
-Everything committed, pushed and verified live.
+| Build | What it was | Why it was wrong |
+|---|---|---|
+| Pixel Plumber | Mario clone with low-gravity and ice zones | physics was decoration |
+| Spin Runner | NMR platformer, pulses as floor pads | *"you copy all interface and idea from Mario… don't understand what physics you are trying to connect"* — it turned parameters into props |
+| Shim | faithful spectrometer shimming trainer | *"you are wrong… i want something more creative"* — accurate instrument, no game |
+| Agreement | abstract coherence puzzle, NMR digested into rules | *"you got lost in the midpoint"* — neither a real game nor a real instrument, and only legible to an expert |
+| **THROUGH** | platformer, real tunnelling decides every wall | the current answer |
 
-- Agreement: six rounds, all verified by script, with the naive play failing in
-  rounds 3, 4 and 6 (that is the test of a rule — see NOTES.md §1).
-- The shared engine `spin/bloch.js` is unchanged and still verified.
-- Project page, README and NOTES rewritten around Agreement.
+**The shape of the error, both ways:** skin a game with physics and it is
+unreadable; reproduce the instrument and it is inert; abstract it for an expert
+and the public is locked out. The target is a game anyone can already play, in
+which the hard physics is *the best mechanic*, not the lesson.
 
-### Outstanding
+## THROUGH — what it is built on
 
-1. **The class wall card is stale** — it still describes Spin Runner. Needs a
-   new blurb and picture (`images/agree-echo.png` is the obvious one). Blurb is
-   capped at **400 characters**; `py scripts/build.py` in the `showcase-2026`
-   clone enforces it. Never hand-edit `projects.json`.
-2. **Agreement has no mobile layout.** It is a 960px canvas plus a three-column
-   deck; it will be cramped on a phone. Worth doing if it is to be shown around.
-3. **Round 6 needs nine taps in twelve seconds.** It works but it is busy; a
-   "hold to auto-tip at each gate" option would let the player think about the
-   angle instead of the clicking, which is the actual lesson.
-4. **More rules are available and unused**: selective refocusing (reverse only
-   part of the crowd), the √N of signal averaging, Fourier duality (sharp in time
-   = broad in frequency). Each is a genuine rule, not a reskin.
+One formula does the work:
+
+```
+T = exp(-ALPHA * d * sqrt(V - E))        ALPHA = 0.075
+E = EMAX * (speed/VMAX)^2                EMAX  = 0.55
+```
+
+which is `T = exp(-2*kappa*d)` in game units. Odds at full speed: 8 px → 67%,
+16 px → 45%, 30 px → 22%, 50 px → 8%. Doubling the thickness squares the
+chance — that is exact, and it is the whole lesson.
+
+Other mechanics: detectors collapse you (solid while watched), a splitter makes
+you two bodies on one input, and the merge compares path lengths
+(`amp = |cos(pi*dL/LAMBDA)|`, LAMBDA = 120 px) for a bonus.
+
+## Rules it must keep passing
+
+1. **A naive player must be able to finish.** `scratchpad/pw/through.js` holds
+   right and jumps when stuck. Run it after any level change; it should reach the
+   end. It has caught every real bug so far.
+2. **No jargon on screen** unless the physics button is on.
+3. **Never punish for something invisible.** Interference is a bonus, not a
+   death.
+4. **A hard wall must have a way round it,** or it is a toll booth.
+5. **Never let the player run past the goal into a pit.** There is a backstop
+   block; the goal also explains itself if your other half has not arrived.
+
+## Outstanding
+
+1. **The class wall card is stale** — still describes an older build. Needs a new
+   blurb and picture (`images/through-title.png`). Blurb capped at **400
+   characters**; `py scripts/build.py` in the `showcase-2026` clone enforces it.
+   Never hand-edit `projects.json`.
+2. **More acts are available and cheap**: a barrier you must *lower your* energy
+   to pass would be a nice inversion; a corridor where two routes differ by
+   exactly half a wavelength would make interference a real puzzle rather than a
+   bonus.
+3. The `%` label can overlap a ceiling block at some camera positions. Cosmetic.
 
 ## Git identity trap
 
 Pushes are rejected with `GH007: private email address` unless commits use the
-noreply address. Both repos are configured already:
+noreply address. Configured already:
 
 ```
 git config user.email "171763498+tojestspacja@users.noreply.github.com"
@@ -72,28 +90,19 @@ git config user.email "171763498+tojestspacja@users.noreply.github.com"
 
 ## How the user works
 
-- They are the domain expert and their criticism has been right every time. Take
-  it literally rather than defensively.
-- They ask for **ideas and a decision**, not another round of questions. Two
-  rounds of AskUserQuestion was already one too many; the third time they
-  answered with a directive instead of picking an option.
-- **Verified claims matter.** Every number quoted anywhere was measured by
-  driving the running build from a script. When the simulation disagrees with a
+- Their criticism has been right every single time, and it gets to the point
+  faster than my analysis did. Take it literally.
+- They want **ideas and a decision**, not questions. Three rounds of asking was
+  two too many; the last time they answered a multiple-choice with a directive.
+- **Verified claims only.** Every number quoted anywhere was measured by driving
+  the running build from a script. When a simulation disagrees with a
   back-of-envelope, check the algebra first — it was the envelope that was wrong
-  both times (the echo peak at 35 ms, and the 45° vs 35° tip angle).
-
-## Do not break these
-
-- Rules must be mechanisms, never props and never furniture.
-- A round only teaches if the **naive play fails**. Test that, per round.
-- Tune by measuring, never by feel.
-- The echo peak really is at 35 ms, not 2τ = 40 ms.
-- The in-game best tip angle really is ~45°, not the steady-state 35°.
+  both times it came up.
 
 ## Environment gotchas
 
 Bash heredocs break on ASCII apostrophes; backticks inside double-quoted shell
 strings get command-substituted (this mangled README.md once) — use the editor
 tool for prose. Node resolves `/tmp/...` to `C:\tmp\...`. Python is `py`.
-Playwright lives in the session scratchpad; reinstall if gone. Patch scripts must
-actually call `fs.writeFileSync`.
+Playwright lives in the session scratchpad. Patch scripts must actually call
+`fs.writeFileSync`.
