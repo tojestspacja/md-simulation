@@ -40,14 +40,15 @@ see *Immediately outstanding*.
 
 ### Immediately outstanding
 
-1. **Commit and push the latest batch.** The teaching layer, `bloch.js`,
-   the sandbox, the new screenshots, `NOTES.md` and this file are on disk;
-   confirm with `git status` in `md-simulation` and push. GitHub Pages
-   republishes from `main` root automatically (~1–2 min), then re-check
-   `/`, `/spin/`, `/spin/sandbox.html`, `/app/`.
-2. **Consider refreshing the wall card blurb** to mention the sandbox. Blurb is
-   capped at **400 characters** — the validator (`python scripts/build.py`)
-   enforces it. Do not hand-edit `projects.json`; the Action regenerates it.
+Nothing blocking. Everything above is committed (`5ff1601`), pushed, and
+verified against the **live** site: the game reproduces the echo at 0.792 M0 /
+35.0 ms, the sandbox runs its presets, the project page loads all four figures,
+and there are no console errors on any of them.
+
+One optional loose end: **refresh the class wall card blurb** to mention the
+sandbox. The blurb is capped at **400 characters** and the validator
+(`py scripts/build.py` in the `showcase-2026` clone) enforces it. Do not
+hand-edit `projects.json` — the GitHub Action regenerates it on push.
 
 ## Git identity trap
 
