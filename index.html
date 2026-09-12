@@ -3,17 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pixel Plumber — Project Page</title>
+  <title>Spin Runner &amp; Pixel Plumber — Project Page</title>
   <style>
     :root {
-      --bg: #101425;
-      --panel: #171c33;
+      --bg: #0a0e1d;
+      --panel: #141a30;
+      --panel2: #101528;
       --text: #eef1fb;
-      --muted: #a6adc8;
-      --accent: #ffcc00;
-      --accent-2: #5c94fc;
-      --ok: #4caf50;
-      --border: #2a3055;
+      --muted: #a0aac6;
+      --accent: #ffd93d;
+      --accent-2: #7cb0ff;
+      --ok: #5fd08a;
+      --border: #27304f;
     }
     * { box-sizing: border-box; }
     body {
@@ -21,238 +22,221 @@
       background: var(--bg);
       color: var(--text);
       font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-      line-height: 1.55;
+      line-height: 1.6;
     }
-    .wrap {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 32px 20px 64px;
-    }
-    header {
-      text-align: center;
-      margin-bottom: 28px;
-    }
+    .wrap { max-width: 820px; margin: 0 auto; padding: 34px 20px 70px; }
+    header { text-align: center; margin-bottom: 26px; }
     h1 {
-      font-size: clamp(28px, 6vw, 44px);
+      font-size: clamp(25px, 5.5vw, 40px);
       margin: 0 0 6px;
       color: var(--accent);
-      text-shadow: 3px 3px 0 #c1440e;
       letter-spacing: 1px;
     }
-    .byline {
-      color: var(--muted);
-      font-size: 15px;
-    }
-    .cta {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin: 22px 0 8px;
-    }
+    .byline { color: var(--muted); font-size: 15px; }
+    .cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 20px 0 4px; }
     .btn {
-      display: inline-block;
-      font-weight: bold;
-      text-decoration: none;
-      padding: 12px 22px;
-      border-radius: 8px;
-      font-size: 15px;
+      display: inline-block; font-weight: bold; text-decoration: none;
+      padding: 11px 20px; border-radius: 8px; font-size: 15px;
     }
-    .btn.primary {
-      background: var(--accent);
-      color: #3a2a00;
-      box-shadow: 0 4px 0 #b38600;
-    }
-    .btn.secondary {
-      background: var(--panel);
-      color: var(--text);
-      border: 2px solid var(--border);
-    }
-    figure {
-      margin: 28px 0;
-      text-align: center;
-    }
-    figure img {
-      max-width: 100%;
-      border-radius: 10px;
-      border: 2px solid var(--border);
-      image-rendering: pixelated;
-    }
-    figcaption {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 8px;
-    }
+    .btn.primary { background: var(--accent); color: #2a2205; box-shadow: 0 4px 0 #b39100; }
+    .btn.secondary { background: var(--panel); color: var(--text); border: 2px solid var(--border); }
+    figure { margin: 24px 0; text-align: center; }
+    figure img { max-width: 100%; border-radius: 10px; border: 2px solid var(--border); }
+    figcaption { color: var(--muted); font-size: 13px; margin-top: 8px; }
     section {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 24px;
-      margin-bottom: 20px;
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px 24px; margin-bottom: 20px;
     }
-    h2 {
-      margin-top: 0;
-      font-size: 20px;
-      color: var(--accent-2);
-    }
-    ul { padding-left: 22px; }
-    li { margin-bottom: 6px; }
+    section.alt { background: var(--panel2); }
+    h2 { margin-top: 0; font-size: 20px; color: var(--accent-2); }
+    h3 { font-size: 15px; color: var(--accent); margin: 18px 0 6px; }
+    ul { padding-left: 20px; }
+    li { margin-bottom: 7px; }
     code {
-      background: #0c0f1e;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 1px 6px;
-      font-size: 0.92em;
+      background: #080b16; border: 1px solid var(--border); border-radius: 4px;
+      padding: 1px 6px; font-size: 0.9em;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14.5px;
-      margin-top: 8px;
-    }
-    th, td {
-      text-align: left;
-      padding: 8px 10px;
-      border-bottom: 1px solid var(--border);
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
+    th, td { text-align: left; padding: 8px 9px; border-bottom: 1px solid var(--border); vertical-align: top; }
     th { color: var(--muted); font-weight: 600; }
-    .pass { color: var(--ok); font-weight: bold; }
-    .foot {
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 12px;
+    .pass { color: var(--ok); font-weight: bold; white-space: nowrap; }
+    .note { color: var(--muted); font-size: 13px; }
+    .games { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+    @media (max-width: 620px) { .games { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 12px; padding: 18px 20px;
     }
+    .card h2 { margin-bottom: 4px; }
+    .card p { font-size: 14px; color: var(--muted); margin: 6px 0 14px; }
+    .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 14px; }
     .foot a { color: var(--accent-2); }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1>Pixel Plumber 🍄</h1>
+      <h1>Two physics games</h1>
       <div class="byline">Yi-Tsai Liang — Project 1, TIGP Basic Skills for Experimentalists (2026)</div>
-      <div class="cta">
-        <a class="btn primary" href="app/">▶ Play it</a>
-        <a class="btn secondary" href="https://github.com/tojestspacja/md-simulation">Code on GitHub</a>
-      </div>
     </header>
 
-    <figure>
-      <img src="images/screenshot.png" alt="Pixel Plumber gameplay: a Mario-like character mid-jump between floating brick platforms, with score/coin/life HUD at the top and on-screen touch controls at the bottom." />
-      <figcaption>Mid-air between two platforms — on-screen touch controls (bottom) work alongside arrow keys / Space.</figcaption>
-    </figure>
+    <div class="games">
+      <div class="card">
+        <h2>Spin Runner</h2>
+        <p>A spectroscopy platformer. You are the sample: magnetization in a 500 MHz magnet, then a vibrating
+           molecule on the IR and Raman benches, then a beam in the UV-Vis. The spectrum at the end is the
+           Fourier transform of the FID you actually recorded.</p>
+        <a class="btn primary" href="spin/">▶ Play Spin Runner</a>
+      </div>
+      <div class="card">
+        <h2>Pixel Plumber</h2>
+        <p>The first build: a small Mario-like platformer with a low-gravity zone, a frictionless ice zone
+           and a live readout of the constants behind the jump.</p>
+        <a class="btn secondary" href="app/">▶ Play Pixel Plumber</a>
+      </div>
+    </div>
 
     <figure>
-      <img src="images/moon-zone.png" alt="The same jump in the low-gravity zone: a dotted trail traces a much taller, almost vertical arc from the ground to near the top of the screen, with a live physics readout panel on the right showing g = 650 px/s² and a predicted jump apex of 356 px." />
-      <figcaption>Same jump, low-gravity zone: g drops from 2200 to 650 px/s², the dotted trail traces the actual arc, and the 🔬 physics panel shows the live numbers — apex jumps from 105 px to 356 px.</figcaption>
+      <img src="images/spin-echo.png" alt="Spin Runner in the badly shimmed part of the magnet: the transmitter is on resonance at 1050 Hz, the transverse magnetization has refocused to 0.75 of M0 at the top of a spin echo, and the FID trace shows the echo building." />
+      <figcaption>Spin Runner, caught at the top of a spin echo: 90° — τ — 180° — τ, and the signal that had
+      fanned away comes back to 0.75 of M0. The trace at the left is the FID being recorded.</figcaption>
     </figure>
 
     <section>
-      <h2>What it is</h2>
+      <h2>Spin Runner — what it is</h2>
       <p>
-        A tiny Super-Mario-like side-scrolling platformer, built as plain HTML5 Canvas + JavaScript —
-        no game engine, no build step, one <code>&lt;canvas&gt;</code> element and a
-        <code>requestAnimationFrame</code> loop. It runs equally well typed into a laptop browser or
-        tapped on a phone, which made it a good first project: the whole "AI-assisted app" loop
-        (spec → build → deploy → verify) end-to-end, on something small enough to reason about by hand.
+        A side-scrolling platformer built on a real Bloch-equation simulation. The magnetization is carried by
+        64 independent spin packets, each a 3-vector stepped through precession and relaxation every frame.
+        Nothing about the spin physics is animated by hand: dephasing, the echo, and the spectrum on the
+        results screen all fall out of that simulation, which is why they agree with the closed-form answers
+        to two or three digits (table below).
       </p>
       <p>
-        Run and jump across floating platforms, stomp goombas from above, collect coins, and reach the
-        flag at the far end of a ~4000&nbsp;px-wide level, camera scrolling to follow you. Three lives;
-        touching an enemy from the side costs one.
+        Six stages walk through a spectroscopy lab. The sample is deliberately doped
+        (<code>T1 = 200 ms</code>, <code>T2 = 160 ms</code>) so relaxation happens on a timescale you can play
+        with, and the whole simulation runs at 1:25 slow motion so a millisecond of spin time is visible.
       </p>
-      <p>
-        Two stretches of the level swap out Earth-normal physics for something else, sign-posted and
-        tinted so you feel it coming: a 🌙 <strong>low-gravity zone</strong> and a 🧊 <strong>frictionless
-        ice zone</strong>. Tap <strong>🔬 Physics</strong> any time for a live readout of the current
-        <code>g</code>, friction, height and velocity — the same numbers the "what was verified" table
-        below checks by hand.
-      </p>
-    </section>
 
-    <section>
-      <h2>How it works — the rules</h2>
-      <p>The whole simulation is a fixed-timestep-ish loop: read input → integrate physics → resolve collisions → draw.</p>
+      <h3>Stages 1–3 · in the magnet</h3>
       <ul>
-        <li><strong>Gravity &amp; jumping.</strong> Constant downward acceleration
-          <code>g = 2200 px/s²</code>. A jump sets vertical velocity to
-          <code>v₀ = −680 px/s</code>. Releasing the jump button early clips the rise
-          (velocity snapped up to <code>−420 px/s</code>) — a standard platformer trick
-          for a variable jump height: tap for a short hop, hold for a full jump.</li>
-        <li><strong>Collision.</strong> Axis-separated AABB collision against a list of solid
-          rectangles (ground segments + floating platforms): move on <em>x</em>, resolve; move on
-          <em>y</em>, resolve. Falling past the bottom of the world (a pit) costs a life and
-          respawns you at the start.</li>
-        <li><strong>Enemies.</strong> Goombas patrol a fixed horizontal range and reverse at its
-          ends. Landing on one from above (falling, and was above it the previous frame) kills it
-          and bounces you; touching one from the side costs a life.</li>
-        <li><strong>Scoring.</strong> +10 per coin, +100 per goomba stomped.</li>
-        <li><strong>Physics zones.</strong> The moon zone drops <code>g</code> to <code>650 px/s²</code>
-          (same jump impulse, much higher arc — <code>h = v₀²/2g</code> directly); the ice zone drops
-          friction to <code>130 px/s²</code> (from <code>1600</code>), so releasing the direction key no
-          longer stops you — Newton's first law, and a real risk right before the next pit. Both are
-          just the same equations with different constants, run live.</li>
+        <li><strong>Resonance.</strong> <code>ν = γB₀</code> = 500.00 MHz at 11.74 T. Gates open only while
+          the transmitter sits on the local Larmor frequency, so walking into a new chemical environment
+          (0.00 ppm → 2.10 ppm, i.e. 1050 Hz at this field) means retuning before anything works.</li>
+        <li><strong>Pulses and T1.</strong> A 90° pad rotates Mz into the plane, and that transverse
+          magnetization is the only thing a coil can detect. Mz then returns as
+          <code>M0(1 − e^(−t/T1))</code>, so pulsing again too soon leaves nothing to detect — the recycle
+          delay, learned the hard way.</li>
+        <li><strong>T2* and the echo.</strong> One patch is badly shimmed (packets spread over ±9 Hz). The
+          packets fan out on the dial above your head, the signal dies at T2* rather than T2, and a 180° pad
+          mirrors the fan so it winds back together. Run through the coils at the echo and you collect the
+          signal you had already lost.</li>
+        <li><strong>Paramagnetic ions.</strong> Touching a Gd³⁺ crushes your coherence — relaxation
+          enhancement, the same effect that makes contrast agents work.</li>
+      </ul>
+
+      <h3>Stages 4–6 · the rest of the bench</h3>
+      <ul>
+        <li><strong>IR.</strong> The rungs sit at <code>E(v) = ω(v+½) − ωx(v+½)²</code>, so they close up as
+          you climb — 2880, 2760, 2640, 2520 cm⁻¹ apart. Your jump clears exactly one rung and never two:
+          the <code>Δv = ±1</code> selection rule, enforced by gravity. At the end, two doors: the symmetric
+          stretch changes no dipole moment and never opens, the asymmetric one does.</li>
+        <li><strong>Raman.</strong> Photons scatter off you. From v = 0 only Stokes is available; arrive
+          still vibrating and you scatter anti-Stokes, worth far more — because at 300 K the thermal
+          population ratio is <code>N₁/N₀ = e^(−ω/kT) ≈ 5.6 × 10⁻⁷</code>, which is exactly why anti-Stokes
+          lines are weak unless something pumped the molecule first.</li>
+        <li><strong>UV-Vis.</strong> Three lanes, three cuvettes, <code>A = εcl</code> and
+          <code>T = 10^(−A)</code>. The clear sample is the highest climb.</li>
       </ul>
     </section>
 
     <section>
       <h2>What was verified</h2>
       <p>
-        Checked with a scripted headless browser (Playwright) driving the actual deployed page —
-        not just read from the source — comparing a value predicted from the constants above against
-        the value measured live in the running game.
+        Everything below was measured by driving the deployed game from a scripted headless browser
+        (Playwright) through read-only hooks, then compared against the closed-form result — not read off
+        the source and hoped for.
       </p>
       <table>
         <tr><th>Check</th><th>Predicted</th><th>Measured</th><th></th></tr>
         <tr>
-          <td>Full jump apex height,<br /><span style="color:var(--muted)">h = v₀²/(2g)</span></td>
-          <td>105.1 px</td>
-          <td>99.5 px</td>
-          <td class="pass">✓ within ~5%</td>
+          <td>Spin-echo peak time<br /><span class="note">2τ − 1/(4π²σ²T2), with τ = 20 ms and σ = 5.4 Hz</span></td>
+          <td>34.6 ms</td>
+          <td>35.0 ms</td>
+          <td class="pass">✓ within one<br />sample</td>
         </tr>
         <tr>
-          <td>Short-tap jump apex (jump-cut at ~60 ms),<br /><span style="color:var(--muted)">two-phase kinematics</span></td>
-          <td>≈76.9 px</td>
-          <td>75.9 px</td>
-          <td class="pass">✓ within ~1%</td>
+          <td>Spin-echo peak amplitude<br /><span class="note">e^(−t/T2) times the residual dephasing at that instant</span></td>
+          <td>0.792 M0</td>
+          <td>0.791 M0</td>
+          <td class="pass">✓ 0.1%</td>
         </tr>
         <tr>
-          <td>Coin scoring after collecting 2 coins,<br /><span style="color:var(--muted)">2 × 10 pts</span></td>
-          <td>20</td>
-          <td>20</td>
+          <td>Peak positions in the recorded spectrum<br /><span class="note">FFT of the co-added FID, referenced to TMS</span></td>
+          <td>0.00 and 2.10 ppm</td>
+          <td>0.00 and 2.10 ppm</td>
           <td class="pass">✓ exact</td>
         </tr>
         <tr>
-          <td>Moon-zone jump apex,<br /><span style="color:var(--muted)">g = 650 instead of 2200</span></td>
-          <td>355.7 px</td>
-          <td>≈292 px risen mid-flight</td>
-          <td class="pass">✓ consistent<br />(still rising when sampled)</td>
+          <td>Effect of the shim on linewidth<br /><span class="note">±1.5 Hz patch vs. ±9 Hz patch</span></td>
+          <td>badly shimmed<br />site is broader</td>
+          <td>15.6 Hz vs 33.2 Hz</td>
+          <td class="pass">✓ 2.1× broader</td>
         </tr>
         <tr>
-          <td>Ice-zone coast distance vs. normal ground,<br /><span style="color:var(--muted)">ratio ≈ friction<sub>normal</sub>/friction<sub>ice</sub> = 1600/130</span></td>
-          <td>≈12.3×</td>
-          <td>≈10.9× (201.5 px vs. 18.5 px)</td>
-          <td class="pass">✓ within ~11%</td>
+          <td>Beer–Lambert through the middle cuvette<br /><span class="note">A = εcl = 0.59, T = 10^(−A)</span></td>
+          <td>25.5%</td>
+          <td>25.5%</td>
+          <td class="pass">✓ exact</td>
         </tr>
       </table>
-      <p style="color:var(--muted); font-size: 13.5px; margin-bottom: 0;">
-        The small (~5%) undershoot on the full-jump apex is expected: the game integrates motion with
-        discrete ~16&nbsp;ms steps (semi-implicit Euler), which systematically loses a little height
-        against the continuous closed-form solution — the two-phase short-hop case matches almost
-        exactly since it was derived the same discrete way. Collision (no falling through platforms),
-        camera scrolling, enemy stomping, and mobile/touch rendering at phone viewport sizes were also
-        exercised and rendered correctly.
+      <p class="note" style="margin-bottom:0">
+        The echo one is worth a second look. The naive answer is that the echo arrives at 2τ = 40 ms, and the
+        simulation said 35 ms — which looked like a bug until the algebra was done properly. The refocusing
+        envelope does peak at 2τ, but it is multiplied by a falling <code>e^(−t/T2)</code>, so the observed
+        maximum sits <code>1/(4π²σ²T2)</code> = 5.4 ms earlier. The simulation was right and the first
+        prediction was wrong.
       </p>
+    </section>
+
+    <figure>
+      <img src="images/spin-spectrum.png" alt="The Spin Runner results screen: the co-added FID on the left, and its Fourier transform on the right showing a sharp line at 0 ppm and a broad structured line near 2.1 ppm, on a ppm axis running from 4 down to -1." />
+      <figcaption>The results screen. Left: the FID, with scans co-added exactly as a spectrometer averages
+      them. Right: its Fourier transform, zero-filled ×4, on a ppm axis running the usual way. The sharp line
+      is the well-shimmed site; the broad structured one is the patch with the bad shim, acquired through an
+      echo.</figcaption>
+    </figure>
+
+    <section class="alt">
+      <h2>Pixel Plumber — the first build</h2>
+      <p>
+        A small Super-Mario-like platformer in plain canvas, kept here because it is where the physics-zone
+        idea started: a low-gravity zone (g: 2200 → 650 px/s²), a frictionless ice zone (friction:
+        1600 → 130 px/s²), a dotted trail tracing the actual parabola, and a toggleable readout of the
+        constants.
+      </p>
+      <table>
+        <tr><th>Check</th><th>Predicted</th><th>Measured</th><th></th></tr>
+        <tr><td>Full jump apex, h = v₀²/2g</td><td>105.1 px</td><td>99.5 px</td><td class="pass">✓ ~5%</td></tr>
+        <tr><td>Short-tap apex (jump-cut), two-phase</td><td>≈76.9 px</td><td>75.9 px</td><td class="pass">✓ ~1%</td></tr>
+        <tr><td>Ice vs normal coast distance, ratio 1600/130</td><td>≈12.3×</td><td>≈10.9×</td><td class="pass">✓ ~11%</td></tr>
+      </table>
+      <p class="note">The few-percent undershoot is the discrete ~16 ms integration step (semi-implicit
+      Euler) losing a little height against the continuous solution.</p>
+      <div style="margin-top:14px"><a class="btn secondary" href="app/">▶ Play Pixel Plumber</a></div>
     </section>
 
     <section>
       <h2>Built with</h2>
-      <p>Plain HTML5 Canvas, CSS and JavaScript — zero dependencies, zero build step. Physics, level
-      data, and rendering all live in one <code>app/game.js</code>. Built and verified with Claude Code.</p>
+      <p>
+        Plain HTML5 canvas, CSS and JavaScript — no engine, no dependencies, no build step. Spin Runner is one
+        <code>spin/game.js</code>, including its own radix-2 FFT. Both were built and verified with Claude Code.
+      </p>
     </section>
 
     <div class="foot">
-      <a href="app/">Open the app →</a> · <a href="https://github.com/tojestspacja/md-simulation">Repository</a>
+      <a href="spin/">Spin Runner →</a> ·
+      <a href="app/">Pixel Plumber →</a> ·
+      <a href="https://github.com/tojestspacja/md-simulation">Repository</a>
     </div>
   </div>
 </body>

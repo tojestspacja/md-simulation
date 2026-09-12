@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1022" />
+  <title>Spin Runner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-wrap">
+    <canvas id="game" width="800" height="450"></canvas>
+
+    <div id="hud">
+      <div id="hud-score">SCORE 0</div>
+      <div id="hud-mid">NMR 500 MHz</div>
+      <div id="hud-lives">LIVES x3</div>
+    </div>
+
+    <button id="btn-physics" aria-label="Toggle the numbers panel" title="Show the numbers (P)">numbers</button>
+
+    <div id="rotate-hint">Rotate your phone for the best view</div>
+
+    <div id="overlay" class="hidden">
+      <div id="overlay-card">
+        <h1 id="overlay-title">Spin Runner</h1>
+        <p id="overlay-msg">You are the sample.</p>
+        <button id="overlay-btn">Start</button>
+        <div id="overlay-keys">
+          arrows / A D to move &nbsp;·&nbsp; space to jump &nbsp;·&nbsp; Q E to tune the transmitter &nbsp;·&nbsp; P for the numbers
+        </div>
+      </div>
+    </div>
+
+    <!-- touch controls (they work with a mouse too) -->
+    <div id="touch-controls">
+      <div class="left-cluster">
+      <div class="pad">
+        <button id="btn-left" class="ctrl-btn" aria-label="Left">&#9664;</button>
+        <button id="btn-right" class="ctrl-btn" aria-label="Right">&#9654;</button>
+      </div>
+      <div class="pad tune-pad">
+        <button id="btn-tune-down" class="ctrl-btn ctrl-small" aria-label="Tune down">&#9660;</button>
+        <span class="tune-label">TUNE</span>
+        <button id="btn-tune-up" class="ctrl-btn ctrl-small" aria-label="Tune up">&#9650;</button>
+      </div>
+      </div>
+      <div class="pad">
+        <button id="btn-jump" class="ctrl-btn ctrl-jump" aria-label="Jump">&#10514;</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
