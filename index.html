@@ -3,197 +3,213 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Shim &amp; Pixel Plumber — Project Page</title>
+  <title>Agreement — Project Page</title>
   <style>
     :root {
-      --bg: #080b14; --panel: #111726; --panel2: #0d1220; --line: #253048;
-      --text: #dfe7f7; --muted: #8ea0c4; --amber: #ffc447; --blue: #6fa8ff;
-      --green: #58e08b; --red: #ff7a6e;
+      --bg: #07060e; --panel: #12111f; --panel2: #0d0c17; --line: #262439;
+      --text: #ece9f7; --muted: #8d87ab; --gold: #ffd166; --cyan: #5ee0d0;
+      --violet: #a78bfa; --rose: #ff7b93;
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0; background: var(--bg); color: var(--text);
-      font-family: "Segoe UI", "Trebuchet MS", sans-serif; line-height: 1.62;
-    }
+    body { margin: 0; background: var(--bg); color: var(--text);
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif; line-height: 1.65; }
     .wrap { max-width: 830px; margin: 0 auto; padding: 34px 20px 70px; }
-    header { text-align: center; margin-bottom: 26px; }
-    h1 { font-size: clamp(25px, 5.5vw, 38px); margin: 0 0 6px; color: var(--amber); letter-spacing: 1px; }
-    .byline { color: var(--muted); font-size: 15px; }
-    .btn {
-      display: inline-block; font-weight: bold; text-decoration: none;
-      padding: 11px 20px; border-radius: 8px; font-size: 15px; margin: 4px 4px 0 0;
-    }
-    .btn.primary { background: var(--amber); color: #2b2000; }
+    header { text-align: center; margin-bottom: 24px; }
+    h1 { font-size: clamp(26px, 6vw, 42px); margin: 0 0 6px; color: var(--gold); letter-spacing: 3px; }
+    .byline { color: var(--muted); font-size: 14.5px; }
+    .cta { margin-top: 18px; }
+    .btn { display: inline-block; font-weight: bold; text-decoration: none;
+      padding: 11px 22px; border-radius: 8px; font-size: 15px; margin: 4px 3px 0; }
+    .btn.primary { background: var(--gold); color: #2b2100; }
     .btn.secondary { background: var(--panel); color: var(--text); border: 1px solid var(--line); }
-    figure { margin: 24px 0; text-align: center; }
-    figure img { max-width: 100%; border-radius: 8px; border: 1px solid var(--line); }
-    figcaption { color: var(--muted); font-size: 13px; margin-top: 8px; text-align: left; }
-    section {
-      background: var(--panel); border: 1px solid var(--line);
-      border-radius: 10px; padding: 20px 24px; margin-bottom: 18px;
-    }
+    figure { margin: 26px 0; }
+    figure img { width: 100%; border-radius: 8px; border: 1px solid var(--line); display: block; }
+    figcaption { color: var(--muted); font-size: 13px; margin-top: 9px; }
+    section { background: var(--panel); border: 1px solid var(--line);
+      border-radius: 10px; padding: 20px 24px; margin-bottom: 18px; }
     section.alt { background: var(--panel2); }
-    h2 { margin-top: 0; font-size: 19px; color: var(--blue); }
-    h3 { font-size: 14.5px; color: var(--amber); margin: 18px 0 6px; }
-    ul { padding-left: 20px; } li { margin-bottom: 7px; }
-    code { background: #050810; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; font-size: 0.9em; }
+    h2 { margin-top: 0; font-size: 19px; color: var(--cyan); }
+    ul { padding-left: 20px; } li { margin-bottom: 8px; }
+    code { background: #040309; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; font-size: 0.9em; }
     table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 10px; }
-    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th, td { text-align: left; padding: 8px 9px; border-bottom: 1px solid var(--line); vertical-align: top; }
     th { color: var(--muted); font-weight: 600; }
     .note { color: var(--muted); font-size: 13px; }
-    .games { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
-    @media (max-width: 620px) { .games { grid-template-columns: 1fr; } }
-    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 17px 19px; }
-    .card h2 { margin-bottom: 4px; }
-    .card p { font-size: 13.5px; color: var(--muted); margin: 6px 0 12px; }
-    .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 14px; }
-    .foot a { color: var(--blue); }
-    .sig { font-family: ui-monospace, Consolas, monospace; color: var(--green); }
+    .win { color: var(--cyan); font-weight: bold; }
+    .lose { color: var(--rose); font-weight: bold; }
+    .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 16px; }
+    .foot a { color: var(--cyan); }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1>Shim</h1>
-      <div class="byline">Yi-Tsai Liang — Project 1, TIGP Basic Skills for Experimentalists (2026)</div>
-    </header>
-
-    <div class="games">
-      <div class="card">
-        <h2>Shim</h2>
-        <p>Get a 500 MHz magnet to lineshape spec before the instrument time runs out. The
-           controls are the ones on a real console; the line you are judged on is the histogram
-           of B₀ over the sample.</p>
-        <a class="btn primary" href="spin/">▶ Run the console</a>
+      <h1>AGREEMENT</h1>
+      <div class="byline">A puzzle game whose rules are the mechanisms of NMR<br />
+        Yi-Tsai Liang — Project 1, TIGP Basic Skills for Experimentalists (2026)</div>
+      <div class="cta">
+        <a class="btn primary" href="echo/">▶ Play Agreement</a>
+        <a class="btn secondary" href="spin/">Instrument trainer</a>
         <a class="btn secondary" href="spin/sandbox.html">Spin sandbox</a>
       </div>
-      <div class="card">
-        <h2>Pixel Plumber</h2>
-        <p>The first build — a small Mario-like platformer with a low-gravity zone, a
-           frictionless ice zone and a live readout of the constants behind the jump.</p>
-        <a class="btn secondary" href="app/">▶ Play Pixel Plumber</a>
-      </div>
-    </div>
-
-    <figure>
-      <img src="images/shim-console.png" alt="The Shim console: a magnet cross-section on the left with the sample tube, RF coil and a tilted green line showing the field along the sample; on the right a flat-topped lineshape well outside spec; below, shim sliders, an acquire panel and a lineshape readout." />
-      <figcaption>Sample 1, untouched. The green line beside the tube is ΔB₀ along the sample — here
-      a pure linear gradient — and the line on the right is what that does: flat-topped and 14 Hz
-      wide against a 2.5 Hz spec. The two pictures are the same fact.</figcaption>
-    </figure>
+    </header>
 
     <section>
-      <h2>Why this, and not another platformer</h2>
+      <h2>The idea</h2>
       <p>
-        The first attempt at an NMR game was a side-scroller. It failed for a reason worth writing
-        down: <strong>it turned parameters into props.</strong> A 90° pulse became a pad you walked
-        over. The receiver became a hoop you ran through. A paramagnetic impurity became an enemy
-        that chased you. None of those are things; they are settings, and the drama of a real
-        instrument is not collecting them but living with the consequences of getting them wrong.
+        A crowd of things, each running at its own fixed rate. They start out pointing the same way
+        and then they drift apart, because they always do. <strong>Your score is the length of their
+        sum</strong> — not how many there are, not how much each one has, only whether they still
+        agree.
       </p>
       <p>
-        So this one keeps a classic loop but throws the props away. The loop is
-        <strong>Lunar Lander's</strong> — continuous control of a physical quantity, a budget that
-        runs down, an unforgiving target, and failure you can read off the screen and fix. The
-        quantity is the magnetic field over the few centimetres of sample the coil can see. The
-        target is a lineshape spec. The budget is instrument time.
+        There is no spectrometer anywhere in it. There are two moves and a dial. But every rule is a
+        mechanism a nuclear spin actually runs on, and the best play in the last round is a published
+        result.
       </p>
     </section>
 
     <section>
-      <h2>The physics is the game</h2>
-      <p>
-        The line a spectrometer draws is the <strong>histogram of B₀ across the sample volume</strong>,
-        convolved with the natural Lorentzian. That is not a metaphor here — it is literally the sum
-        the program evaluates. Which means the shape of the line tells you which shim is wrong, and
-        the game cannot fake it:
+      <h2>The physics, digested into rules</h2>
+      <p class="note">
+        This is the part worth reading. The left column is what the physics says; the right is the
+        rule it became. Nothing was decorated and nothing was invented to fill a level.
       </p>
       <table>
-        <tr><th>Mis-set shim</th><th>Field it adds</th><th>Signature you see</th></tr>
-        <tr><td class="sig">Z1</td><td>linear gradient, <code>z</code></td>
-            <td><strong>flat-topped and wide</strong> — the field runs evenly end to end, so every
-            frequency in the range is equally represented</td></tr>
-        <tr><td class="sig">Z2</td><td>curvature, <code>z² − ⅓</code></td>
-            <td><strong>narrow peak, broad one-sided base</strong> — barely moves the half-height
-            width while wrecking the base, which is exactly why a hump test exists separately</td></tr>
-        <tr><td class="sig">Z3</td><td>cubic, <code>z³ − 0.6z</code></td>
-            <td><strong>symmetric shoulders</strong> either side of the peak</td></tr>
-        <tr><td class="sig">Z4</td><td>quartic</td>
-            <td>a one-sided shoulder further out</td></tr>
+        <tr><th>What the physics says</th><th>The rule it becomes</th></tr>
+        <tr>
+          <td>Signal is the <strong>vector sum</strong> over the ensemble — a detector adds
+            contributions as vectors</td>
+          <td><strong>You only score when they agree.</strong> A fanned-out crowd scores nothing
+            although nothing has been lost</td>
+        </tr>
+        <tr>
+          <td>Each packet precesses at its own fixed offset</td>
+          <td>Things drift apart on their own. Entropy is the opponent</td>
+        </tr>
+        <tr>
+          <td>A 180° pulse <strong>mirrors the phase fan</strong>: whoever ran furthest ahead is now
+            furthest behind, and everyone keeps their own rate</td>
+          <td><strong>REVERSE.</strong> After the same time again, they all meet — the Hahn echo,
+            as a single puzzle move</td>
+        </tr>
+        <tr>
+          <td>Mz and Mxy are one budget: a tip pays <code>sin θ</code> and banks <code>cos θ</code></td>
+          <td>A <strong>reserve you spend at an angle.</strong> Go all in and the next gate pays
+            nothing</td>
+        </tr>
+        <tr>
+          <td>T1 refills slowly; T2 drains fast; <strong>T2* is reversible and true T2 is not</strong></td>
+          <td>The reserve regrows on a different clock, and REVERSE recovers the spreading but never
+            the scatter</td>
+        </tr>
+      </table>
+    </section>
+
+    <figure>
+      <img src="images/agree-echo.png" alt="Round three caught at the echo: on the left the crowd has reconverged into a tight bundle with the gold sum arrow at full length; on the right the trace shows the sum collapsing after the tip, then climbing steadily after the REVERSE mark and peaking exactly as the gate opens." />
+      <figcaption><strong>Round 3, caught at the echo.</strong> The crowd had fanned out to nothing;
+      REVERSE mirrored the fan, and the trace climbs all the way back up, peaking exactly as the gate
+      opens. That climb is not animated — it falls out of every member simply continuing at its own
+      rate after the mirror.</figcaption>
+    </figure>
+
+    <section>
+      <h2>Does the physics actually decide it?</h2>
+      <p>
+        The test of a rule is whether the naive play <em>fails</em>. Each round was played by script,
+        both the obvious way and the intended way:
+      </p>
+      <table>
+        <tr><th>Round</th><th>Naive play</th><th>Intended play</th></tr>
+        <tr><td>3 · the echo</td>
+            <td class="lose">tip and wait → 0.01</td>
+            <td class="win">reverse at half time → 0.77</td></tr>
+        <tr><td>4 · the train</td>
+            <td class="lose">one reverse → 0.87</td>
+            <td class="win">three reverses → 2.43</td></tr>
+        <tr><td>5 · irreversible</td>
+            <td colspan="2">gates pay 0.68 → 0.48 → 0.28 however well you reverse — the scatter
+              never comes back</td></tr>
+        <tr><td>6 · the reserve</td>
+            <td class="lose">all in at 90° → 2.39</td>
+            <td class="win">45° → 3.60</td></tr>
       </table>
       <p class="note" style="margin-top:12px">
-        Learning to read those is the actual skill, and it is the thing a shim trainer is for. The
-        specs were then tuned by measurement rather than by feel: for every sample, leaving any one
-        shim undialled fails the spec, while getting every shim within about 15% of truth passes it.
-        So no shim in any level is decoration.
+        Round 6 is the one I would point at. The Ernst angle says
+        <code>cos θ = exp(−TR/T1)</code>, which for these numbers (TR 40 ms, T1 200 ms) is
+        <strong>35°</strong>. Measured in the game the best play is nearer <strong>45°</strong>, and
+        that gap is real rather than sloppy: the Ernst angle is a <em>steady-state</em> result, and
+        nine gates starting from a full reserve never reach steady state, which pays for a bolder
+        angle early. A player who finds the angle has derived the trade that every fast experiment
+        makes.
       </p>
     </section>
 
     <figure>
-      <img src="images/shim-z3.png" alt="Sample 3 with a Z3 error left in: the lineshape shows a symmetric pair of horns with a dip between them, and the magnet panel now reads field profile not observable." />
-      <figcaption>Sample 3 with only the Z3 term left wrong — the symmetric double horn. From this
-      sample on, the field profile is hidden and you get what a real console gives you: a lock level
-      that moves while you turn, and a lineshape only when you pay for a shot.</figcaption>
+      <img src="images/agree-cpmg.png" alt="Round four finished: three gates each paying about 0.85, 0.84 and 0.74, with REVERSE marks between them and the trace rising into each gate." />
+      <figcaption><strong>Round 4, a train of reverses.</strong> Three gates paying 0.85, 0.84, 0.74.
+      One reverse scores 0.87 in total; three score 2.43. This is CPMG, arrived at because it is the
+      only way to keep meeting gates.</figcaption>
     </figure>
 
     <section>
-      <h2>What the console actually gives you</h2>
+      <h2>How this ended up here</h2>
+      <p>
+        Two earlier attempts are worth recording because the failures were instructive.
+      </p>
       <ul>
-        <li><strong>The lock level is free and continuous</strong>, and it is only a number. You
-          shim by maximising it, exactly as you would at the bench. It is drawn on a log scale
-          because peak height runs over three decades between a wrecked shim and a good one.</li>
-        <li><strong>A lineshape costs 8 seconds</strong> of instrument time, and <strong>the spec is
-          judged on a measurement, never on the lock.</strong> You have to spend time to find out
-          where you are.</li>
-        <li><strong>Autoshim costs 45 seconds</strong> and gets you roughly two thirds of the way,
-          the way a real routine does. It will not finish the job.</li>
-        <li><strong>The hump widths are read off a ×120 blow-up of the baseline</strong>, drawn
-          under the main trace, because 0.55% of the height is invisible at full scale.</li>
+        <li><strong>A platformer with NMR skinned on it.</strong> It turned parameters into props —
+          a 90° pulse became a floor pad you walked over, the receiver a hoop you ran through. The
+          verdict was fair: you could not tell what any of it stood for, because jumping has nothing
+          to do with magnetization.</li>
+        <li><strong>A faithful instrument trainer.</strong> The opposite error: real console, real
+          shim coils, real lineshapes — and no game in it at all. Accurate, and inert.</li>
+        <li><strong>This.</strong> Digest the physics until what is left is a rule, then build the
+          game out of the rules. The crowd, the sum, REVERSE, and the reserve are the whole design,
+          and each one is a mechanism rather than a picture of one.</li>
       </ul>
       <p class="note">
-        A plain hill-climb on the lock alone solves the first two samples and then gets stuck in a
-        local maximum on the harder ones — a narrow peak sitting on a ruined base. That is not a bug
-        in the simulation; it is the reason lock-only shimming is not enough and why the lineshape
-        test is a separate step.
+        The <a href="spin/" style="color:var(--gold)">instrument trainer</a> is still here and still
+        worth using — it is a real shimming drill where the lineshape tells you which shim is wrong.
+        It is just not the interesting answer to "make a game out of this".
       </p>
     </section>
 
     <section class="alt">
-      <h2>Also here</h2>
+      <h2>Under it</h2>
       <p>
-        <strong><a href="spin/sandbox.html" style="color:var(--amber)">The spin sandbox</a></strong> —
-        free play on the Bloch engine that drives all of this: sliders for T1, T2, shim and offset,
-        one-click single-pulse acquire, Hahn echo, CPMG and inversion recovery, with the packet fan,
-        the FID and the spectrum side by side. The engine is verified against closed form — the echo
-        peaks at 35.0 ms against a predicted 34.6, and at 0.791 M₀ against a predicted 0.792.
+        All three builds run on one spin engine, <code>spin/bloch.js</code>: 64 packets, each a
+        3-vector stepped through precession, T2 decay and T1 recovery, with the observable being the
+        vector sum. It is verified against closed form — a Hahn echo peaks at 35.0 ms against a
+        predicted 34.6, and at 0.791 M₀ against 0.792.
       </p>
       <p class="note">
-        That 5 ms is worth a footnote. The textbook answer is that the echo lands at 2τ = 40 ms.
-        It does not: the refocusing envelope peaks at 2τ but is multiplied by a falling
-        <code>e^(−t/T2)</code>, which pulls the maximum earlier by <code>1/(4π²σ²T2)</code>. The
-        simulation was right and the first prediction was wrong.
+        That 5 ms is worth a footnote: the textbook answer is 2τ = 40 ms, and it is wrong. The
+        refocusing envelope peaks at 2τ but is multiplied by a falling <code>e^(−t/T2)</code>, which
+        pulls the maximum earlier by <code>1/(4π²σ²T2)</code>. The simulation was right and the
+        first prediction was not.
       </p>
       <p>
-        <strong><a href="app/" style="color:var(--amber)">Pixel Plumber</a></strong> — the first
-        build, kept because it is where the idea of making constants visible started: a low-gravity
-        zone, a frictionless ice zone, and a readout of the numbers behind the jump. Its jump apex
-        measured 99.5 px against a predicted 105.1.
+        Also here: the <a href="spin/sandbox.html" style="color:var(--gold)">spin sandbox</a> (free
+        play on that engine — T1, T2, shim and offset sliders, one-click Hahn echo, CPMG and
+        inversion recovery) and <a href="app/" style="color:var(--gold)">Pixel Plumber</a>, the first
+        build, where the idea of making constants visible started.
       </p>
     </section>
 
     <section>
       <h2>Built with</h2>
       <p>
-        Plain HTML5 canvas, CSS and JavaScript — no engine, no dependencies, no build step. The spin
-        physics lives in <code>spin/bloch.js</code> and is shared with the sandbox; the field and
-        lineshape model is in <code>spin/console.js</code>. Built and verified with Claude Code —
-        including the level tuning, which was done by measuring the simulation rather than guessing.
+        Plain HTML5 canvas, CSS and JavaScript — no engine, no dependencies, no build step. Built and
+        verified with Claude Code, including the round tuning, which was done by playing every round
+        from a script rather than by feel.
       </p>
     </section>
 
     <div class="foot">
-      <a href="spin/">Shim →</a> · <a href="spin/sandbox.html">Sandbox →</a> ·
-      <a href="app/">Pixel Plumber →</a> ·
+      <a href="echo/">Agreement →</a> · <a href="spin/">Instrument trainer →</a> ·
+      <a href="spin/sandbox.html">Sandbox →</a> · <a href="app/">Pixel Plumber →</a> ·
       <a href="https://github.com/tojestspacja/md-simulation">Repository</a>
     </div>
   </div>

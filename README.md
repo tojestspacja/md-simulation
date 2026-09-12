@@ -1,74 +1,74 @@
-# md-simulation — Shim
+# md-simulation — Agreement
 
-Browser builds, plain HTML5 canvas: no engine, no dependencies, no build step.
+A puzzle game whose rules **are** the mechanisms of NMR, plus the two earlier
+attempts that taught me what not to do. Plain HTML5 canvas: no engine, no
+dependencies, no build step.
 
 | | What | Live |
 |---|---|---|
-| **Shim** | Get a 500 MHz magnet to lineshape spec before the instrument time runs out. Real console controls; the line is the histogram of B0 over the sample. | [`spin/`](spin/) — [run](https://tojestspacja.github.io/md-simulation/spin/) |
-| **Spin sandbox** | Free play on the Bloch engine: T1, T2, shim and offset sliders, one-click Hahn echo / CPMG / inversion recovery. | [`spin/sandbox.html`](spin/sandbox.html) — [open](https://tojestspacja.github.io/md-simulation/spin/sandbox.html) |
-| **Pixel Plumber** | The first build: a Mario-like platformer with a low-gravity zone, a frictionless ice zone and a live physics readout. | [`app/`](app/) — [play](https://tojestspacja.github.io/md-simulation/app/) |
-| **Project page** | Why it is built this way and what was verified. | [`index.html`](index.html) — [read](https://tojestspacja.github.io/md-simulation/) |
+| **Agreement** | The game. A crowd that drifts apart, a move that mirrors the fan, a reserve you spend at an angle. | [`echo/`](echo/) — [play](https://tojestspacja.github.io/md-simulation/echo/) |
+| **Instrument trainer** | A real shimming drill: the lineshape tells you which shim is wrong. | [`spin/`](spin/) — [run](https://tojestspacja.github.io/md-simulation/spin/) |
+| **Spin sandbox** | Free play on the engine: T1, T2, shim, offset, one-click echo / CPMG / inversion recovery. | [`spin/sandbox.html`](spin/sandbox.html) — [open](https://tojestspacja.github.io/md-simulation/spin/sandbox.html) |
+| **Pixel Plumber** | The first build, a Mario-like platformer with physics zones. | [`app/`](app/) — [play](https://tojestspacja.github.io/md-simulation/app/) |
 
-## Shim
+## Agreement
 
-The loop is Lunar Lander's: continuous control of a physical quantity, a budget
-that runs down, an unforgiving target, and failure you can read off the screen.
-The quantity is the field over the sample volume, the target is a lineshape
-spec, the budget is instrument time.
+A crowd of things, each running at its own fixed rate. **Your score is the
+length of their sum** — not how many, not how much each has, only whether they
+still agree. Two moves and a dial, six rounds, each adding one rule.
 
-**The line is the histogram of B0 across the sample**, convolved with the
-natural Lorentzian. That is literally the sum `console.js` evaluates, so the
-shape of the line tells you which shim is wrong:
+### The physics, digested into rules
 
-| Shim | Field it adds | Signature |
+| What the physics says | The rule |
+|---|---|
+| Signal is the vector sum over the ensemble | You only score when they agree |
+| Each packet precesses at its own offset | They drift apart on their own |
+| A 180 degree pulse mirrors the phase fan | **REVERSE** — after the same time again they all meet |
+| Mz and Mxy are one budget: `sin θ` out, `cos θ` banked | A reserve you spend at an angle |
+| T1 refills slowly, T2 drains fast, T2* is reversible and T2 is not | REVERSE recovers the spreading, never the scatter |
+
+No spectrometer appears anywhere. Every rule is a mechanism rather than a
+picture of one.
+
+### Does the physics decide it?
+
+The test of a rule is whether the naive play fails. Measured by script:
+
+| Round | Naive | Intended |
 |---|---|---|
-| Z1 | `z` | flat-topped and wide |
-| Z2 | `z^2 - 1/3` | narrow peak on a broad one-sided base |
-| Z3 | `z^3 - 0.6z` | symmetric shoulders |
-| Z4 | quartic | a one-sided shoulder further out |
+| 3 · echo | tip and wait → 0.01 | reverse at half time → 0.77 |
+| 4 · train | one reverse → 0.87 | three reverses → 2.43 |
+| 6 · reserve | all in at 90° → 2.39 | 45° → 3.60 |
 
-Reading those is the skill the game is for.
+Round 6 is the Ernst angle. `cos θ = exp(−TR/T1)` gives **35°** for these
+numbers; the measured best play is nearer **45°**, because the Ernst angle is a
+steady-state result and nine gates from a full reserve never reach steady state.
+Either way 90° loses badly.
 
-### What the console gives you
+Controls: `Z` tips, `X` reverses, the slider sets the tip angle.
 
-- the **lock level** is free, continuous, and only a number — log scale, because
-  peak height spans three decades between a wrecked shim and a good one;
-- a **lineshape costs 8 s**, and the spec is judged on a measurement, never on
-  the lock;
-- **autoshim costs 45 s** and gets about two thirds of the way, like the real
-  routine — it will not finish the job;
-- the hump widths are read off a **x120 blow-up** of the baseline.
+## The two earlier attempts, and why they failed
 
-### Controls
+Kept in git history, and worth knowing before redesigning anything here.
 
-Drag a shim, or click it and use the arrow keys (shift for coarse). Up/down
-selects the next shim, space takes a shot.
+1. **A platformer with NMR skinned on** — turned parameters into props. A 90°
+   pulse became a floor pad; the receiver a hoop. Unreadable, because jumping has
+   nothing to do with magnetization.
+2. **A faithful instrument trainer** (still at [`spin/`](spin/), still useful) —
+   the opposite error: real console, real shims, real lineshapes, no game.
+3. **Agreement** — digest the physics until what is left is a rule, then build
+   the game out of rules.
 
-### How the levels were tuned
+## Under it
 
-Not by feel. `scratchpad/pw/spectune.js` measures, for every sample, the
-lineshape you get if you leave exactly one shim undialled. The specs were then
-set so that **every such case fails** while **every shim within ~15% of truth
-passes**. `solvable.js` and `solvable2.js` check the other side: that a plain
-hill-climb on the lock reaches spec, and that the autoshim-then-refine route
-always works.
-
-Worth knowing: a lock-only hill climb solves samples 1 and 2 and then sticks in
-a **local maximum** on the harder ones — a narrow peak on a ruined base. That is
-not a simulation bug, it is why lock-only shimming is not enough.
-
-## Spin sandbox
-
-The Bloch engine with the lid off. 64 isochromats, each a 3-vector stepped
-through precession, T2 decay and T1 recovery; a pulse rotates every packet about
-x; the observable is the vector sum. Verified against closed form — the Hahn
-echo peaks at 35.0 ms against a predicted 34.6 ms and at 0.791 M0 against 0.792.
-(The textbook 2*tau = 40 ms is wrong: the falling T2 envelope pulls the maximum
-earlier by `1/(4*pi^2*sigma^2*T2)`.)
+All three run on one engine, [`spin/bloch.js`](spin/bloch.js): 64 packets, each
+a 3-vector stepped through precession, T2 decay and T1 recovery, observable =
+the vector sum. Verified against closed form — a Hahn echo peaks at 35.0 ms
+against a predicted 34.6 ms and at 0.791 M0 against 0.792. (The textbook
+2*tau = 40 ms is wrong; the falling T2 envelope pulls the maximum earlier by
+`1/(4*pi^2*sigma^2*T2)`.)
 
 ## Running locally
-
-Serve the repository root so every path resolves:
 
 ```bash
 npx serve .
@@ -83,9 +83,9 @@ GitHub Pages, `main` branch, root. Every push republishes.
 ## Layout
 
 - `index.html` — project page
-- `spin/` — `index.html` + `console.js` + `style.css` (Shim), `bloch.js` (shared
-  spin engine), `sandbox.html` + `sandbox.js` (free play)
+- `echo/` — Agreement (`index.html`, `style.css`, `game.js`)
+- `spin/` — instrument trainer (`console.js`), shared engine (`bloch.js`),
+  sandbox (`sandbox.html`, `sandbox.js`)
 - `app/` — Pixel Plumber
-- `images/` — screenshots used by the project page
-- `NOTES.md` — physics, model and design notes
-- `handover.md` — where the work stands and what to do next
+- `NOTES.md` — the models and the rules that are easy to break
+- `handover.md` — where things stand and what to do next

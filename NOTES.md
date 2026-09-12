@@ -1,5 +1,47 @@
 # NOTES — the models, and the rules that are easy to break
 
+## 0. Agreement (echo/game.js) — the rules, and how they were tested
+
+The design rule: **digest the physics until what is left is a game rule.** Not a
+game with physics painted on (attempt 2), not a reproduction of the instrument
+(attempt 3). See handover.md for why both of those failed.
+
+| Physics | Rule |
+|---|---|
+| signal is the vector sum over the ensemble | you only score when they agree |
+| each packet precesses at its own offset | they drift apart on their own |
+| a 180 mirrors the phase fan | REVERSE: after the same time again, they meet |
+| Mz/Mxy is one budget, sin out and cos banked | a reserve you spend at an angle |
+| T1 slow, T2 fast, T2* reversible and T2 not | REVERSE recovers spreading, never scatter |
+
+### The test of a rule: the naive play must fail
+
+Measured with scratchpad/pw/agree.js, which plays every round by script:
+
+| Round | Naive | Intended | Goal |
+|---|---|---|---|
+| 1 collect early | — | 0.52 | 0.45 |
+| 2 watch it die | — | 0.41 | 0.35 |
+| 3 the echo | tip and wait 0.01 | reverse at half 0.77 | 0.50 |
+| 4 the train | one reverse 0.87 | three 2.43 | 1.35 |
+| 5 irreversible | gates pay 0.68/0.48/0.28 | 1.44 | 1.25 |
+| 6 the reserve | 90 deg 2.39 | 45 deg 3.60 | 2.80 |
+
+Rounds 3, 4 and 6 are the real ones: there the obvious play loses outright.
+
+### Round 6 and the Ernst angle
+
+cos(theta) = exp(-TR/T1) gives 35 degrees for TR 40 ms and T1 200 ms. The
+measured best play is nearer 45 degrees. That gap is **real**: the Ernst angle
+is a steady-state result and nine gates from a full reserve never reach steady
+state, which pays for a bolder angle early. Do not fix it to 35.
+
+A TIP also spoils whatever transverse signal is left, which is what a spoiled
+gradient echo does, and is what makes the Ernst arithmetic exact.
+
+---
+
+
 Working notes for `md-simulation`. Two independent physics models live here.
 
 ---

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#07060e" />
+  <title>AGREEMENT — a game about things that drift apart</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header id="bar">
+      <div class="slot"><span class="lab">ROUND</span><span id="round">—</span></div>
+      <div class="slot"><span class="lab">GOAL</span><span id="goal">—</span></div>
+      <div class="slot right"><span class="lab">COLLECTED</span><span id="score">0</span></div>
+    </header>
+
+    <canvas id="view" width="960" height="470"></canvas>
+
+    <div id="deck">
+      <button id="b-tip" class="verb">
+        <span class="key">Z</span>
+        <span class="name">TIP</span>
+        <span class="sub">spend <b id="ang-lab">90°</b> of the reserve</span>
+      </button>
+      <button id="b-rev" class="verb rev">
+        <span class="key">X</span>
+        <span class="name">REVERSE</span>
+        <span class="sub">mirror the fan — the leader becomes the straggler</span>
+      </button>
+      <div class="dial">
+        <label for="ang">tip angle</label>
+        <input type="range" id="ang" min="10" max="90" step="5" value="90" />
+        <div class="dial-note">shallower keeps more in reserve</div>
+      </div>
+    </div>
+
+    <div id="overlay">
+      <div class="card">
+        <h1 id="ov-title">AGREEMENT</h1>
+        <div id="ov-body"></div>
+        <button id="ov-btn" class="go">begin</button>
+        <p class="foot"><a href="../spin/">instrument trainer</a> ·
+          <a href="../spin/sandbox.html">spin sandbox</a> · <a href="../">project page</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="../spin/bloch.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
