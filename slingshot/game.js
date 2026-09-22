@@ -24,8 +24,9 @@ import { DT, bodyAt, integrate } from "./src/physics.js";
 import { LEVELS } from "./src/levels/index.js";
 import {
   loadProgress, saveProgress, resetProgress,
-  recordAttemptResult, getBestTries, levelState,
+  recordAttemptResult, getBestTries, isCompleted,
 } from "./src/progress.js";
+import { levelState } from "./src/campaign.js";
 
 (() => {
   "use strict";
@@ -49,10 +50,10 @@ import {
   let view = { cx: 480, cy: 270, w: 960 };
   let viewTarget = { ...view }, baseView = { ...view };
   let tries = 0, showMath = false;
-  // The ids in campaign order, and the saved record keyed on them. Unlock
-  // state is derived from this rather than stored — see src/progress.js.
-  const ORDER = LEVELS.map((L) => L.id);
   let progress = loadProgress();
+  // Progress stores facts; src/campaign.js turns them into what is open. The
+  // array order of LEVELS is menu order only — it no longer decides anything.
+  const done = (id) => isCompleted(progress, id);
   let flash = null, flashT = 0, everLaunched = false;
 
   // A level can be named two ways: by where it currently sits, which is what
@@ -591,7 +592,7 @@ import {
     LEVELS.forEach((L, i) => {
       // Same three classes as before, still independent of each other: the
       // level you are on may also be one you have already finished.
-      const state = levelState(progress, ORDER, L.id);   // locked | done | available
+      const state = levelState(L.id, done);   // locked | done | available
       const open = state !== "locked";
       const d = document.createElement("button");
       d.className = "dot" + (i === li ? " now" : "") +
@@ -686,7 +687,7 @@ import {
     // Read-only copy: the tests read progress, they never reach in and set it.
     progress: () => LEVELS.map((L) => ({
       id: L.id,
-      state: levelState(progress, ORDER, L.id),
+      state: levelState(L.id, done),
       bestTries: getBestTries(progress, L.id),
     })),
     // Explicit, because a test that wants a clean slate should say so rather

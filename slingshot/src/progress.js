@@ -98,22 +98,9 @@ export function recordAttemptResult(progress, levelId, tries) {
   return { previousBest, bestTries, improved: previousBest !== null && tries < previousBest };
 }
 
-// ---------- derived ----------
-/** The campaign is linear today: the first level is always open, and each
- *  other one opens when the level before it is finished. Kept in one function
- *  so that chapters or branching replace this and nothing else. */
-export function isUnlocked(progress, orderedIds, levelId) {
-  const i = orderedIds.indexOf(levelId);
-  if (i < 0) return false;
-  if (i === 0) return true;
-  return isCompleted(progress, orderedIds[i - 1]);
-}
-
-/** What the level indicator says about one level. Progress only — whether it
- *  is the level being played is runtime, not stored, and is kept separate
- *  because the two are independent: the current level may also be one you have
- *  already finished, and the indicator has always shown both at once. */
-export function levelState(progress, orderedIds, levelId) {
-  if (!isUnlocked(progress, orderedIds, levelId)) return "locked";
-  return isCompleted(progress, levelId) ? "done" : "available";
-}
+// Unlocking deliberately does NOT live here. This module records facts about
+// what the player did; which level those facts open is a campaign question,
+// and knowing that "bend follows push" would tie every save to one campaign
+// shape. See src/campaign.js, which takes a predicate over ids:
+//
+//   levelState(id, (levelId) => isCompleted(progress, levelId))

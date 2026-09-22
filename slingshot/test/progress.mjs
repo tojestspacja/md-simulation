@@ -11,7 +11,7 @@ import {
   STORAGE_KEY, SCHEMA_VERSION, defaultProgress,
   loadProgress, saveProgress, resetProgress,
   getLevelProgress, isCompleted, getBestTries,
-  recordAttemptResult, isUnlocked, levelState,
+  recordAttemptResult,
 } from "../src/progress.js";
 import { LEVELS } from "../src/levels/index.js";
 
@@ -108,25 +108,15 @@ eq(loadProgress(fake({ [STORAGE_KEY]: JSON.stringify({ schemaVersion: 99, levels
   ok(!JSON.stringify(p).includes('"3"'), "no array index appears in the stored shape");
 }
 
-// ---------- unlocking is derived ----------
+// Unlocking is no longer this module's business — see test/campaign.mjs. What
+// remains here is the fact it depends on: that completion is recorded per id.
 {
   const p = defaultProgress();
-  ok(isUnlocked(p, ORDER, ORDER[0]), "the first level is always open");
-  ok(!isUnlocked(p, ORDER, ORDER[1]), "the second is not, on a clean save");
-  ok(!isUnlocked(p, ORDER, "no-such-level"), "an unknown id is never unlocked");
-
   recordAttemptResult(p, ORDER[0], 3);
-  ok(isUnlocked(p, ORDER, ORDER[1]), "finishing one opens the next");
-  ok(!isUnlocked(p, ORDER, ORDER[2]), "but only the next");
-
-  eq(ORDER.map((id) => levelState(p, ORDER, id)),
-     ["done", "available", "locked", "locked", "locked", "locked", "locked"],
-     "indicator states after one completion");
-
-  for (const id of ORDER) recordAttemptResult(p, id, 1);
-  eq(ORDER.map((id) => levelState(p, ORDER, id)), ORDER.map(() => "done"),
-     "everything done once everything is finished");
+  ok(isCompleted(p, ORDER[0]), "completion is readable by id");
+  ok(!isCompleted(p, ORDER[1]), "and does not leak to the next level");
   ok(!JSON.stringify(p).includes("reached"), "no numeric frontier is stored");
+  ok(!JSON.stringify(p).includes("unlocked"), "no unlocked flag is stored");
 }
 
 // ---------- reset ----------
