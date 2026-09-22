@@ -31,6 +31,24 @@
 
     .wrap { max-width: 1100px; margin: 0 auto; padding: 44px 16px 72px; }
 
+    /* ---------- level above this one ---------- */
+    .topnav { margin-bottom: 26px; }
+    .up {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 40px;
+      padding: 0 4px;
+      color: var(--muted);
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+    .up:hover { color: var(--text); border-bottom-color: var(--line-hi); }
+
     /* ---------- header ---------- */
     header { text-align: center; margin-bottom: 38px; }
     h1 {
@@ -66,6 +84,9 @@
       overflow: hidden;
     }
     .card:hover { border-color: var(--line-hi); background: var(--panel-hi); }
+    /* Stable anchors: /games/#mario-classic and friends. */
+    .card { scroll-margin-top: 20px; }
+    .card:target { border-color: var(--gold); }
     @media (prefers-reduced-motion: no-preference) {
       .card { transition: border-color 120ms ease, background-color 120ms ease; }
     }
@@ -152,6 +173,12 @@
 <body>
   <div class="wrap">
 
+    <nav class="topnav" aria-label="Up one level">
+      <a class="up" href="https://tigp-experimental-methods.github.io/showcase-2026/">
+        <span aria-hidden="true">←</span> Project wall
+      </a>
+    </nav>
+
     <header>
       <h1>THE ARCADE</h1>
       <p class="intro">
@@ -163,7 +190,7 @@
 
     <main class="grid">
 
-      <article class="card">
+      <article class="card" id="slingshot">
         <img class="shot" src="../images/sling-ghosts.png"
              alt="A probe at the left of a starfield, a blue planet in the middle and a gold target ring at the right, with four faint curved trails from earlier attempts bending around the planet." />
         <div class="body">
@@ -174,7 +201,7 @@
         </div>
       </article>
 
-      <article class="card">
+      <article class="card" id="through">
         <img class="shot" src="../images/through-walls.png"
              alt="A dark platformer corridor with two tall walls labelled 28% and 8%, a small glowing player beside one of them and a message reading bounced, 18% chance." />
         <div class="body">
@@ -185,7 +212,7 @@
         </div>
       </article>
 
-      <article class="card">
+      <article class="card" id="pixel-plumber">
         <img class="shot" src="../images/moon-zone.png"
              alt="A pixel platformer at night: the player arcs high above the ground on a long dotted jump trail, with coins and enemies below and a banner reading low gravity." />
         <div class="body">
@@ -202,7 +229,7 @@
         </div>
       </article>
 
-      <article class="card">
+      <article class="card" id="mario-classic">
         <img class="shot" src="../images/screenshot.png"
              alt="A bright pixel platformer under a blue sky: the player stands on a brick ledge with a coin above, grassy hills behind and an enemy approaching from the right." />
         <div class="body">
@@ -219,7 +246,7 @@
         </div>
       </article>
 
-      <article class="card">
+      <article class="card" id="shim">
         <img class="shot top" src="../images/shim-z3.png"
              alt="An instrument console showing a magnet, a badly split spectral peak and a lock level readout, with the sample labelled someone left it badly shimmed." />
         <div class="body">
@@ -230,7 +257,7 @@
         </div>
       </article>
 
-      <article class="card">
+      <article class="card" id="agreement">
         <img class="shot top" src="../images/agree-echo.png"
              alt="A round dial with teal needles gathered into a narrow fan behind a gold arrow, beside a rising line graph and a score reading 0.82 collected." />
         <div class="body">
@@ -241,7 +268,7 @@
         </div>
       </article>
 
-      <article class="card">
+      <article class="card" id="bloch-sandbox">
         <img class="shot" src="../images/spin-sandbox.png"
              alt="A sandbox screen with a sphere carrying a single vector, surrounded by pulse and delay controls and a signal trace." />
         <div class="body">
