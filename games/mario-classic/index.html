@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#5c94fc" />
+  <title>Pixel Plumber</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-wrap">
+    <canvas id="game" width="800" height="450"></canvas>
+
+    <div id="hud">
+      <div id="hud-score">SCORE 0</div>
+      <div id="hud-coins">🪙 0</div>
+      <div id="hud-lives">❤️ x3</div>
+    </div>
+
+    <div id="rotate-hint">Rotate your phone for the best view 🔄</div>
+
+    <div id="overlay" class="hidden">
+      <div id="overlay-card">
+        <h1 id="overlay-title">Pixel Plumber</h1>
+        <p id="overlay-msg">Reach the flag, stomp the goombas, grab the coins!</p>
+        <button id="overlay-btn">Start Game</button>
+      </div>
+    </div>
+
+    <!-- Touch controls (also work with mouse) -->
+    <div id="touch-controls">
+      <div class="dpad">
+        <button id="btn-left" class="ctrl-btn" aria-label="Left">◀</button>
+        <button id="btn-right" class="ctrl-btn" aria-label="Right">▶</button>
+      </div>
+      <div class="action-pad">
+        <button id="btn-jump" class="ctrl-btn ctrl-jump" aria-label="Jump">⤒</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

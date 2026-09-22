@@ -43,6 +43,8 @@
       background: var(--blue); color: #041028; box-shadow: 0 4px 0 #3f6cb5; }
     .card.tool .play { background: var(--gold); box-shadow: 0 4px 0 #b38f45; }
     .card.tool h2 { color: var(--gold); }
+    .card.classic { border-color: #3a3355; }
+    .card.classic .badge { font-family: ui-monospace, Consolas, monospace; letter-spacing: 0.5px; }
     .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 34px; }
     .foot a { color: var(--blue); }
   </style>
@@ -108,15 +110,28 @@
       </div>
 
       <div class="card">
-        <img class="shot" src="../images/screenshot.png" alt="A blue-sky pixel platformer: a small character on brick blocks, coins above, a flag to the right." />
+        <img class="shot" src="../images/moon-zone.png" alt="The pixel platformer inside the low-gravity zone, with a moon marker and a long arcing jump trail." />
         <div class="body">
-          <div class="titlerow"><h2>PIXEL PLUMBER</h2><span class="badge">where it started</span></div>
-          <p class="one">Run, jump, stomp, reach the flag.</p>
-          <p class="blurb">The original Mario-style platformer, built for a phone and still exactly
-            as it was: touch controls, coins, goombas, a flagpole. Later it grew 🌙 low-gravity and
-            🧊 no-friction zones, with the live numbers behind the 🔬 button.</p>
+          <div class="titlerow"><h2>PIXEL PLUMBER</h2><span class="badge">current</span></div>
+          <p class="one">The platformer, with the physics turned on.</p>
+          <p class="blurb">The same run-jump-stomp game, plus a 🌙 low-gravity stretch at g = 650
+            against an Earth-normal 2200, a 🧊 no-friction stretch, a projectile trail while you are
+            airborne, and live numbers behind the 🔬 button.</p>
           <p class="url">/md-simulation/app/</p>
           <a class="play" href="../app/">PLAY</a>
+        </div>
+      </div>
+
+      <div class="card classic">
+        <img class="shot" src="../images/screenshot.png" alt="A blue-sky pixel platformer: a small character on brick blocks, coins above, a flag to the right." />
+        <div class="body">
+          <div class="titlerow"><h2>MARIO CLASSIC</h2><span class="badge">original, a147605</span></div>
+          <p class="one">Run, jump, stomp, reach the flag. Nothing else.</p>
+          <p class="blurb">Pixel Plumber exactly as it was first committed, before any physics was
+            added to it: touch controls, coins, goombas, a flagpole. No zones, no readout, no trail.
+            The three files are byte-identical to the original commit.</p>
+          <p class="url">/md-simulation/games/mario-classic/</p>
+          <a class="play" href="mario-classic/">PLAY</a>
         </div>
       </div>
 

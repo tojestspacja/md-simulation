@@ -140,7 +140,8 @@ a folder is a URL, and that is the whole mechanism.
 | THROUGH — a platformer on real tunnelling | `quantum/` | <https://tojestspacja.github.io/md-simulation/quantum/> |
 | Shim — an NMR shimming trainer | `spin/` | <https://tojestspacja.github.io/md-simulation/spin/> |
 | Agreement — the coherence puzzle | `echo/` | <https://tojestspacja.github.io/md-simulation/echo/> |
-| **Pixel Plumber** — the original Mario-style platformer | `app/` | <https://tojestspacja.github.io/md-simulation/app/> |
+| **Pixel Plumber** — the Mario-style platformer, with physics zones | `app/` | <https://tojestspacja.github.io/md-simulation/app/> |
+| **Mario Classic** — Pixel Plumber as first committed, no physics | `games/mario-classic/` | <https://tojestspacja.github.io/md-simulation/games/mario-classic/> |
 | Bloch sandbox (a tool, not a game) | `spin/sandbox.html` | <https://tojestspacja.github.io/md-simulation/spin/sandbox.html> |
 
 Related, in a **separate repository** so it deploys independently:
@@ -148,13 +149,32 @@ Related, in a **separate repository** so it deploys independently:
 for magnetic resonance in eight levels
 ([repo](https://github.com/tojestspacja/mr-simulation)).
 
-### A note on Pixel Plumber
+### A note on Pixel Plumber, and the two versions of it
 
 It is the first thing in this repository and it has never been replaced. It was
 added in `a147605`, moved from the repository root into `app/` in `fdf1459`, and
 last changed in `926e119` when the physics zones were added. `app/` on `main`
 today is byte-identical to `926e119` — the later games were each added alongside
 it in their own folders, never on top of it.
+
+Both versions are now deployed, because they are different games to play:
+
+| | `games/mario-classic/` | `app/` |
+|---|---|---|
+| Commit | `a147605`, byte-identical | `926e119`, byte-identical |
+| Gravity | 2200 everywhere | 650 in the 🌙 zone, 2200 elsewhere |
+| Friction | constant | near-zero in the 🧊 zone |
+| 🔬 readout, jump trail, banners | no | yes |
+
+`games/mario-classic/` is a straight `git show a147605:<file>` of the three
+files into a folder. Nothing was adapted: `index.html` already referenced
+`style.css` and `game.js` relatively, and the game draws everything on the
+canvas, so it needed no path or configuration change to run from its own URL.
+
+The difference between `a147605` and the copy that went into `app/` at
+`fdf1459` is seven lines: an additive, read-only `window.PixelPlumber` debug
+hook. `a147605` is used here because it is the version before anything at all
+was added.
 
 The game that *was* deleted is **Spin Runner**, replaced by Shim in `0dc74ee`.
 It exists only in git history.
@@ -188,6 +208,7 @@ done
 
 - `index.html` — project page (SLINGSHOT, the current Project 1 report)
 - `games/` — the arcade: one card per game, the way in for everything below
+- `games/mario-classic/` — Pixel Plumber at `a147605`, self-contained, frozen
 - `slingshot/` — SLINGSHOT — self-contained
 - `quantum/` — THROUGH (`index.html`, `style.css`, `game.js`) — self-contained
 - `spin/` — shimming trainer, shared Bloch engine, sandbox
