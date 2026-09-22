@@ -21,6 +21,9 @@
 // Everything here is a pure function over a progress object except load/save,
 // which are the only two that touch storage.
 
+// The production save. A playtest build passes its own key instead, so a tester
+// finishing or resetting an experimental level cannot touch a real player's
+// record — see playtest/boot.js.
 export const STORAGE_KEY = "slingshot.progress";
 export const SCHEMA_VERSION = 1;
 
@@ -41,10 +44,10 @@ function defaultStorage() {
  *  know yields a clean default rather than an exception. Nothing is written
  *  here, so an unrecognised save survives on disk until the player earns a
  *  new one — better than destroying a future version's data. */
-export function loadProgress(storage = defaultStorage()) {
+export function loadProgress(storage = defaultStorage(), key = STORAGE_KEY) {
   if (!storage) return defaultProgress();
   let raw;
-  try { raw = storage.getItem(STORAGE_KEY); } catch { return defaultProgress(); }
+  try { raw = storage.getItem(key); } catch { return defaultProgress(); }
   if (!raw) return defaultProgress();
 
   let data;
@@ -66,16 +69,16 @@ export function loadProgress(storage = defaultStorage()) {
 }
 
 /** Write the save. Returns whether it actually persisted. */
-export function saveProgress(progress, storage = defaultStorage()) {
+export function saveProgress(progress, storage = defaultStorage(), key = STORAGE_KEY) {
   if (!storage) return false;
   try {
-    storage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    storage.setItem(key, JSON.stringify(progress));
     return true;
   } catch { return false; }
 }
 
-export function resetProgress(storage = defaultStorage()) {
-  if (storage) { try { storage.removeItem(STORAGE_KEY); } catch { /* ignore */ } }
+export function resetProgress(storage = defaultStorage(), key = STORAGE_KEY) {
+  if (storage) { try { storage.removeItem(key); } catch { /* ignore */ } }
   return defaultProgress();
 }
 

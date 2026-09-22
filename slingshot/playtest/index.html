@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#05060d" />
+  <meta name="robots" content="noindex" />
+  <title>SLINGSHOT playtest — experimental level</title>
+  <!-- The production stylesheet, not a copy: the level has to be judged in the
+       game's own presentation, not in a lookalike. -->
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    /* The only additions: a banner saying what this is, and the session
+       controls. Nothing here touches how the game itself looks. */
+    #pt-bar {
+      position: absolute; left: 0; right: 0; top: 0; z-index: 8;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+      padding: 7px 12px; background: rgba(255, 210, 122, 0.1);
+      border-bottom: 1px solid rgba(255, 210, 122, 0.3);
+      font: 600 11.5px/1.4 "Segoe UI", sans-serif; letter-spacing: 1px;
+      text-transform: uppercase; color: #ffd27a;
+    }
+    #pt-bar .what { text-transform: none; letter-spacing: 0; color: #b9c2e4; font-weight: 400; }
+    #pt-bar button {
+      font: inherit; text-transform: uppercase; letter-spacing: 1px;
+      background: transparent; color: #b9c2e4; cursor: pointer;
+      border: 1px solid rgba(150, 170, 240, 0.35); border-radius: 6px;
+      padding: 5px 11px; min-height: 30px;
+    }
+    #pt-bar button:hover { color: #fff; border-color: rgba(150, 170, 240, 0.7); }
+    #pt-bar button:focus-visible { outline: 2px solid #ffd27a; outline-offset: 2px; }
+    #pt-bar .grow { flex: 1; }
+    #ov { padding-top: 46px; }
+    #hud { top: 46px; }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <canvas id="sky" width="960" height="540"></canvas>
+
+    <div id="pt-bar">
+      <span>Slingshot playtest</span>
+      <span class="what">Experimental level — not part of the campaign.</span>
+      <span class="grow"></span>
+      <button id="pt-export" type="button">Export playtest data</button>
+      <button id="pt-reset" type="button">Reset session</button>
+    </div>
+
+    <!-- Same ids and structure as ../index.html: the runtime finds its elements
+         by id, so this has to mirror it. test/playtest-smoke.mjs asserts that
+         every id the runtime needs is present, which is what catches drift. -->
+    <div id="hud">
+      <div id="h-left"><span id="h-num"></span> <span id="h-name"></span></div>
+      <div id="h-right">
+        <button id="b-retry" title="try again">retry</button>
+        <button id="b-phys" title="show the numbers">physics</button>
+      </div>
+    </div>
+
+    <div id="hint"></div>
+    <div id="dots"></div>
+
+    <div id="ov">
+      <div class="card">
+        <h1>SLINGSHOT</h1>
+        <p class="tag">one push, and the planets do the rest</p>
+        <div id="ov-body"></div>
+        <button id="ov-go" class="go">launch</button>
+        <p class="foot">Experimental level under evaluation. Drag back from the
+          probe and let go; <b>retry</b> resets the shot.</p>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="boot.js"></script>
+</body>
+</html>

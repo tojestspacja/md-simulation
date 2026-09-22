@@ -21,16 +21,35 @@
 //     equal time intervals. They come out equal in AREA — Kepler's second law —
 //     because r x v is conserved, which this engine does to 2e-12 %.
 import { DT, bodyAt, integrate } from "./src/physics.js";
-import { LEVELS } from "./src/levels/index.js";
 import {
-  loadProgress, saveProgress, resetProgress,
+  loadProgress, saveProgress, resetProgress, STORAGE_KEY,
   recordAttemptResult, getBestTries, isCompleted,
 } from "./src/progress.js";
-import { levelState } from "./src/campaign.js";
+import { levelState, PREREQUISITES } from "./src/campaign.js";
 
-(() => {
-  "use strict";
-
+/**
+ * Build a running game. The production page and the playtest page both call
+ * this, so a playtester is playing SLINGSHOT rather than a copy of it: the
+ * aiming, the integrator, the trail, the ghosts, the closest-point marker, the
+ * camera and the retry all come from here and exist in one place only.
+ *
+ *   levels        the campaign to play, in menu order
+ *   prerequisites the unlock graph for those levels
+ *   storageKey    which save to read and write. A playtest passes its own, so
+ *                 finishing an experiment cannot touch a real player's record.
+ *   globalName    the debug/test hook to expose on window
+ *   onAttempt     called after every launch resolves — used only by the
+ *                 playtest page to record what a tester did
+ */
+export function createSlingshot({
+  levels: LEVELS,
+  prerequisites = PREREQUISITES,
+  storageKey = STORAGE_KEY,
+  globalName = "Slingshot",
+  onAttempt = null,
+} = {}) {
+  // No "use strict" directive: a function with default parameters may not carry
+  // one, and a module is strict already.
   const cv = document.getElementById("sky");
   const ctx = cv.getContext("2d");
   const CW = cv.width, CH = cv.height;
@@ -50,7 +69,7 @@ import { levelState } from "./src/campaign.js";
   let view = { cx: 480, cy: 270, w: 960 };
   let viewTarget = { ...view }, baseView = { ...view };
   let tries = 0, showMath = false;
-  let progress = loadProgress();
+  let progress = loadProgress(undefined, storageKey);
   // Progress stores facts; src/campaign.js turns them into what is open. The
   // array order of LEVELS is menu order only — it no longer decides anything.
   const done = (id) => isCompleted(progress, id);
@@ -161,9 +180,31 @@ import { levelState } from "./src/campaign.js";
     nextSweep = SWEEP_EVERY; closest = null;
     launchIC = { x: probe.x, y: probe.y, vx: probe.vx, vy: probe.vy };
     mode = "fly"; tries++; everLaunched = true;
+    lastShot = { angle, power, at: Date.now() };
+  }
+
+  // Instrumentation. Null in production, so this costs a comparison per flight
+  // and changes nothing else; the playtest page passes a recorder. Reporting
+  // happens when a flight resolves rather than when it starts, because the
+  // outcome is the interesting part.
+  let lastShot = null;
+  function reportAttempt(outcome) {
+    if (!onAttempt || !lastShot) return;
+    onAttempt({
+      levelId: lv.id,
+      attempt: tries,
+      angleDeg: Number(((lastShot.angle * 180) / Math.PI).toFixed(3)),
+      power: Number(lastShot.power.toFixed(2)),
+      outcome,
+      flightSeconds: Number(t.toFixed(3)),
+      closestApproach: closest ? Math.round(closest.d) : null,
+      at: lastShot.at,
+    });
+    lastShot = null;
   }
 
   function endFlight(msg) {
+    reportAttempt(msg);
     if (path.length > 3) {
       ghosts.push({ pts: path, best: closest });
       if (ghosts.length > TRAIL_KEEP) ghosts.shift();
@@ -190,10 +231,11 @@ import { levelState } from "./src/campaign.js";
   }
 
   function win() {
+    reportAttempt("arrived");
     mode = "done";
     const last = li + 1 >= LEVELS.length;
     const { improved } = recordAttemptResult(progress, lv.id, tries);
-    saveProgress(progress);
+    saveProgress(progress, undefined, storageKey);
     let body;
     if (last) {
       const alone = withoutTheMoon();
@@ -592,7 +634,7 @@ import { levelState } from "./src/campaign.js";
     LEVELS.forEach((L, i) => {
       // Same three classes as before, still independent of each other: the
       // level you are on may also be one you have already finished.
-      const state = levelState(L.id, done);   // locked | done | available
+      const state = levelState(L.id, done, prerequisites);   // locked | done | available
       const open = state !== "locked";
       const d = document.createElement("button");
       d.className = "dot" + (i === li ? " now" : "") +
@@ -654,7 +696,7 @@ import { levelState } from "./src/campaign.js";
   })(last);
 
   // hooks for the verification scripts
-  window.Slingshot = {
+  const hook = {
     state: () => ({ level: li, levelId: lv ? lv.id : null, mode, tries,
                     ghosts: ghosts.length,
                     probe: probe ? { x: probe.x, y: probe.y,
@@ -687,11 +729,14 @@ import { levelState } from "./src/campaign.js";
     // Read-only copy: the tests read progress, they never reach in and set it.
     progress: () => LEVELS.map((L) => ({
       id: L.id,
-      state: levelState(L.id, done),
+      state: levelState(L.id, done, prerequisites),
       bestTries: getBestTries(progress, L.id),
     })),
     // Explicit, because a test that wants a clean slate should say so rather
     // than clearing storage behind the game's back and leaving it stale.
-    resetProgress: () => { progress = resetProgress(); drawDots(); },
+    resetProgress: () => { progress = resetProgress(undefined, storageKey); drawDots(); },
+    storageKey,
   };
-})();
+  window[globalName] = hook;
+  return hook;
+}
