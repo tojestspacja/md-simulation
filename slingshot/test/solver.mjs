@@ -221,6 +221,46 @@ function bot(lv, cap = 4000) {
   return { shots, solved: bestM === 0 };
 }
 
+// ---------- 0. the level schema ----------
+// Ids are the one field here that cannot be corrected later: saved progress
+// will be keyed on them, so a rename orphans a record and a duplicate merges
+// two levels into one. Checked before anything else, and deliberately outside
+// the golden comparison so that --update can never bless a broken schema.
+const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const EXPECTED_IDS = ["push", "bend", "aim-away", "orbit",
+                      "round-the-back", "two-planets", "gravity-assist"];
+
+function validateSchema() {
+  const bad = [];
+  if (LEVELS.length !== EXPECTED_IDS.length)
+    bad.push(`expected ${EXPECTED_IDS.length} levels, found ${LEVELS.length}`);
+
+  const seen = new Map();
+  LEVELS.forEach((L, i) => {
+    const where = `level ${i + 1} (${L.name})`;
+    if (!("id" in L)) { bad.push(`${where}: no id`); return; }
+    if (typeof L.id !== "string" || !L.id) { bad.push(`${where}: id is empty`); return; }
+    if (!SLUG.test(L.id)) bad.push(`${where}: id ${JSON.stringify(L.id)} is not a lowercase slug`);
+    if (seen.has(L.id)) bad.push(`${where}: id ${JSON.stringify(L.id)} already used by level ${seen.get(L.id) + 1}`);
+    else seen.set(L.id, i);
+  });
+
+  const ids = LEVELS.map((L) => L.id);
+  for (const want of EXPECTED_IDS)
+    if (!ids.includes(want)) bad.push(`the shipped id ${JSON.stringify(want)} is gone — ids are immutable`);
+  for (const got of ids)
+    if (got && !EXPECTED_IDS.includes(got)) bad.push(`new id ${JSON.stringify(got)}: add it to EXPECTED_IDS on purpose`);
+
+  return bad;
+}
+
+const schemaFails = validateSchema();
+console.log("level ids          " + LEVELS.map((L) => L.id).join(", "));
+if (schemaFails.length) {
+  console.error("\nFAIL — level schema\n  " + schemaFails.join("\n  "));
+  process.exit(1);
+}
+
 // ---------- run ----------
 const round = (v, n) => Number(v.toFixed(n));
 

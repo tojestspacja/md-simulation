@@ -47,6 +47,26 @@ import { LEVELS } from "./src/levels.js";
   let tries = 0, bestTries = {}, showMath = false;
   let flash = null, flashT = 0, everLaunched = false;
 
+  // A level can be named two ways: by where it currently sits, which is what
+  // the game loop uses, or by its permanent id, which is what outlives
+  // reordering. Everything funnels through here and then into loadLevel, so
+  // there is still one way in. Bad references throw rather than quietly
+  // loading level 1 — a typo that silently plays the wrong level is worse
+  // than one that stops.
+  function resolveLevelIndex(ref) {
+    if (typeof ref === "number") {
+      if (!Number.isInteger(ref) || ref < 0 || ref >= LEVELS.length)
+        throw new RangeError("slingshot: no level at index " + ref);
+      return ref;
+    }
+    if (typeof ref === "string") {
+      const i = LEVELS.findIndex((L) => L.id === ref);
+      if (i < 0) throw new RangeError("slingshot: no level with id " + JSON.stringify(ref));
+      return i;
+    }
+    throw new TypeError("slingshot: level must be an index or an id, got " + typeof ref);
+  }
+
   function loadLevel(i) {
     li = i; lv = LEVELS[i];
     reached = Math.max(reached, i);
@@ -619,10 +639,11 @@ import { LEVELS } from "./src/levels.js";
 
   // hooks for the verification scripts
   window.Slingshot = {
-    state: () => ({ level: li, mode, tries, ghosts: ghosts.length,
+    state: () => ({ level: li, levelId: lv ? lv.id : null, mode, tries,
+                    ghosts: ghosts.length,
                     probe: probe ? { x: probe.x, y: probe.y,
                                      v: Math.hypot(probe.vx, probe.vy) } : null }),
-    goto: (i) => { hide(); loadLevel(i); },
+    goto: (ref) => { hide(); loadLevel(resolveLevelIndex(ref)); },
     tryShot: (angDeg, power) => {
       const a = angDeg * Math.PI / 180;
       const s = { x: lv.start[0], y: lv.start[1],
@@ -646,5 +667,6 @@ import { LEVELS } from "./src/levels.js";
     },
     maxPower: () => lv.maxP,
     levels: LEVELS.length,
+    levelIds: () => LEVELS.map((L) => L.id),
   };
 })();

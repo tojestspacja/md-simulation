@@ -33,6 +33,13 @@ const ARG = process.argv[2];
 const KNOWN = { level: 2, deg: -12, power: 200, out: "hit", best: 33.90990028292924 };
 const EPS = 1e-6;                        // Math.sin/cos may differ in the last ulp
 
+// The ids the game has shipped. Kept here as well as in solver.mjs on purpose:
+// this one asserts what the browser actually serves, the other what the source
+// declares, and an id is only really safe when both agree.
+const EXPECTED_IDS = ["push", "bend", "aim-away", "orbit",
+                      "round-the-back", "two-planets", "gravity-assist"];
+const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
 let playwright;
 try {
   playwright = await import("playwright");
@@ -114,6 +121,47 @@ try {
     }
     check(switched === levels, "levels 1-" + levels + " all switch to aim", switched + "/" + levels);
     check(shot === levels, "levels 1-" + levels + " all accept a shot", shot + "/" + levels);
+
+    // 4b. stable ids are visible, and goto() takes either form
+    const ids = await page.evaluate(() =>
+      typeof window.Slingshot.levelIds === "function" ? window.Slingshot.levelIds() : null);
+    check(Array.isArray(ids) && ids.length === levels && ids.every((s) => SLUG.test(s)),
+      "exposes " + levels + " stable ids", Array.isArray(ids) ? ids.join(", ") : "missing");
+    check(Array.isArray(ids) && new Set(ids).size === (ids || []).length,
+      "ids are unique", Array.isArray(ids) ? new Set(ids).size + " distinct" : "n/a");
+    check(Array.isArray(ids) && EXPECTED_IDS.every((w) => ids.includes(w)),
+      "the shipped ids are all still present", EXPECTED_IDS.join(", "));
+
+    if (Array.isArray(ids)) {
+      // goto(index) and goto(id) must land on the same LEVELS entry
+      let agree = 0;
+      const disagreed = [];
+      for (let i = 0; i < levels; i++) {
+        const r = await page.evaluate(({ i, id }) => {
+          window.Slingshot.goto(i);
+          const byIndex = window.Slingshot.state();
+          window.Slingshot.goto(id);
+          const byId = window.Slingshot.state();
+          return { byIndex: [byIndex.level, byIndex.levelId],
+                   byId: [byId.level, byId.levelId] };
+        }, { i, id: ids[i] });
+        if (r.byIndex[0] === r.byId[0] && r.byIndex[1] === r.byId[1] && r.byIndex[1] === ids[i]) agree++;
+        else disagreed.push(i + ": " + JSON.stringify(r));
+      }
+      check(agree === levels, "goto(index) and goto(id) select the same level",
+        agree + "/" + levels + (disagreed.length ? "  " + disagreed.join("; ") : ""));
+
+      // a bad reference must fail loudly, not quietly load something else
+      const rejects = await page.evaluate(() => {
+        const tried = (fn) => { try { fn(); return false; } catch { return true; } };
+        return {
+          badIndex: tried(() => window.Slingshot.goto(99)),
+          badId: tried(() => window.Slingshot.goto("no-such-level")),
+        };
+      });
+      check(rejects.badIndex && rejects.badId, "an unknown index or id is rejected",
+        "index:" + rejects.badIndex + " id:" + rejects.badId);
+    }
 
     // 5. the pinned case still lands
     const k = seen[KNOWN.level];
