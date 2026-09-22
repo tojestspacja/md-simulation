@@ -165,7 +165,11 @@ export function createSlingshot({
   };
   cv.addEventListener("pointerdown", (e) => {
     if (mode !== "aim") return;
-    cv.setPointerCapture(e.pointerId);
+    // Capture keeps the drag alive when the finger leaves the canvas. Firefox
+    // throws Invalid pointer id if the pointer is not currently active, and an
+    // exception here would abandon the rest of the handler and leave the drag
+    // unstarted — losing capture is a small degradation, losing aiming is not.
+    try { cv.setPointerCapture(e.pointerId); } catch { /* drag still works */ }
     aimFrom = canvasPoint(e); aimTo = aimFrom.slice();
   });
   cv.addEventListener("pointermove", (e) => {
