@@ -179,6 +179,38 @@ was added.
 The game that *was* deleted is **Spin Runner**, replaced by Shim in `0dc74ee`.
 It exists only in git history.
 
+## Checks
+
+Three nets, each catching what the others cannot. None of them needs the site
+to be deployed, and the browser one can be pointed at the deployed URL anyway.
+
+| | Command | Catches |
+|---|---|---|
+| physics | `cd slingshot && node test/solver.mjs` | the engine moving: trajectory fingerprints, angular momentum, level 7's reach, the level 3 funnel |
+| the real page | `cd slingshot && node test/browser-smoke.mjs` | what the solver cannot see: a bad import path, a 404 on a module, a page that throws, a level that will not load |
+| history | `node scripts/verify-frozen.mjs` | `app/` or `games/mario-classic/` drifting off the commit they are pinned to |
+
+The split is deliberate. `test/solver.mjs` imports `slingshot/src/` directly, so
+it never loads `game.js`, never parses `index.html` and never resolves a module
+over HTTP — a broken import leaves it perfectly green. `test/browser-smoke.mjs`
+drives the shipped page in Chromium through `window.Slingshot` and fails on
+anything the console would have shown a human. Verified by breaking an import
+path on purpose: the browser test failed, the solver passed.
+
+Keep them apart. The solver is for search — feasibility, difficulty, generating
+and rejecting candidate levels — and is fast because it never starts a browser.
+The browser test is for integration: that what the solver believes still holds
+inside the real game.
+
+The browser test needs Chromium once:
+
+```bash
+cd slingshot
+npm install && npx playwright install chromium
+node test/browser-smoke.mjs                  # serves slingshot/ itself
+node test/browser-smoke.mjs <deployed-url>   # or checks a deployment
+```
+
 ## Running locally
 
 ```bash

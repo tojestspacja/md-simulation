@@ -1,0 +1,4 @@
+# Test tooling only. Nothing here is part of the site — this repository is
+# served as-is by GitHub Pages, so anything committed is published.
+node_modules/
+package-lock.json
