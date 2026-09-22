@@ -10,12 +10,19 @@
 // the furthest any launch can reach is r = 1006 — analytically and by brute force
 // over every angle and power. The boundary ring sits at 1150.
 //
+// The engine and the levels live in src/ so that this game and test/solver.mjs
+// run the same code rather than two copies that drift. Run the harness after
+// touching either: node test/solver.mjs
+//
 // Two things the picture is doing that are not decoration:
 //   * the trail is coloured by SPEED, so a gravity assist is something you watch
 //     happen rather than something you are told about;
 //   * with the maths layer on, the wedges swept out from the planet are drawn at
 //     equal time intervals. They come out equal in AREA — Kepler's second law —
 //     because r x v is conserved, which this engine does to 2e-12 %.
+import { DT, bodyAt, integrate } from "./src/physics.js";
+import { LEVELS } from "./src/levels.js";
+
 (() => {
   "use strict";
 
@@ -24,73 +31,8 @@
   const CW = cv.width, CH = cv.height;
   const $ = (id) => document.getElementById(id);
 
-  const DT = 1 / 240;
   const TRAIL_KEEP = 5;
   const SWEEP_EVERY = 0.22;        // seconds between Kepler wedges
-
-  // ---------- bodies ----------
-  const planet = (x, y, M, r) => ({ kind: "planet", x, y, M, r });
-  const moon = (cx, cy, R, M, r, omega, phase) =>
-    ({ kind: "moon", cx, cy, R, M, r, omega, phase });
-
-  const bodyAt = (b, t) => b.kind === "planet" ? [b.x, b.y]
-    : [b.cx + Math.cos(b.phase + b.omega * t) * b.R,
-       b.cy + Math.sin(b.phase + b.omega * t) * b.R];
-
-  function accel(x, y, bodies, t) {
-    let ax = 0, ay = 0;
-    for (const b of bodies) {
-      const [bx, by] = bodyAt(b, t);
-      const dx = bx - x, dy = by - y;
-      const r2 = Math.max(dx * dx + dy * dy, 1);
-      const r = Math.sqrt(r2);
-      ax += b.M * dx / (r2 * r);
-      ay += b.M * dy / (r2 * r);
-    }
-    return [ax, ay];
-  }
-  function integrate(s, bodies, t, dt) {
-    const [ax, ay] = accel(s.x, s.y, bodies, t);
-    s.x += s.vx * dt + 0.5 * ax * dt * dt;
-    s.y += s.vy * dt + 0.5 * ay * dt * dt;
-    const [a2, b2] = accel(s.x, s.y, bodies, t + dt);
-    s.vx += 0.5 * (ax + a2) * dt;
-    s.vy += 0.5 * (ay + b2) * dt;
-  }
-
-  // ---------- the seven (all geometries verified before drawing) ----------
-  const MOON_OM = Math.sqrt(6e6 / 460) / 460;
-
-  const LEVELS = [
-    { name: "the push", hint: "pull back from the probe, then let go",
-      start: [120, 400], flag: [830, 400], flagR: 30, bodies: [], maxP: 300, maxT: 6 },
-
-    { name: "it bends", hint: "something out there is pulling",
-      start: [110, 450], flag: [860, 450], flagR: 46,
-      bodies: [planet(470, 250, 9e5, 40)], maxP: 300, maxT: 8 },
-
-    { name: "aim away", hint: "straight at it will not work",
-      start: [100, 270], flag: [770, 270], flagR: 34,
-      bodies: [planet(430, 270, 7e5, 34)], maxP: 300, maxT: 9 },
-
-    { name: "the circle", hint: "too slow and you fall in, too fast and you sail past",
-      start: [480, 70], flag: [480, 470], flagR: 30,
-      bodies: [planet(480, 270, 1.6e6, 38)], maxP: 200, maxT: 15 },
-
-    { name: "round the back", hint: "go the long way",
-      start: [110, 460], flag: [600, 120], flagR: 32,
-      bodies: [planet(470, 300, 1.5e6, 44)], maxP: 280, maxT: 11 },
-
-    { name: "two of them", hint: "small changes matter a lot now",
-      start: [90, 270], flag: [880, 270], flagR: 32,
-      bodies: [planet(360, 160, 9e5, 34), planet(620, 390, 9e5, 34)],
-      maxP: 300, maxT: 10 },
-
-    { name: "the way out", hint: "your engine cannot do it. the moon can",
-      start: [170, 250], ring: 1150, ringAt: [430, 250],
-      bodies: [planet(430, 250, 6e6, 46), moon(430, 250, 460, 2.5e6, 34, MOON_OM, 3.14)],
-      maxP: 185, maxT: 30, fullPreview: true, zoomOut: 2.6 },
-  ];
 
   // ---------- state ----------
   let li = 0, lv = null, reached = 0;
