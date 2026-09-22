@@ -21,7 +21,7 @@
 //     equal time intervals. They come out equal in AREA — Kepler's second law —
 //     because r x v is conserved, which this engine does to 2e-12 %.
 import { DT, bodyAt, integrate } from "./src/physics.js";
-import { LEVELS } from "./src/levels.js";
+import { LEVELS } from "./src/levels/index.js";
 import {
   loadProgress, saveProgress, resetProgress,
   recordAttemptResult, getBestTries, levelState,

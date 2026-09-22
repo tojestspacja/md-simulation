@@ -6,7 +6,7 @@
 // Why this exists. The README quotes results from a harness that was never
 // committed: bot shot counts, "r = 1006", "L conserved to 2e-12 %". Those
 // numbers could not be re-earned, only repeated. This puts the harness back
-// under version control, and it imports src/physics.js and src/levels.js
+// under version control, and it imports src/physics.js and src/levels/
 // rather than carrying its own copy — so it fails when the engine moves, which
 // is the entire point of having it before game.js gets split up.
 //
@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { DT, bodyAt, accel, integrate } from "../src/physics.js";
-import { LEVELS } from "../src/levels.js";
+import { LEVELS } from "../src/levels/index.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const GOLDEN = join(HERE, "golden.json");
@@ -227,6 +227,12 @@ function bot(lv, cap = 4000) {
 // two levels into one. Checked before anything else, and deliberately outside
 // the golden comparison so that --update can never bless a broken schema.
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+// The shipped campaign, in order. The order is not cosmetic: isUnlocked() in
+// progress.js opens a level when the one before it is finished, so swapping
+// two entries in src/levels/index.js changes which level unlocks which without
+// touching a single number. Asserting the exact sequence means a deliberate
+// reorder has to come here and say so, and an accidental one fails.
 const EXPECTED_IDS = ["push", "bend", "aim-away", "orbit",
                       "round-the-back", "two-planets", "gravity-assist"];
 
@@ -250,6 +256,12 @@ function validateSchema() {
     if (!ids.includes(want)) bad.push(`the shipped id ${JSON.stringify(want)} is gone — ids are immutable`);
   for (const got of ids)
     if (got && !EXPECTED_IDS.includes(got)) bad.push(`new id ${JSON.stringify(got)}: add it to EXPECTED_IDS on purpose`);
+
+  // Presence is not enough: the sequence is the progression.
+  if (ids.join(" ") !== EXPECTED_IDS.join(" "))
+    bad.push("campaign order changed — unlocking follows this array\n" +
+             `        expected  ${EXPECTED_IDS.join(" -> ")}\n` +
+             `        found     ${ids.join(" -> ")}`);
 
   return bad;
 }

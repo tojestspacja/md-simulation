@@ -13,7 +13,7 @@ import {
   getLevelProgress, isCompleted, getBestTries,
   recordAttemptResult, isUnlocked, levelState,
 } from "../src/progress.js";
-import { LEVELS } from "../src/levels.js";
+import { LEVELS } from "../src/levels/index.js";
 
 const ORDER = LEVELS.map((L) => L.id);
 

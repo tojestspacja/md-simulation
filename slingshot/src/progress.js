@@ -1,6 +1,6 @@
 // SLINGSHOT — what the player has done, kept between visits.
 //
-// Keyed on the immutable ids in levels.js, never on array position. The whole
+// Keyed on the immutable ids in src/levels/, never on array position. The whole
 // reason this module exists separately is that the stored shape has to outlive
 // the order of the campaign: insert a level at position three and an
 // index-keyed save silently starts describing the wrong levels.
