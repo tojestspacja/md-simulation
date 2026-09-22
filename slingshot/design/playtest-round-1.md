@@ -13,7 +13,8 @@ is in [playtest-long-way-round.md](playtest-long-way-round.md) and is unchanged.
 | | |
 |---|---|
 | tag | `playtest-long-way-round-r22-v1` |
-| commit | `17e0d01f546f31fbb7386ef99ac7dba92bf7732a` |
+| commit | `ea0a43f` — what is deployed while the round runs |
+| playable build | identical to `17e0d01`; the commits after it add only this sheet and a read-only summary tool, and `git diff` over `playtest/`, `game.js`, `boot.js`, `src/`, the candidate and `style.css` is empty |
 | candidate | `long-way-round-r22` |
 | fingerprint | `6db04ecc583dac83079464846b0ec19ee0c3a1e390ddc5deed2604435318f2e5` |
 | playtest URL | <https://tojestspacja.github.io/md-simulation/slingshot/playtest/> |
