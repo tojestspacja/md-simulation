@@ -125,14 +125,39 @@ The lesson: start from a game anyone can already play, then make the hard physic
 the thing that makes it good. Tunnelling is not a lesson bolted onto a
 platformer — it is the best mechanic in it.
 
-## Also here
+## Every game, and where it lives
 
-- [`spin/`](spin/) — an NMR shimming trainer. A real drill: the lineshape tells
-  you which shim is wrong.
-- [`spin/sandbox.html`](spin/sandbox.html) — free play on a Bloch engine verified
-  against closed form (Hahn echo peaks at 35.0 ms against a predicted 34.6).
-- [`echo/`](echo/) — Agreement, the coherence puzzle.
-- [`app/`](app/) — Pixel Plumber.
+**The arcade — one entry per game:**
+<https://tojestspacja.github.io/md-simulation/games/>
+
+Each game is a self-contained folder and has its own permanent URL. Nothing is
+built, bundled or copied at deploy time, so **no game can overwrite another**:
+a folder is a URL, and that is the whole mechanism.
+
+| Game | Folder | URL |
+|---|---|---|
+| SLINGSHOT — gravity, aim and release | `slingshot/` | <https://tojestspacja.github.io/md-simulation/slingshot/> |
+| THROUGH — a platformer on real tunnelling | `quantum/` | <https://tojestspacja.github.io/md-simulation/quantum/> |
+| Shim — an NMR shimming trainer | `spin/` | <https://tojestspacja.github.io/md-simulation/spin/> |
+| Agreement — the coherence puzzle | `echo/` | <https://tojestspacja.github.io/md-simulation/echo/> |
+| **Pixel Plumber** — the original Mario-style platformer | `app/` | <https://tojestspacja.github.io/md-simulation/app/> |
+| Bloch sandbox (a tool, not a game) | `spin/sandbox.html` | <https://tojestspacja.github.io/md-simulation/spin/sandbox.html> |
+
+Related, in a **separate repository** so it deploys independently:
+[Resonance](https://tojestspacja.github.io/mr-simulation/) — a playable explainer
+for magnetic resonance in eight levels
+([repo](https://github.com/tojestspacja/mr-simulation)).
+
+### A note on Pixel Plumber
+
+It is the first thing in this repository and it has never been replaced. It was
+added in `a147605`, moved from the repository root into `app/` in `fdf1459`, and
+last changed in `926e119` when the physics zones were added. `app/` on `main`
+today is byte-identical to `926e119` — the later games were each added alongside
+it in their own folders, never on top of it.
+
+The game that *was* deleted is **Spin Runner**, replaced by Shim in `0dc74ee`.
+It exists only in git history.
 
 ## Running locally
 
@@ -144,13 +169,29 @@ python -m http.server 8000
 
 ## Deploying
 
-GitHub Pages, `main` branch, root. Every push republishes.
+GitHub Pages, `main` branch, root. Every push republishes. There is no Action, no
+build step and no generated output in this repository — what is committed is what
+is served, at the path it sits at.
+
+Adding a game is therefore: make a folder, put `index.html` in it, add a card to
+`games/index.html`. Existing games are untouched by that, which is the point.
+
+To check a deployment after pushing:
+
+```bash
+for u in / /games/ /slingshot/ /quantum/ /spin/ /echo/ /app/; do
+  echo "$(curl -s -o /dev/null -w '%{http_code}' "https://tojestspacja.github.io/md-simulation$u")  $u"
+done
+```
 
 ## Layout
 
-- `index.html` — project page
+- `index.html` — project page (SLINGSHOT, the current Project 1 report)
+- `games/` — the arcade: one card per game, the way in for everything below
+- `slingshot/` — SLINGSHOT — self-contained
 - `quantum/` — THROUGH (`index.html`, `style.css`, `game.js`) — self-contained
 - `spin/` — shimming trainer, shared Bloch engine, sandbox
 - `echo/` — Agreement
 - `app/` — Pixel Plumber
+- `images/` — screenshots used by the project page and the arcade
 - `NOTES.md`, `handover.md`

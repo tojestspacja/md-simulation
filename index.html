@@ -22,6 +22,8 @@
     .btn { display: inline-block; font-weight: 800; text-decoration: none; letter-spacing: 2px;
       padding: 14px 42px; border-radius: 9px; font-size: 17px;
       background: var(--blue); color: #041028; box-shadow: 0 5px 0 #3f6cb5; }
+    .btn-alt { background: transparent; color: var(--blue); box-shadow: none;
+      border: 1px solid var(--line); margin-left: 10px; }
     figure { margin: 28px 0; }
     figure img { width: 100%; border-radius: 8px; border: 1px solid var(--line); display: block; }
     figcaption { color: var(--muted); font-size: 13px; margin-top: 9px; }
@@ -51,7 +53,10 @@
       <div class="byline">Yi-Tsai Liang — Project 1, TIGP Basic Skills for Experimentalists (2026)</div>
     </header>
 
-    <div class="cta"><a class="btn" href="slingshot/">PLAY</a></div>
+    <div class="cta">
+      <a class="btn" href="slingshot/">PLAY</a>
+      <a class="btn btn-alt" href="games/">ALL GAMES</a>
+    </div>
     <p class="note" style="text-align:center">any browser, phone included · one gesture · seven levels</p>
 
     <section>
@@ -197,6 +202,10 @@
 
     <section>
       <h2>Also here</h2>
+      <p class="big">
+        Every game in this repository has its own page and its own address:
+        <a href="games/" style="color:var(--gold)">the arcade →</a>
+      </p>
       <p class="note">
         The earlier builds, kept and honestly labelled:
         <a href="quantum/" style="color:var(--gold)">THROUGH</a> (a platformer on real quantum
@@ -209,6 +218,7 @@
     </section>
 
     <div class="foot">
+      <a href="games/"><strong>The arcade →</strong></a> ·
       <a href="slingshot/">Slingshot →</a> · <a href="quantum/">Through →</a> ·
       <a href="spin/">Shim →</a> · <a href="echo/">Agreement →</a> ·
       <a href="app/">Pixel Plumber →</a> ·
