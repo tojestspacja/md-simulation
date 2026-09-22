@@ -1,0 +1,357 @@
+{
+  "generatedBy": "tools/difficulty.mjs",
+  "toolVersion": "1.0.0",
+  "config": {
+    "toolVersion": "1.0.0",
+    "angleSamples": 360,
+    "powerSamples": 30,
+    "powerFloor": 12,
+    "searchTrials": 40,
+    "searchBudget": 2000,
+    "seedBase": 20260923,
+    "toleranceSteps": 240
+  },
+  "levels": [
+    {
+      "id": "push",
+      "name": "the push",
+      "maxPower": 300,
+      "maxTime": 6,
+      "bodies": 0,
+      "search": {
+        "trials": 40,
+        "solved": 40,
+        "successRate": 1,
+        "failuresWithinBudget": 0,
+        "budget": 2000,
+        "medianShots": 138,
+        "p75Shots": 162,
+        "p90Shots": 163,
+        "minShots": 2,
+        "maxShots": 170
+      },
+      "solutionSpace": {
+        "samples": 10800,
+        "hits": 95,
+        "hitRatePercent": 0.88,
+        "basinCount": 1,
+        "largestBasin": 95,
+        "largestBasinPercent": 0.88,
+        "basinSizes": [
+          95
+        ]
+      },
+      "precision": {
+        "representative": {
+          "angleDeg": 0,
+          "power": 131.2
+        },
+        "angleMinusDeg": 2.38,
+        "anglePlusDeg": 2.38,
+        "powerMinus": 17.5,
+        "powerPlus": 150
+      },
+      "concept": {
+        "class": "direct launch",
+        "note": "aim and power, nothing else acting"
+      },
+      "seconds": 1.5
+    },
+    {
+      "id": "bend",
+      "name": "it bends",
+      "maxPower": 300,
+      "maxTime": 8,
+      "bodies": 1,
+      "search": {
+        "trials": 40,
+        "solved": 40,
+        "successRate": 1,
+        "failuresWithinBudget": 0,
+        "budget": 2000,
+        "medianShots": 77,
+        "p75Shots": 110,
+        "p90Shots": 121,
+        "minShots": 2,
+        "maxShots": 130
+      },
+      "solutionSpace": {
+        "samples": 10800,
+        "hits": 145,
+        "hitRatePercent": 1.34,
+        "basinCount": 7,
+        "largestBasin": 135,
+        "largestBasinPercent": 1.25,
+        "basinSizes": [
+          135,
+          3,
+          2,
+          2,
+          1,
+          1
+        ]
+      },
+      "precision": {
+        "representative": {
+          "angleDeg": 1,
+          "power": 270.2
+        },
+        "angleMinusDeg": 1.25,
+        "anglePlusDeg": 5.13,
+        "powerMinus": 45.6,
+        "powerPlus": 29.4
+      },
+      "concept": {
+        "class": "weak gravity deflection",
+        "note": "a mass off the line curves the path"
+      },
+      "seconds": 3.7
+    },
+    {
+      "id": "aim-away",
+      "name": "aim away",
+      "maxPower": 300,
+      "maxTime": 9,
+      "bodies": 1,
+      "search": {
+        "trials": 40,
+        "solved": 40,
+        "successRate": 1,
+        "failuresWithinBudget": 0,
+        "budget": 2000,
+        "medianShots": 45,
+        "p75Shots": 72,
+        "p90Shots": 99,
+        "minShots": 2,
+        "maxShots": 131
+      },
+      "solutionSpace": {
+        "samples": 10800,
+        "hits": 152,
+        "hitRatePercent": 1.41,
+        "basinCount": 8,
+        "largestBasin": 64,
+        "largestBasinPercent": 0.59,
+        "basinSizes": [
+          64,
+          64,
+          4,
+          4,
+          4,
+          4
+        ]
+      },
+      "precision": {
+        "representative": {
+          "angleDeg": 10,
+          "power": 270.2
+        },
+        "angleMinusDeg": 1.37,
+        "anglePlusDeg": 1.37,
+        "powerMinus": 35,
+        "powerPlus": 29.4
+      },
+      "concept": {
+        "class": "counter-intuitive aim",
+        "note": "aiming at the target is the one thing that fails"
+      },
+      "seconds": 4.3
+    },
+    {
+      "id": "orbit",
+      "name": "the circle",
+      "maxPower": 200,
+      "maxTime": 15,
+      "bodies": 1,
+      "search": {
+        "trials": 40,
+        "solved": 40,
+        "successRate": 1,
+        "failuresWithinBudget": 0,
+        "budget": 2000,
+        "medianShots": 32,
+        "p75Shots": 71,
+        "p90Shots": 84,
+        "minShots": 2,
+        "maxShots": 111
+      },
+      "solutionSpace": {
+        "samples": 10800,
+        "hits": 296,
+        "hitRatePercent": 2.74,
+        "basinCount": 2,
+        "largestBasin": 148,
+        "largestBasinPercent": 1.37,
+        "basinSizes": [
+          148,
+          148
+        ]
+      },
+      "precision": {
+        "representative": {
+          "angleDeg": 59,
+          "power": 174.1
+        },
+        "angleMinusDeg": 2.38,
+        "anglePlusDeg": 2.5,
+        "powerMinus": 12.1,
+        "powerPlus": 12.9
+      },
+      "concept": {
+        "class": "sustained orbit",
+        "note": "a speed band between falling in and sailing past"
+      },
+      "seconds": 5.4
+    },
+    {
+      "id": "round-the-back",
+      "name": "round the back",
+      "maxPower": 280,
+      "maxTime": 11,
+      "bodies": 1,
+      "search": {
+        "trials": 40,
+        "solved": 40,
+        "successRate": 1,
+        "failuresWithinBudget": 0,
+        "budget": 2000,
+        "medianShots": 86,
+        "p75Shots": 109,
+        "p90Shots": 126,
+        "minShots": 8,
+        "maxShots": 141
+      },
+      "solutionSpace": {
+        "samples": 10800,
+        "hits": 197,
+        "hitRatePercent": 1.82,
+        "basinCount": 9,
+        "largestBasin": 115,
+        "largestBasinPercent": 1.06,
+        "basinSizes": [
+          115,
+          34,
+          11,
+          10,
+          8,
+          7
+        ]
+      },
+      "precision": {
+        "representative": {
+          "angleDeg": 311,
+          "power": 159.9
+        },
+        "angleMinusDeg": 2.13,
+        "anglePlusDeg": 2.25,
+        "powerMinus": 17.5,
+        "powerPlus": 21.6
+      },
+      "concept": {
+        "class": "behind-body routing",
+        "note": "the target is shadowed; commit to the long way"
+      },
+      "seconds": 5
+    },
+    {
+      "id": "two-planets",
+      "name": "two of them",
+      "maxPower": 300,
+      "maxTime": 10,
+      "bodies": 2,
+      "search": {
+        "trials": 40,
+        "solved": 40,
+        "successRate": 1,
+        "failuresWithinBudget": 0,
+        "budget": 2000,
+        "medianShots": 77,
+        "p75Shots": 129,
+        "p90Shots": 154,
+        "minShots": 8,
+        "maxShots": 177
+      },
+      "solutionSpace": {
+        "samples": 10800,
+        "hits": 106,
+        "hitRatePercent": 0.98,
+        "basinCount": 32,
+        "largestBasin": 50,
+        "largestBasinPercent": 0.46,
+        "basinSizes": [
+          50,
+          7,
+          3,
+          3,
+          2,
+          2
+        ]
+      },
+      "precision": {
+        "representative": {
+          "angleDeg": 3,
+          "power": 280.1
+        },
+        "angleMinusDeg": 1.37,
+        "anglePlusDeg": 1.62,
+        "powerMinus": 51.3,
+        "powerPlus": 19.4
+      },
+      "concept": {
+        "class": "multi-body interaction",
+        "note": "three-body sensitivity: small change, different outcome"
+      },
+      "seconds": 6.2
+    },
+    {
+      "id": "gravity-assist",
+      "name": "the way out",
+      "maxPower": 185,
+      "maxTime": 30,
+      "bodies": 2,
+      "search": {
+        "trials": 40,
+        "solved": 40,
+        "successRate": 1,
+        "failuresWithinBudget": 0,
+        "budget": 2000,
+        "medianShots": 14,
+        "p75Shots": 34,
+        "p90Shots": 66,
+        "minShots": 2,
+        "maxShots": 78
+      },
+      "solutionSpace": {
+        "samples": 10800,
+        "hits": 958,
+        "hitRatePercent": 8.87,
+        "basinCount": 17,
+        "largestBasin": 843,
+        "largestBasinPercent": 7.81,
+        "basinSizes": [
+          843,
+          66,
+          22,
+          9,
+          3,
+          2
+        ]
+      },
+      "precision": {
+        "representative": {
+          "angleDeg": 35,
+          "power": 179
+        },
+        "angleMinusDeg": 3,
+        "anglePlusDeg": 16.75,
+        "powerMinus": 13.1,
+        "powerPlus": 5.8
+      },
+      "concept": {
+        "class": "gravity assist / escape",
+        "note": "provably impossible alone; take speed from a moving moon"
+      },
+      "seconds": 12.1
+    }
+  ]
+}
