@@ -22,6 +22,10 @@
 //     because r x v is conserved, which this engine does to 2e-12 %.
 import { DT, bodyAt, integrate } from "./src/physics.js";
 import { LEVELS } from "./src/levels.js";
+import {
+  loadProgress, saveProgress, resetProgress,
+  recordAttemptResult, getBestTries, levelState,
+} from "./src/progress.js";
 
 (() => {
   "use strict";
@@ -35,7 +39,7 @@ import { LEVELS } from "./src/levels.js";
   const SWEEP_EVERY = 0.22;        // seconds between Kepler wedges
 
   // ---------- state ----------
-  let li = 0, lv = null, reached = 0;
+  let li = 0, lv = null;
   let mode = "aim";
   let probe = null, t = 0;
   let path = [], sweep = [], ghosts = [];
@@ -44,7 +48,11 @@ import { LEVELS } from "./src/levels.js";
   let aimFrom = null, aimTo = null;
   let view = { cx: 480, cy: 270, w: 960 };
   let viewTarget = { ...view }, baseView = { ...view };
-  let tries = 0, bestTries = {}, showMath = false;
+  let tries = 0, showMath = false;
+  // The ids in campaign order, and the saved record keyed on them. Unlock
+  // state is derived from this rather than stored — see src/progress.js.
+  const ORDER = LEVELS.map((L) => L.id);
+  let progress = loadProgress();
   let flash = null, flashT = 0, everLaunched = false;
 
   // A level can be named two ways: by where it currently sits, which is what
@@ -69,7 +77,6 @@ import { LEVELS } from "./src/levels.js";
 
   function loadLevel(i) {
     li = i; lv = LEVELS[i];
-    reached = Math.max(reached, i);
     mode = "aim"; probe = null; t = 0;
     path = []; sweep = []; ghosts = []; tries = 0;
     closest = null; aimFrom = null; aimTo = null;
@@ -184,8 +191,8 @@ import { LEVELS } from "./src/levels.js";
   function win() {
     mode = "done";
     const last = li + 1 >= LEVELS.length;
-    const prev = bestTries[li];
-    bestTries[li] = prev === undefined ? tries : Math.min(prev, tries);
+    const { improved } = recordAttemptResult(progress, lv.id, tries);
+    saveProgress(progress);
     let body;
     if (last) {
       const alone = withoutTheMoon();
@@ -203,7 +210,7 @@ import { LEVELS } from "./src/levels.js";
         (tries === 1 ? " attempt" : " attempts") + " on this one.</p>";
     } else {
       body = "<p>" + tries + (tries === 1 ? " attempt." : " attempts.") +
-        (prev !== undefined && tries < prev ? " <b>Better than last time.</b>" : "") + "</p>";
+        (improved ? " <b>Better than last time.</b>" : "") + "</p>";
     }
     show(last ? "OUT" : "ARRIVED", body, last ? "again" : "next");
     drawDots();
@@ -582,11 +589,19 @@ import { LEVELS } from "./src/levels.js";
     if (!host) return;
     host.innerHTML = "";
     LEVELS.forEach((L, i) => {
+      // Same three classes as before, still independent of each other: the
+      // level you are on may also be one you have already finished.
+      const state = levelState(progress, ORDER, L.id);   // locked | done | available
+      const open = state !== "locked";
       const d = document.createElement("button");
       d.className = "dot" + (i === li ? " now" : "") +
-        (bestTries[i] !== undefined ? " done" : "") + (i > reached ? " locked" : "");
-      d.title = i <= reached ? (i + 1) + ". " + L.name : "not yet";
-      d.addEventListener("click", () => { if (i <= reached) { hide(); loadLevel(i); } });
+        (state === "done" ? " done" : "") + (open ? "" : " locked");
+      d.title = open ? (i + 1) + ". " + L.name : "not yet";
+      // For the browser regression test: identity and state, not DOM position.
+      d.dataset.levelId = L.id;
+      d.dataset.state = state;
+      if (i === li) d.dataset.current = "true";
+      d.addEventListener("click", () => { if (open) { hide(); loadLevel(i); } });
       host.appendChild(d);
     });
   }
@@ -668,5 +683,14 @@ import { LEVELS } from "./src/levels.js";
     maxPower: () => lv.maxP,
     levels: LEVELS.length,
     levelIds: () => LEVELS.map((L) => L.id),
+    // Read-only copy: the tests read progress, they never reach in and set it.
+    progress: () => LEVELS.map((L) => ({
+      id: L.id,
+      state: levelState(progress, ORDER, L.id),
+      bestTries: getBestTries(progress, L.id),
+    })),
+    // Explicit, because a test that wants a clean slate should say so rather
+    // than clearing storage behind the game's back and leaving it stale.
+    resetProgress: () => { progress = resetProgress(); drawDots(); },
   };
 })();

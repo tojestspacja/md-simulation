@@ -187,6 +187,7 @@ to be deployed, and the browser one can be pointed at the deployed URL anyway.
 | | Command | Catches |
 |---|---|---|
 | physics | `cd slingshot && node test/solver.mjs` | the engine moving: trajectory fingerprints, angular momentum, level 7's reach, the level 3 funnel |
+| saves | `cd slingshot && node test/progress.mjs` | a best that gets worse, a level that re-locks, a malformed or future save taking the game down with it |
 | the real page | `cd slingshot && node test/browser-smoke.mjs` | what the solver cannot see: a bad import path, a 404 on a module, a page that throws, a level that will not load |
 | history | `node scripts/verify-frozen.mjs` | `app/` or `games/mario-classic/` drifting off the commit they are pinned to |
 

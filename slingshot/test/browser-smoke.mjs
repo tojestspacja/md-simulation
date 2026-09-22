@@ -191,6 +191,85 @@ try {
       flight.moved + " frames, moved " + flight.spread + " px");
     check(flight.after > flight.before, "the launch counts as an attempt",
       flight.before + " -> " + flight.after);
+
+    // ---------- progress, and the indicator that shows it ----------
+    // Only our key is touched: a developer's other site data is not the
+    // test's to clear.
+    const dots = () => page.evaluate(() =>
+      [...document.querySelectorAll("#dots .dot")].map((d) => ({
+        id: d.dataset.levelId, state: d.dataset.state,
+        current: d.dataset.current === "true",
+        cls: d.className,
+        locked: d.classList.contains("locked"), done: d.classList.contains("done"),
+      })));
+
+    await page.evaluate(() => { window.Slingshot.resetProgress(); window.Slingshot.goto(0); });
+    let d = await dots();
+    check(d.length === levels && d.every((x, i) => x.id === ids[i]),
+      "the indicator is one dot per level, in order", d.map((x) => x.id).join(" "));
+    check(d[0].state === "available" && d[0].current,
+      "fresh save: level 1 is available and current", d[0].state);
+    check(d.slice(1).every((x) => x.state === "locked" && x.locked),
+      "fresh save: levels 2-7 are locked",
+      d.slice(1).map((x) => x.state).join(" "));
+
+    // Finish level 1 for real, through the game's own win path.
+    const won = await page.evaluate(async () => {
+      window.Slingshot.goto(0);
+      // level 1 has no bodies: a straight shot at full power arrives
+      const r = window.Slingshot.tryShot(0, window.Slingshot.maxPower());
+      if (r.out !== "hit") return { ok: false, r };
+      return { ok: true, r };
+    });
+    check(won.ok, "level 1 is winnable by a straight shot", JSON.stringify(won.r));
+
+    // tryShot is a pure probe; drive the real loop to actually record it.
+    const recorded = await page.evaluate(() => new Promise((resolve) => {
+      window.Slingshot.goto(0);
+      const cv = document.getElementById("sky");
+      const b = cv.getBoundingClientRect();
+      const ev = (type, x, y) => cv.dispatchEvent(new PointerEvent(type, {
+        clientX: b.left + x, clientY: b.top + y, bubbles: true, pointerId: 1, isPrimary: true }));
+      // drag straight back from the probe: launches level 1 at the flag
+      ev("pointerdown", 400, 400); ev("pointermove", 60, 400); ev("pointerup", 60, 400);
+      const t0 = performance.now();
+      (function wait() {
+        const p = window.Slingshot.progress().find((x) => x.id === "push");
+        if (p.bestTries !== null || performance.now() - t0 > 8000) resolve(p);
+        else requestAnimationFrame(wait);
+      })();
+    }));
+    check(recorded.bestTries !== null, "finishing level 1 records a best",
+      "bestTries=" + recorded.bestTries);
+
+    d = await dots();
+    check(d[0].state === "done" && d[0].done, "after the win: level 1 shows done", d[0].state);
+    check(d[1].state === "available" && !d[1].locked, "after the win: level 2 unlocks", d[1].state);
+    check(d.slice(2).every((x) => x.state === "locked"),
+      "after the win: levels 3-7 stay locked", d.slice(2).map((x) => x.state).join(" "));
+
+    // ---------- does it survive a reload ----------
+    await page.reload({ waitUntil: "networkidle" });
+    const afterReload = await page.evaluate(() =>
+      window.Slingshot.progress().find((x) => x.id === "push"));
+    check(afterReload && afterReload.state === "done",
+      "progress survives a reload", JSON.stringify(afterReload));
+    check(afterReload && afterReload.bestTries === recorded.bestTries,
+      "the best tries survives a reload",
+      recorded.bestTries + " -> " + (afterReload && afterReload.bestTries));
+    d = await dots();
+    check(d[0].done && !d[1].locked, "the indicator still shows it after a reload",
+      d.map((x) => x.state).join(" "));
+
+    // ---------- reset ----------
+    await page.evaluate(() => window.Slingshot.resetProgress());
+    await page.reload({ waitUntil: "networkidle" });
+    d = await dots();
+    const clean = d[0].state === "available" && d.slice(1).every((x) => x.state === "locked");
+    check(clean, "reset returns the clean seven-level state", d.map((x) => x.state).join(" "));
+    const noBest = await page.evaluate(() =>
+      window.Slingshot.progress().every((x) => x.bestTries === null));
+    check(noBest, "reset clears the recorded bests");
   }
 
   // 7. nothing in the console, no 404 on a module

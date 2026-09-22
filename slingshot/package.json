@@ -2,7 +2,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "test": "node test/solver.mjs",
+    "test": "node test/solver.mjs && node test/progress.mjs",
     "test:browser": "node test/browser-smoke.mjs"
   },
   "devDependencies": {
