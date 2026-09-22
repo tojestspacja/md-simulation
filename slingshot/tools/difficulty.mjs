@@ -27,6 +27,7 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { LEVELS } from "../src/levels/index.js";
 import { fly, missOf } from "./flight.mjs";
@@ -42,7 +43,7 @@ const arg = (name, dflt) => {
 };
 
 // ---------- settings, all reported with the results ----------
-const CONFIG = {
+export const CONFIG = {
   toolVersion: TOOL_VERSION,
   angleSamples: arg("angles", 360),     // over the full circle
   powerSamples: arg("powers", 120),     // from powerFloor to maxP. 30 was too
@@ -136,10 +137,21 @@ const quantile = (sorted, q) => {
   return sorted[i];
 };
 
-function searchProfile(lv, i) {
+// Seeds derive from the level id, never from where it sits in the array being
+// measured. Position-derived seeds meant the same level measured inside a
+// different list got different seeds and different numbers — round-the-back
+// read as a median of 86 in the baseline and 41 in a candidate comparison, for
+// no reason but its index.
+function idSeed(id) {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) { h ^= id.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+function searchProfile(lv) {
   const runs = [];
   for (let k = 0; k < CONFIG.searchTrials; k++)
-    runs.push(search(lv, CONFIG.seedBase + i * 1000 + k, CONFIG.searchBudget));
+    runs.push(search(lv, (CONFIG.seedBase + idSeed(lv.id) + k) >>> 0, CONFIG.searchBudget));
   const solved = runs.filter((r) => r.solved).map((r) => r.shots).sort((a, b) => a - b);
   return {
     trials: runs.length,
@@ -276,7 +288,7 @@ export function measure(levels) {
   const b = basins(grid);
   const rep = representative(lv, grid);
   const tol = rep ? tolerance(lv, rep.angle, rep.power) : null;
-  const s = searchProfile(lv, i);
+  const s = searchProfile(lv);
   return {
     id: lv.id,
     name: lv.name,
@@ -304,6 +316,13 @@ export function measure(levels) {
 
 // Candidates live outside src/levels/ until they earn their way in; point the
 // tool at a module exporting LEVELS to measure them with this exact code path.
+// Only measure and print when run directly. Imported — by tools/candidate.mjs,
+// for instance — this file is a library and must not kick off a four-minute
+// sweep of the shipped seven as a side effect.
+const RUNNING_DIRECTLY = process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (RUNNING_DIRECTLY) {
 const levelsArg = process.argv.indexOf("--levels");
 const SUBJECT = levelsArg >= 0 && process.argv[levelsArg + 1]
   ? (await import(process.argv[levelsArg + 1])).LEVELS
@@ -345,6 +364,7 @@ if (process.argv.includes("--write")) {
   writeFileSync(join(OUT, "difficulty-baseline.md"), markdown(results));
   console.log("\nwritten to analysis/");
 }
+}   // end RUNNING_DIRECTLY
 
 function markdown(rs) {
   const L = [];

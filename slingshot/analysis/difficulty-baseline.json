@@ -24,11 +24,11 @@
         "successRate": 1,
         "failuresWithinBudget": 0,
         "budget": 2000,
-        "medianShots": 138,
-        "p75Shots": 162,
+        "medianShots": 118,
+        "p75Shots": 155,
         "p90Shots": 163,
         "minShots": 2,
-        "maxShots": 170
+        "maxShots": 171
       },
       "solutionSpace": {
         "samples": 43200,
@@ -59,7 +59,7 @@
         "class": "direct launch",
         "note": "aim and power, nothing else acting"
       },
-      "seconds": 4.8
+      "seconds": 6.9
     },
     {
       "id": "bend",
@@ -73,11 +73,11 @@
         "successRate": 1,
         "failuresWithinBudget": 0,
         "budget": 2000,
-        "medianShots": 77,
-        "p75Shots": 110,
-        "p90Shots": 121,
+        "medianShots": 78,
+        "p75Shots": 98,
+        "p90Shots": 118,
         "minShots": 2,
-        "maxShots": 130
+        "maxShots": 134
       },
       "solutionSpace": {
         "samples": 43200,
@@ -111,7 +111,7 @@
         "class": "weak gravity deflection",
         "note": "a mass off the line curves the path"
       },
-      "seconds": 12.5
+      "seconds": 16.2
     },
     {
       "id": "aim-away",
@@ -125,11 +125,11 @@
         "successRate": 1,
         "failuresWithinBudget": 0,
         "budget": 2000,
-        "medianShots": 45,
-        "p75Shots": 72,
-        "p90Shots": 99,
-        "minShots": 2,
-        "maxShots": 131
+        "medianShots": 56,
+        "p75Shots": 97,
+        "p90Shots": 123,
+        "minShots": 4,
+        "maxShots": 141
       },
       "solutionSpace": {
         "samples": 43200,
@@ -162,7 +162,7 @@
         "class": "counter-intuitive aim",
         "note": "aiming at the target is the one thing that fails"
       },
-      "seconds": 12.4
+      "seconds": 16.6
     },
     {
       "id": "orbit",
@@ -176,11 +176,11 @@
         "successRate": 1,
         "failuresWithinBudget": 0,
         "budget": 2000,
-        "medianShots": 32,
+        "medianShots": 40,
         "p75Shots": 71,
-        "p90Shots": 84,
+        "p90Shots": 96,
         "minShots": 2,
-        "maxShots": 111
+        "maxShots": 108
       },
       "solutionSpace": {
         "samples": 43200,
@@ -213,7 +213,7 @@
         "class": "sustained orbit",
         "note": "a speed band between falling in and sailing past"
       },
-      "seconds": 17
+      "seconds": 25.6
     },
     {
       "id": "round-the-back",
@@ -227,11 +227,11 @@
         "successRate": 1,
         "failuresWithinBudget": 0,
         "budget": 2000,
-        "medianShots": 86,
+        "medianShots": 78,
         "p75Shots": 109,
-        "p90Shots": 126,
-        "minShots": 8,
-        "maxShots": 141
+        "p90Shots": 122,
+        "minShots": 2,
+        "maxShots": 139
       },
       "solutionSpace": {
         "samples": 43200,
@@ -265,7 +265,7 @@
         "class": "behind-body routing",
         "note": "the target is shadowed; commit to the long way"
       },
-      "seconds": 16
+      "seconds": 16.6
     },
     {
       "id": "two-planets",
@@ -279,10 +279,10 @@
         "successRate": 1,
         "failuresWithinBudget": 0,
         "budget": 2000,
-        "medianShots": 77,
-        "p75Shots": 129,
-        "p90Shots": 154,
-        "minShots": 8,
+        "medianShots": 100,
+        "p75Shots": 154,
+        "p90Shots": 163,
+        "minShots": 2,
         "maxShots": 177
       },
       "solutionSpace": {
@@ -321,7 +321,7 @@
         "class": "multi-body interaction",
         "note": "three-body sensitivity: small change, different outcome"
       },
-      "seconds": 19.2
+      "seconds": 28
     },
     {
       "id": "gravity-assist",
@@ -335,11 +335,11 @@
         "successRate": 1,
         "failuresWithinBudget": 0,
         "budget": 2000,
-        "medianShots": 14,
-        "p75Shots": 34,
-        "p90Shots": 66,
+        "medianShots": 18,
+        "p75Shots": 26,
+        "p90Shots": 42,
         "minShots": 2,
-        "maxShots": 78
+        "maxShots": 66
       },
       "solutionSpace": {
         "samples": 43200,
@@ -376,7 +376,7 @@
         "class": "gravity assist / escape",
         "note": "provably impossible alone; take speed from a moving moon"
       },
-      "seconds": 44
+      "seconds": 71.4
     }
   ]
 }

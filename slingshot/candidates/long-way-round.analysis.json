@@ -1,0 +1,320 @@
+{
+  "status": "CANDIDATE — NOT SHIPPED",
+  "candidate": {
+    "id": "long-way-round",
+    "name": "the long way round",
+    "idIsProvisional": true,
+    "geometry": {
+      "id": "long-way-round",
+      "name": "the long way round",
+      "hint": "short way or long way",
+      "start": [
+        140,
+        300
+      ],
+      "flag": [
+        510,
+        130
+      ],
+      "flagR": 28,
+      "bodies": [
+        {
+          "kind": "planet",
+          "x": 430,
+          "y": 335,
+          "M": 2100000,
+          "r": 46
+        }
+      ],
+      "maxP": 280,
+      "maxT": 12
+    },
+    "fingerprint": "5787674455087730df4b57fbeda5914f7dc1e293314991abeac79998bf47de6a"
+  },
+  "provenance": {
+    "repositoryCommit": "b701b293c159d32efdfb810a125d912d1db377fc",
+    "repositoryDirty": true,
+    "toolVersion": "1.0.0",
+    "generatedBy": "tools/candidate.mjs",
+    "node": "v24.15.0"
+  },
+  "analysisConfig": {
+    "angleSamples": 360,
+    "powerSamples": 120,
+    "powerFloor": 12,
+    "searchTrials": 40,
+    "searchBudget": 2000,
+    "seedBase": 20260923,
+    "toleranceSteps": 240,
+    "routeBandGapDeg": 2,
+    "routeMinShareOfWins": 0.03,
+    "routeGrid": "720x120",
+    "meaningfulRouteThreshold": "grid region >= 10 cells and >= 5% of winning cells"
+  },
+  "gates": {
+    "basinPercent": [
+      1.5,
+      2.6
+    ],
+    "searchMedian": [
+      40,
+      90
+    ],
+    "searchP90Max": 130,
+    "failedSeeds": 0,
+    "minToleranceDeg": 1.5,
+    "minFamilies": 2
+  },
+  "measurements": {
+    "id": "long-way-round",
+    "name": "the long way round",
+    "maxPower": 280,
+    "maxTime": 12,
+    "bodies": 1,
+    "search": {
+      "trials": 40,
+      "solved": 40,
+      "successRate": 1,
+      "failuresWithinBudget": 0,
+      "budget": 2000,
+      "medianShots": 37,
+      "p75Shots": 85,
+      "p90Shots": 109,
+      "minShots": 2,
+      "maxShots": 129
+    },
+    "solutionSpace": {
+      "samples": 43200,
+      "hits": 1090,
+      "hitRatePercent": 2.52,
+      "basinCount": 4,
+      "largestBasin": 830,
+      "largestBasinPercent": 1.92,
+      "basinSizes": [
+        830,
+        257,
+        2,
+        1
+      ],
+      "meaningfulRoutes": 2,
+      "meaningfulSizes": [
+        830,
+        257
+      ]
+    },
+    "precision": {
+      "representative": {
+        "angleDeg": 34,
+        "power": 111.1
+      },
+      "angleMinusDeg": 1.87,
+      "anglePlusDeg": 2.25,
+      "powerMinus": 4.7,
+      "powerPlus": 5.3
+    },
+    "concept": {
+      "class": "(candidate)",
+      "note": "not yet classified"
+    },
+    "seconds": 13.1
+  },
+  "routeFamilies": {
+    "wins": 2172,
+    "allBands": 2,
+    "families": [
+      {
+        "angleFromDeg": 236.5,
+        "angleToDeg": 333,
+        "angleWidthDeg": 96.5,
+        "wins": 1657,
+        "shareOfWins": 0.763,
+        "powerFrom": 71,
+        "powerTo": 280,
+        "representative": {
+          "angleDeg": 318.5,
+          "power": 147.1,
+          "outcome": "arrived",
+          "flightSeconds": 2.36,
+          "closestApproach": 186,
+          "apexY": 136,
+          "endsOn": "above",
+          "crossesSides": false
+        },
+        "flightSecondsAcrossBand": [
+          11.96,
+          2.36,
+          1.35
+        ]
+      },
+      {
+        "angleFromDeg": 28,
+        "angleToDeg": 105,
+        "angleWidthDeg": 77,
+        "wins": 515,
+        "shareOfWins": 0.237,
+        "powerFrom": 71,
+        "powerTo": 136,
+        "representative": {
+          "angleDeg": 63,
+          "power": 72.8,
+          "outcome": "arrived",
+          "flightSeconds": 5.36,
+          "closestApproach": 93,
+          "apexY": 151,
+          "endsOn": "above",
+          "crossesSides": true
+        },
+        "flightSecondsAcrossBand": [
+          3.02,
+          5.36,
+          11.97
+        ]
+      }
+    ]
+  },
+  "familyDistinctness": [
+    {
+      "a": 0,
+      "b": 1,
+      "flightTimeRatio": 2.27,
+      "closestApproachRatio": 2,
+      "distinct": true
+    }
+  ],
+  "comparison": [
+    {
+      "id": "bend",
+      "basinPercent": 1.36,
+      "searchMedian": 78,
+      "searchP90": 118,
+      "tolerance": {
+        "representative": {
+          "angleDeg": 1,
+          "power": 261.3
+        },
+        "angleMinusDeg": 1,
+        "anglePlusDeg": 5.38,
+        "powerMinus": 36.9,
+        "powerPlus": 38.1
+      },
+      "families": [
+        {
+          "angleFromDeg": 359.5,
+          "angleToDeg": 22,
+          "shareOfWins": 0.935,
+          "flightSeconds": 4.83,
+          "closestApproach": 217
+        },
+        {
+          "angleFromDeg": 311,
+          "angleToDeg": 321,
+          "shareOfWins": 0.065,
+          "flightSeconds": 6.56,
+          "closestApproach": 56
+        }
+      ]
+    },
+    {
+      "id": "aim-away",
+      "basinPercent": 1.38,
+      "searchMedian": 56,
+      "searchP90": 123,
+      "tolerance": {
+        "representative": {
+          "angleDeg": 9,
+          "power": 287.9
+        },
+        "angleMinusDeg": 1,
+        "anglePlusDeg": 1.75,
+        "powerMinus": 30,
+        "powerPlus": 11.9
+      },
+      "families": [
+        {
+          "angleFromDeg": 8,
+          "angleToDeg": 43.5,
+          "shareOfWins": 0.5,
+          "flightSeconds": 3.34,
+          "closestApproach": 70
+        },
+        {
+          "angleFromDeg": 316.5,
+          "angleToDeg": 352,
+          "shareOfWins": 0.5,
+          "flightSeconds": 3.31,
+          "closestApproach": 71
+        }
+      ]
+    },
+    {
+      "id": "round-the-back",
+      "basinPercent": 1.9,
+      "searchMedian": 78,
+      "searchP90": 122,
+      "tolerance": {
+        "representative": {
+          "angleDeg": 0,
+          "power": 106.6
+        },
+        "angleMinusDeg": 1.75,
+        "anglePlusDeg": 1.75,
+        "powerMinus": 5.8,
+        "powerPlus": 6.4
+      },
+      "families": [
+        {
+          "angleFromDeg": 250,
+          "angleToDeg": 321,
+          "shareOfWins": 0.662,
+          "flightSeconds": 3.39,
+          "closestApproach": 138
+        },
+        {
+          "angleFromDeg": 345.5,
+          "angleToDeg": 51.5,
+          "shareOfWins": 0.338,
+          "flightSeconds": 4.97,
+          "closestApproach": 92
+        }
+      ]
+    }
+  ],
+  "gateResults": [
+    {
+      "label": "basin in 1.5-2.6%",
+      "pass": true,
+      "value": "2.52%"
+    },
+    {
+      "label": "search median in 40-90",
+      "pass": false,
+      "value": "37"
+    },
+    {
+      "label": "p90 under 130",
+      "pass": true,
+      "value": "109"
+    },
+    {
+      "label": "no failed seeds",
+      "pass": true,
+      "value": "0/40"
+    },
+    {
+      "label": "tolerance at least +/-1.5 deg",
+      "pass": true,
+      "value": "-1.87 / +2.25"
+    },
+    {
+      "label": "at least 2 route families",
+      "pass": true,
+      "value": "2"
+    },
+    {
+      "label": "families are distinct journeys",
+      "pass": true,
+      "value": "time x2.27, closest x2"
+    }
+  ],
+  "allGatesPassed": false
+}
