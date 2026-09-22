@@ -12,9 +12,9 @@ is in [playtest-long-way-round.md](playtest-long-way-round.md) and is unchanged.
 
 | | |
 |---|---|
-| tag | `playtest-long-way-round-r22-v1` |
-| commit | `ea0a43f` — what is deployed while the round runs |
-| playable build | identical to `17e0d01`; the commits after it add only this sheet and a read-only summary tool, and `git diff` over `playtest/`, `game.js`, `boot.js`, `src/`, the candidate and `style.css` is empty |
+| tag | `playtest-long-way-round-r22-v2` |
+| commit | `b30fd37` |
+| supersedes | `playtest-long-way-round-r22-v1` (`18dd085`) |
 | candidate | `long-way-round-r22` |
 | fingerprint | `6db04ecc583dac83079464846b0ec19ee0c3a1e390ddc5deed2604435318f2e5` |
 | playtest URL | <https://tojestspacja.github.io/md-simulation/slingshot/playtest/> |
@@ -31,6 +31,40 @@ family for the tolerance distribution.
 The page hashes its own geometry at boot and writes `fingerprintVerified` into
 every export. A session whose export does not carry the fingerprint above was
 not played on this build and must not be pooled with the rest.
+
+### v1 is invalid for human data
+
+`playtest-long-way-round-r22-v1` (`18dd085`) crashed for a tester. **The tag is
+untouched and stays where it is**, and the commit is not rewritten. No human
+sessions were collected on it, so Round 1 runs entirely on v2 and nothing has to
+be merged across builds.
+
+Two faults, neither reachable by the smoke tests that passed it.
+
+**The banner covered the HUD on a phone.** `#hud` was offset by a hard-coded
+46&nbsp;px. At 390&nbsp;px wide the banner wraps to three rows and measures
+97&nbsp;px, so `document.elementFromPoint` at RETRY returned `pt-reset`: tapping
+RETRY after a miss pressed RESET SESSION and wiped the run. The offset now
+follows the banner's measured height through a `ResizeObserver`. The banner also
+sat below the start overlay, so EXPORT and RESET were unreachable until it was
+dismissed; it is now above it.
+
+**Winning threw.** `win()` chose the gravity-assist ending by asking whether the
+level was *last*. In the shipped seven, last and escape are the same level, so
+reading `lv.ringAt` was safe. A one-level playtest campaign is also on its last
+level and its level has a flag — `TypeError` on victory. It now asks what the
+level *is* — a ring and a moon — rather than where it sits.
+
+Both are covered now. `test/stages.mjs` walks load, modules, first render,
+overlay, first pointer, launch, trajectory, frames-after-launch, retry, session
+hook, fingerprint and export **separately**, in Chromium, Firefox and WebKit,
+desktop and mobile with touch. `test/stress.mjs` drives 60 launches and asks
+what grew; it is what found the victory crash, because the level has to be *won*
+before that code runs.
+
+The candidate geometry was not touched by any of it — `git diff` between the two
+tags over `candidates/long-way-round-r22.js` is empty, and the fingerprint is
+unchanged.
 
 **The build does not change while the round is open.** Not `flagR`, not the
 start, flag or planet, not `maxP` or `maxT`, not the wording on the page, not
