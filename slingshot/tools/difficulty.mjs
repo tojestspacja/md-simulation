@@ -45,7 +45,10 @@ const arg = (name, dflt) => {
 const CONFIG = {
   toolVersion: TOOL_VERSION,
   angleSamples: arg("angles", 360),     // over the full circle
-  powerSamples: arg("powers", 30),      // from powerFloor to maxP
+  powerSamples: arg("powers", 120),     // from powerFloor to maxP. 30 was too
+                                        // coarse: it put orbit's representative
+                                        // sample on a ledge and read its angle
+                                        // tolerance as 2.4 deg instead of 12.6.
   powerFloor: 12,                       // the game ignores a drag below this
   searchTrials: 40,                     // seeded restarts per level
   searchBudget: 2000,                   // shots before a trial is a failure
@@ -200,7 +203,14 @@ function basins(grid) {
     }
   }
   sizes.sort((a, b) => b - a);
-  return { count: sizes.length, sizes: sizes.slice(0, 6), largest: sizes[0] ?? 0 };
+  // Counting every speck as a strategy is how two-planets reads as 32 routes
+  // when 31 of them are shards of chaos. A region only counts as somewhere a
+  // player could deliberately go if it is big enough to aim at: at least ten
+  // sampled launches, and at least a twentieth of everything that wins.
+  const total = sizes.reduce((a, b) => a + b, 0);
+  const meaningful = sizes.filter((n) => n >= 10 && n >= total * 0.05);
+  return { count: sizes.length, sizes: sizes.slice(0, 6), largest: sizes[0] ?? 0,
+           meaningfulRoutes: meaningful.length, meaningfulSizes: meaningful };
 }
 
 // ---------- 4. how wrong you can be ----------
@@ -259,7 +269,8 @@ function representative(lv, grid) {
 }
 
 // ---------- run ----------
-const results = LEVELS.map((lv, i) => {
+export function measure(levels) {
+  return levels.map((lv, i) => {
   const t0 = Date.now();
   const { grid, hits, total } = sampleGrid(lv);
   const b = basins(grid);
@@ -281,12 +292,24 @@ const results = LEVELS.map((lv, i) => {
       largestBasin: b.largest,
       largestBasinPercent: Number(((b.largest / total) * 100).toFixed(2)),
       basinSizes: b.sizes,
+      meaningfulRoutes: b.meaningfulRoutes,
+      meaningfulSizes: b.meaningfulSizes,
     },
     precision: rep ? { representative: { angleDeg: rep.angleDeg, power: rep.power }, ...tol } : null,
-    concept: CONCEPT[lv.id],
+    concept: CONCEPT[lv.id] || { class: "(candidate)", note: "not yet classified" },
     seconds: Number(((Date.now() - t0) / 1000).toFixed(1)),
   };
-});
+  });
+}
+
+// Candidates live outside src/levels/ until they earn their way in; point the
+// tool at a module exporting LEVELS to measure them with this exact code path.
+const levelsArg = process.argv.indexOf("--levels");
+const SUBJECT = levelsArg >= 0 && process.argv[levelsArg + 1]
+  ? (await import(process.argv[levelsArg + 1])).LEVELS
+  : LEVELS;
+
+const results = measure(SUBJECT);
 
 // ---------- print ----------
 const pad = (s, n) => String(s).padEnd(n);
@@ -295,7 +318,7 @@ console.log("grid " + CONFIG.angleSamples + " angles x " + CONFIG.powerSamples +
   " powers   search " + CONFIG.searchTrials + " seeded trials, budget " +
   CONFIG.searchBudget + "   seed base " + CONFIG.seedBase + "\n");
 
-console.log(pad("level", 16) + pad("hit%", 8) + pad("basins", 8) + pad("largest%", 10) +
+console.log(pad("level", 16) + pad("hit%", 8) + pad("routes", 8) + pad("largest%", 10) +
   pad("median", 8) + pad("p90", 7) + pad("fail", 6) + "angle tol");
 console.log("-".repeat(86));
 for (const r of results) {
@@ -303,7 +326,7 @@ for (const r of results) {
   console.log(
     pad(r.id, 16) +
     pad(r.solutionSpace.hitRatePercent, 8) +
-    pad(r.solutionSpace.basinCount, 8) +
+    pad(r.solutionSpace.meaningfulRoutes + "/" + r.solutionSpace.basinCount, 8) +
     pad(r.solutionSpace.largestBasinPercent, 10) +
     pad(r.search.medianShots ?? "-", 8) +
     pad(r.search.p90Shots ?? "-", 7) +

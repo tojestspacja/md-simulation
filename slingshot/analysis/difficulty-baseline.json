@@ -4,7 +4,7 @@
   "config": {
     "toolVersion": "1.0.0",
     "angleSamples": 360,
-    "powerSamples": 30,
+    "powerSamples": 120,
     "powerFloor": 12,
     "searchTrials": 40,
     "searchBudget": 2000,
@@ -31,31 +31,35 @@
         "maxShots": 170
       },
       "solutionSpace": {
-        "samples": 10800,
-        "hits": 95,
-        "hitRatePercent": 0.88,
+        "samples": 43200,
+        "hits": 386,
+        "hitRatePercent": 0.89,
         "basinCount": 1,
-        "largestBasin": 95,
-        "largestBasinPercent": 0.88,
+        "largestBasin": 386,
+        "largestBasinPercent": 0.89,
         "basinSizes": [
-          95
+          386
+        ],
+        "meaningfulRoutes": 1,
+        "meaningfulSizes": [
+          386
         ]
       },
       "precision": {
         "representative": {
           "angleDeg": 0,
-          "power": 131.2
+          "power": 118.5
         },
         "angleMinusDeg": 2.38,
         "anglePlusDeg": 2.38,
-        "powerMinus": 17.5,
+        "powerMinus": 5,
         "powerPlus": 150
       },
       "concept": {
         "class": "direct launch",
         "note": "aim and power, nothing else acting"
       },
-      "seconds": 1.5
+      "seconds": 4.8
     },
     {
       "id": "bend",
@@ -76,36 +80,38 @@
         "maxShots": 130
       },
       "solutionSpace": {
-        "samples": 10800,
-        "hits": 145,
-        "hitRatePercent": 1.34,
-        "basinCount": 7,
-        "largestBasin": 135,
-        "largestBasinPercent": 1.25,
+        "samples": 43200,
+        "hits": 588,
+        "hitRatePercent": 1.36,
+        "basinCount": 3,
+        "largestBasin": 549,
+        "largestBasinPercent": 1.27,
         "basinSizes": [
-          135,
-          3,
-          2,
-          2,
-          1,
-          1
+          549,
+          37,
+          2
+        ],
+        "meaningfulRoutes": 2,
+        "meaningfulSizes": [
+          549,
+          37
         ]
       },
       "precision": {
         "representative": {
           "angleDeg": 1,
-          "power": 270.2
+          "power": 261.3
         },
-        "angleMinusDeg": 1.25,
-        "anglePlusDeg": 5.13,
-        "powerMinus": 45.6,
-        "powerPlus": 29.4
+        "angleMinusDeg": 1,
+        "anglePlusDeg": 5.38,
+        "powerMinus": 36.9,
+        "powerPlus": 38.1
       },
       "concept": {
         "class": "weak gravity deflection",
         "note": "a mass off the line curves the path"
       },
-      "seconds": 3.7
+      "seconds": 12.5
     },
     {
       "id": "aim-away",
@@ -126,36 +132,37 @@
         "maxShots": 131
       },
       "solutionSpace": {
-        "samples": 10800,
-        "hits": 152,
-        "hitRatePercent": 1.41,
-        "basinCount": 8,
-        "largestBasin": 64,
-        "largestBasinPercent": 0.59,
+        "samples": 43200,
+        "hits": 594,
+        "hitRatePercent": 1.38,
+        "basinCount": 2,
+        "largestBasin": 297,
+        "largestBasinPercent": 0.69,
         "basinSizes": [
-          64,
-          64,
-          4,
-          4,
-          4,
-          4
+          297,
+          297
+        ],
+        "meaningfulRoutes": 2,
+        "meaningfulSizes": [
+          297,
+          297
         ]
       },
       "precision": {
         "representative": {
-          "angleDeg": 10,
-          "power": 270.2
+          "angleDeg": 9,
+          "power": 287.9
         },
-        "angleMinusDeg": 1.37,
-        "anglePlusDeg": 1.37,
-        "powerMinus": 35,
-        "powerPlus": 29.4
+        "angleMinusDeg": 1,
+        "anglePlusDeg": 1.75,
+        "powerMinus": 30,
+        "powerPlus": 11.9
       },
       "concept": {
         "class": "counter-intuitive aim",
         "note": "aiming at the target is the one thing that fails"
       },
-      "seconds": 4.3
+      "seconds": 12.4
     },
     {
       "id": "orbit",
@@ -176,32 +183,37 @@
         "maxShots": 111
       },
       "solutionSpace": {
-        "samples": 10800,
-        "hits": 296,
-        "hitRatePercent": 2.74,
+        "samples": 43200,
+        "hits": 1204,
+        "hitRatePercent": 2.79,
         "basinCount": 2,
-        "largestBasin": 148,
-        "largestBasinPercent": 1.37,
+        "largestBasin": 602,
+        "largestBasinPercent": 1.39,
         "basinSizes": [
-          148,
-          148
+          602,
+          602
+        ],
+        "meaningfulRoutes": 2,
+        "meaningfulSizes": [
+          602,
+          602
         ]
       },
       "precision": {
         "representative": {
-          "angleDeg": 59,
-          "power": 174.1
+          "angleDeg": 0,
+          "power": 87.8
         },
-        "angleMinusDeg": 2.38,
-        "anglePlusDeg": 2.5,
-        "powerMinus": 12.1,
-        "powerPlus": 12.9
+        "angleMinusDeg": 12.62,
+        "anglePlusDeg": 12.62,
+        "powerMinus": 1.7,
+        "powerPlus": 4.6
       },
       "concept": {
         "class": "sustained orbit",
         "note": "a speed band between falling in and sailing past"
       },
-      "seconds": 5.4
+      "seconds": 17
     },
     {
       "id": "round-the-back",
@@ -222,36 +234,38 @@
         "maxShots": 141
       },
       "solutionSpace": {
-        "samples": 10800,
-        "hits": 197,
-        "hitRatePercent": 1.82,
-        "basinCount": 9,
-        "largestBasin": 115,
-        "largestBasinPercent": 1.06,
+        "samples": 43200,
+        "hits": 819,
+        "hitRatePercent": 1.9,
+        "basinCount": 3,
+        "largestBasin": 544,
+        "largestBasinPercent": 1.26,
         "basinSizes": [
-          115,
-          34,
-          11,
-          10,
-          8,
+          544,
+          268,
           7
+        ],
+        "meaningfulRoutes": 2,
+        "meaningfulSizes": [
+          544,
+          268
         ]
       },
       "precision": {
         "representative": {
-          "angleDeg": 311,
-          "power": 159.9
+          "angleDeg": 0,
+          "power": 106.6
         },
-        "angleMinusDeg": 2.13,
-        "anglePlusDeg": 2.25,
-        "powerMinus": 17.5,
-        "powerPlus": 21.6
+        "angleMinusDeg": 1.75,
+        "anglePlusDeg": 1.75,
+        "powerMinus": 5.8,
+        "powerPlus": 6.4
       },
       "concept": {
         "class": "behind-body routing",
         "note": "the target is shadowed; commit to the long way"
       },
-      "seconds": 5
+      "seconds": 16
     },
     {
       "id": "two-planets",
@@ -272,36 +286,42 @@
         "maxShots": 177
       },
       "solutionSpace": {
-        "samples": 10800,
-        "hits": 106,
-        "hitRatePercent": 0.98,
-        "basinCount": 32,
-        "largestBasin": 50,
-        "largestBasinPercent": 0.46,
+        "samples": 43200,
+        "hits": 431,
+        "hitRatePercent": 1,
+        "basinCount": 37,
+        "largestBasin": 230,
+        "largestBasinPercent": 0.53,
         "basinSizes": [
-          50,
-          7,
-          3,
-          3,
-          2,
-          2
+          230,
+          60,
+          56,
+          10,
+          9,
+          7
+        ],
+        "meaningfulRoutes": 3,
+        "meaningfulSizes": [
+          230,
+          60,
+          56
         ]
       },
       "precision": {
         "representative": {
           "angleDeg": 3,
-          "power": 280.1
+          "power": 266.1
         },
-        "angleMinusDeg": 1.37,
-        "anglePlusDeg": 1.62,
-        "powerMinus": 51.3,
-        "powerPlus": 19.4
+        "angleMinusDeg": 1,
+        "anglePlusDeg": 1.87,
+        "powerMinus": 36.9,
+        "powerPlus": 33.8
       },
       "concept": {
         "class": "multi-body interaction",
         "note": "three-body sensitivity: small change, different outcome"
       },
-      "seconds": 6.2
+      "seconds": 19.2
     },
     {
       "id": "gravity-assist",
@@ -322,36 +342,41 @@
         "maxShots": 78
       },
       "solutionSpace": {
-        "samples": 10800,
-        "hits": 958,
+        "samples": 43200,
+        "hits": 3830,
         "hitRatePercent": 8.87,
-        "basinCount": 17,
-        "largestBasin": 843,
-        "largestBasinPercent": 7.81,
+        "basinCount": 53,
+        "largestBasin": 3367,
+        "largestBasinPercent": 7.79,
         "basinSizes": [
-          843,
-          66,
-          22,
+          3367,
+          233,
+          116,
+          32,
           9,
-          3,
-          2
+          8
+        ],
+        "meaningfulRoutes": 2,
+        "meaningfulSizes": [
+          3367,
+          233
         ]
       },
       "precision": {
         "representative": {
-          "angleDeg": 35,
-          "power": 179
+          "angleDeg": 33,
+          "power": 180.6
         },
-        "angleMinusDeg": 3,
-        "anglePlusDeg": 16.75,
-        "powerMinus": 13.1,
-        "powerPlus": 5.8
+        "angleMinusDeg": 1.37,
+        "anglePlusDeg": 20.12,
+        "powerMinus": 6.6,
+        "powerPlus": 4.2
       },
       "concept": {
         "class": "gravity assist / escape",
         "note": "provably impossible alone; take speed from a moving moon"
       },
-      "seconds": 12.1
+      "seconds": 44
     }
   ]
 }

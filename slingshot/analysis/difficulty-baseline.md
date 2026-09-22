@@ -8,7 +8,7 @@ This is analysis, not a regression test. None of it reaches `golden.json`, and n
 
 | setting | value |
 |---|---|
-| launch grid | 360 angles over 360 deg x 30 powers from 12 to each level's cap |
+| launch grid | 360 angles over 360 deg x 120 powers from 12 to each level's cap |
 | search trials | 40 per level, seeded from 20260923 |
 | search budget | 2000 shots before a trial counts as failed |
 | tolerance | walked outward from the most interior winning sample, 240 steps, each direction separately |
@@ -19,13 +19,13 @@ The search uses the same acceptance rule as the shipped bot — only ever move t
 
 | level | concept | hit % | basins | median shots | p90 | angle tolerance | power tolerance |
 |---|---|---|---|---|---|---|---|
-| `push` | direct launch | 0.88 | 1 | 138 | 163 | -2.38 / +2.38 deg | -17.5 / +150 |
-| `bend` | weak gravity deflection | 1.34 | 7 | 77 | 121 | -1.25 / +5.13 deg | -45.6 / +29.4 |
-| `aim-away` | counter-intuitive aim | 1.41 | 8 | 45 | 99 | -1.37 / +1.37 deg | -35 / +29.4 |
-| `orbit` | sustained orbit | 2.74 | 2 | 32 | 84 | -2.38 / +2.5 deg | -12.1 / +12.9 |
-| `round-the-back` | behind-body routing | 1.82 | 9 | 86 | 126 | -2.13 / +2.25 deg | -17.5 / +21.6 |
-| `two-planets` | multi-body interaction | 0.98 | 32 | 77 | 154 | -1.37 / +1.62 deg | -51.3 / +19.4 |
-| `gravity-assist` | gravity assist / escape | 8.87 | 17 | 14 | 66 | -3 / +16.75 deg | -13.1 / +5.8 |
+| `push` | direct launch | 0.89 | 1 | 138 | 163 | -2.38 / +2.38 deg | -5 / +150 |
+| `bend` | weak gravity deflection | 1.36 | 3 | 77 | 121 | -1 / +5.38 deg | -36.9 / +38.1 |
+| `aim-away` | counter-intuitive aim | 1.38 | 2 | 45 | 99 | -1 / +1.75 deg | -30 / +11.9 |
+| `orbit` | sustained orbit | 2.79 | 2 | 32 | 84 | -12.62 / +12.62 deg | -1.7 / +4.6 |
+| `round-the-back` | behind-body routing | 1.9 | 3 | 86 | 126 | -1.75 / +1.75 deg | -5.8 / +6.4 |
+| `two-planets` | multi-body interaction | 1 | 37 | 77 | 154 | -1 / +1.87 deg | -36.9 / +33.8 |
+| `gravity-assist` | gravity assist / escape | 8.87 | 53 | 14 | 66 | -1.37 / +20.12 deg | -6.6 / +4.2 |
 
 ## Per level
 
@@ -35,10 +35,10 @@ The search uses the same acceptance rule as the shipped bot — only ever move t
 
 ```
 search       40/40 solved   median 138   p75 162   p90 163   range 2-170
-solution     95/10800 samples win = 0.88%   1 region(s)   largest 0.88%
-precision    from 0 deg at power 131.2
+solution     386/43200 samples win = 0.89%   1 region(s)   largest 0.89%
+precision    from 0 deg at power 118.5
              angle  -2.38 / +2.38 deg
-             power  -17.5 / +150
+             power  -5 / +150
 ```
 
 ### `bend` — it bends
@@ -47,10 +47,10 @@ precision    from 0 deg at power 131.2
 
 ```
 search       40/40 solved   median 77   p75 110   p90 121   range 2-130
-solution     145/10800 samples win = 1.34%   7 region(s)   largest 1.25%
-precision    from 1 deg at power 270.2
-             angle  -1.25 / +5.13 deg
-             power  -45.6 / +29.4
+solution     588/43200 samples win = 1.36%   3 region(s)   largest 1.27%
+precision    from 1 deg at power 261.3
+             angle  -1 / +5.38 deg
+             power  -36.9 / +38.1
 ```
 
 ### `aim-away` — aim away
@@ -59,10 +59,10 @@ precision    from 1 deg at power 270.2
 
 ```
 search       40/40 solved   median 45   p75 72   p90 99   range 2-131
-solution     152/10800 samples win = 1.41%   8 region(s)   largest 0.59%
-precision    from 10 deg at power 270.2
-             angle  -1.37 / +1.37 deg
-             power  -35 / +29.4
+solution     594/43200 samples win = 1.38%   2 region(s)   largest 0.69%
+precision    from 9 deg at power 287.9
+             angle  -1 / +1.75 deg
+             power  -30 / +11.9
 ```
 
 ### `orbit` — the circle
@@ -71,10 +71,10 @@ precision    from 10 deg at power 270.2
 
 ```
 search       40/40 solved   median 32   p75 71   p90 84   range 2-111
-solution     296/10800 samples win = 2.74%   2 region(s)   largest 1.37%
-precision    from 59 deg at power 174.1
-             angle  -2.38 / +2.5 deg
-             power  -12.1 / +12.9
+solution     1204/43200 samples win = 2.79%   2 region(s)   largest 1.39%
+precision    from 0 deg at power 87.8
+             angle  -12.62 / +12.62 deg
+             power  -1.7 / +4.6
 ```
 
 ### `round-the-back` — round the back
@@ -83,10 +83,10 @@ precision    from 59 deg at power 174.1
 
 ```
 search       40/40 solved   median 86   p75 109   p90 126   range 8-141
-solution     197/10800 samples win = 1.82%   9 region(s)   largest 1.06%
-precision    from 311 deg at power 159.9
-             angle  -2.13 / +2.25 deg
-             power  -17.5 / +21.6
+solution     819/43200 samples win = 1.9%   3 region(s)   largest 1.26%
+precision    from 0 deg at power 106.6
+             angle  -1.75 / +1.75 deg
+             power  -5.8 / +6.4
 ```
 
 ### `two-planets` — two of them
@@ -95,10 +95,10 @@ precision    from 311 deg at power 159.9
 
 ```
 search       40/40 solved   median 77   p75 129   p90 154   range 8-177
-solution     106/10800 samples win = 0.98%   32 region(s)   largest 0.46%
-precision    from 3 deg at power 280.1
-             angle  -1.37 / +1.62 deg
-             power  -51.3 / +19.4
+solution     431/43200 samples win = 1%   37 region(s)   largest 0.53%
+precision    from 3 deg at power 266.1
+             angle  -1 / +1.87 deg
+             power  -36.9 / +33.8
 ```
 
 ### `gravity-assist` — the way out
@@ -107,9 +107,9 @@ precision    from 3 deg at power 280.1
 
 ```
 search       40/40 solved   median 14   p75 34   p90 66   range 2-78
-solution     958/10800 samples win = 8.87%   17 region(s)   largest 7.81%
-precision    from 35 deg at power 179
-             angle  -3 / +16.75 deg
-             power  -13.1 / +5.8
+solution     3830/43200 samples win = 8.87%   53 region(s)   largest 7.79%
+precision    from 33 deg at power 180.6
+             angle  -1.37 / +20.12 deg
+             power  -6.6 / +4.2
 ```
 
