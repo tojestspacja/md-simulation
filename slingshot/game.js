@@ -50,6 +50,18 @@ export function createSlingshot({
 } = {}) {
   // No "use strict" directive: a function with default parameters may not carry
   // one, and a module is strict already.
+
+  // One runtime per page. Two would mean two animation loops drawing to one
+  // canvas and two sets of pointer handlers reading one drag, which looks
+  // exactly like a freeze. Nothing here prevents it — that would hide the
+  // mistake — but it is counted, said out loud, and readable from the hook, so
+  // a test can assert it.
+  window.__slingshotRuntimeCount = (window.__slingshotRuntimeCount || 0) + 1;
+  if (window.__slingshotRuntimeCount > 1) {
+    console.error("slingshot: createSlingshot() called " + window.__slingshotRuntimeCount +
+      " times on this page. Expect a duplicated animation loop and doubled input.");
+  }
+
   const cv = document.getElementById("sky");
   const ctx = cv.getContext("2d");
   const CW = cv.width, CH = cv.height;
@@ -215,8 +227,10 @@ export function createSlingshot({
   }
 
   // The same launch with the moon taken out: how far does it actually get?
+  // Only meaningful on a level that is escaped rather than landed on — it
+  // measures distance from the boundary ring, and a level with a flag has none.
   function withoutTheMoon() {
-    if (!launchIC) return null;
+    if (!launchIC || !lv.ringAt) return null;
     const only = lv.bodies.filter((b) => b.kind !== "moon");
     const s = { ...launchIC };
     let tt = 0, far = 0;
@@ -236,8 +250,15 @@ export function createSlingshot({
     const last = li + 1 >= LEVELS.length;
     const { improved } = recordAttemptResult(progress, lv.id, tries);
     saveProgress(progress, undefined, storageKey);
+    // The gravity-assist ending belongs to a level you ESCAPE — it talks about
+    // the moon and quotes the reach without it. While the game booted itself
+    // with the shipped seven, "the last level" and "the escape level" were the
+    // same level and this branched on . As a reusable runtime they are
+    // not: a one-level playtest campaign is also on its last level, and reading
+    // lv.ringAt on a flag level threw. So it branches on what the level IS.
+    const isEscape = !!lv.ring && lv.bodies.some((b) => b.kind === "moon");
     let body;
-    if (last) {
+    if (isEscape) {
       const alone = withoutTheMoon();
       body =
         "<p>Nothing helped you but ordinary gravity. You fell past a <b>moving</b> moon " +
@@ -253,9 +274,10 @@ export function createSlingshot({
         (tries === 1 ? " attempt" : " attempts") + " on this one.</p>";
     } else {
       body = "<p>" + tries + (tries === 1 ? " attempt." : " attempts.") +
-        (improved ? " <b>Better than last time.</b>" : "") + "</p>";
+        (improved ? " <b>Better than last time.</b>" : "") +
+        (last ? " <b>That is the last one.</b>" : "") + "</p>";
     }
-    show(last ? "OUT" : "ARRIVED", body, last ? "again" : "next");
+    show(isEscape ? "OUT" : "ARRIVED", body, last ? "again" : "next");
     drawDots();
   }
 
@@ -736,6 +758,10 @@ export function createSlingshot({
     // than clearing storage behind the game's back and leaving it stale.
     resetProgress: () => { progress = resetProgress(undefined, storageKey); drawDots(); },
     storageKey,
+    runtimeCount: () => window.__slingshotRuntimeCount || 0,
+    // For the stress test: these must reset per attempt rather than grow
+    // without bound over a session.
+    buffers: () => ({ path: path.length, sweep: sweep.length, ghosts: ghosts.length }),
   };
   window[globalName] = hook;
   return hook;

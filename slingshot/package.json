@@ -3,7 +3,9 @@
   "private": true,
   "scripts": {
     "test": "node test/levels-fingerprint.mjs && node test/solver.mjs && node test/campaign.mjs && node test/progress.mjs",
-    "test:browser": "node test/browser-smoke.mjs && node test/playtest-smoke.mjs"
+    "test:browser": "node test/browser-smoke.mjs && node test/playtest-smoke.mjs",
+    "test:stages": "node test/stages.mjs",
+    "test:stress": "node test/stress.mjs"
   },
   "devDependencies": {
     "playwright": "^1.63.0"

@@ -11,9 +11,24 @@
   <link rel="stylesheet" href="../style.css" />
   <style>
     /* The only additions: a banner saying what this is, and the session
-       controls. Nothing here touches how the game itself looks. */
+       controls. Nothing here touches how the game itself looks.
+
+       Two things this got wrong the first time, both measured rather than
+       guessed:
+
+       1. The bar was z-index 8 and the start overlay is 20 with inset 0, so
+          EXPORT and RESET were unreachable until the overlay was dismissed.
+          The bar now sits above it — a tester should be able to see that this
+          is an experiment, and leave with their data, at any moment.
+
+       2. #hud was offset by a hard-coded 46px. At 390px wide the bar wraps to
+          three rows and is 97px tall, so it covered the HUD: tapping RETRY on a
+          phone actually hit RESET SESSION and wiped the run. The offset now
+          follows the bar's measured height via --pt-bar-h, updated by a
+          ResizeObserver, so wrapping and rotation cannot reintroduce it. */
+    :root { --pt-bar-h: 46px; }
     #pt-bar {
-      position: absolute; left: 0; right: 0; top: 0; z-index: 8;
+      position: absolute; left: 0; right: 0; top: 0; z-index: 30;
       display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
       padding: 7px 12px; background: rgba(255, 210, 122, 0.1);
       border-bottom: 1px solid rgba(255, 210, 122, 0.3);
@@ -30,8 +45,33 @@
     #pt-bar button:hover { color: #fff; border-color: rgba(150, 170, 240, 0.7); }
     #pt-bar button:focus-visible { outline: 2px solid #ffd27a; outline-offset: 2px; }
     #pt-bar .grow { flex: 1; }
-    #ov { padding-top: 46px; }
-    #hud { top: 46px; }
+    #ov { padding-top: calc(var(--pt-bar-h) + 16px); }
+    #hud { top: var(--pt-bar-h); }
+    #hint { top: calc(var(--pt-bar-h) + 46px); }
+    /* On a narrow screen the sentence goes on its own row rather than being
+       dropped: a tester has to be able to read what this page is. */
+    @media (max-width: 520px) {
+      #pt-bar { gap: 6px 10px; padding: 6px 10px; }
+      #pt-bar .what { flex-basis: 100%; order: 3; font-size: 11px; }
+      #pt-bar .grow { display: none; }
+    }
+
+    /* Shown only if the page cannot start. Not gameplay UI. */
+    #pt-fail {
+      position: absolute; inset: 0; z-index: 40; display: none;
+      align-items: center; justify-content: center; padding: 24px;
+      background: rgba(4, 5, 12, 0.97); color: #e6ebff;
+      font: 400 14px/1.6 "Segoe UI", sans-serif;
+    }
+    #pt-fail.show { display: flex; }
+    #pt-fail .card { max-width: 520px; }
+    #pt-fail h2 { margin: 0 0 10px; font-size: 19px; color: #ffd27a; letter-spacing: 1px; }
+    #pt-fail code {
+      display: block; margin-top: 12px; padding: 10px 12px; border-radius: 6px;
+      background: #03040a; border: 1px solid #252b45; color: #9aa3c4;
+      font-family: ui-monospace, Consolas, monospace; font-size: 12px;
+      white-space: pre-wrap; word-break: break-word;
+    }
   </style>
 </head>
 <body>
@@ -68,6 +108,14 @@
         <button id="ov-go" class="go">launch</button>
         <p class="foot">Experimental level under evaluation. Drag back from the
           probe and let go; <b>retry</b> resets the shot.</p>
+      </div>
+    </div>
+    <div id="pt-fail" role="alert" aria-live="assertive">
+      <div class="card">
+        <h2>Playtest could not start</h2>
+        <p>Nothing is wrong with your device. Please send the diagnostic below
+          and we will fix the build — no data was collected.</p>
+        <code id="pt-fail-detail"></code>
       </div>
     </div>
   </div>
