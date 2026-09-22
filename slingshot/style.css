@@ -99,3 +99,8 @@ canvas#sky {
   #ov-body p { margin: 0 0 7px; }
   #ov .go { padding: 10px 34px; margin-top: 2px; }
 }
+
+/* Way back to the launcher. Overlay only — never over live play. */
+#ov .foot { font-size: 12.5px; color: #8089ad; margin: 16px 0 0; }
+#ov .foot a { color: #7fb0ff; padding: 6px 4px; display: inline-block; }
+#ov .foot a:focus-visible { outline: 3px solid #ffd27a; outline-offset: 2px; border-radius: 5px; }

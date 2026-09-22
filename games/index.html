@@ -4,156 +4,262 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The arcade — every game in this repository</title>
-  <meta name="description" content="One entry per game: Slingshot, Through, Shim, Agreement, Pixel Plumber and the Bloch sandbox." />
+  <meta name="description" content="Seven small browser games built for TIGP Basic Skills for Experimentalists: platformers, physics puzzles and a sandbox. Each one plays in the browser, phone included." />
   <style>
     :root {
-      --bg: #05060d; --panel: #0f1220; --line: #1f2439; --text: #e6ebff;
-      --muted: #8089ad; --blue: #7fb0ff; --gold: #ffd27a;
+      --bg: #05060d;
+      --panel: #0f1220;
+      --panel-hi: #151a2e;
+      --line: #252b45;
+      --line-hi: #3a4368;
+      --text: #e6ebff;
+      --muted: #9aa3c4;
+      --blue: #7fb0ff;
+      --gold: #ffd27a;
+      --focus: #ffd27a;
     }
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--text);
-      font-family: "Segoe UI", "Trebuchet MS", sans-serif; line-height: 1.6; }
-    .wrap { max-width: 1040px; margin: 0 auto; padding: 42px 20px 70px; }
-    header { text-align: center; margin-bottom: 34px; }
-    h1 { font-size: clamp(30px, 8vw, 52px); margin: 0; letter-spacing: 7px; font-weight: 800;
-         text-shadow: 0 0 30px rgba(127,176,255,0.35); }
-    .tag { color: var(--blue); font-size: clamp(13px, 3vw, 17px); letter-spacing: 1px; margin-top: 8px; }
-    .byline { color: var(--muted); font-size: 13.5px; margin-top: 12px; }
 
-    .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
-      overflow: hidden; display: flex; flex-direction: column; }
-    .shot { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover;
-      background: #03040a; border-bottom: 1px solid var(--line); }
-    .body { padding: 17px 19px 19px; display: flex; flex-direction: column; flex: 1; }
-    .titlerow { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
-    h2 { margin: 0; font-size: 20px; color: var(--blue); letter-spacing: 1px; }
-    .badge { font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase;
-      color: var(--gold); border: 1px solid rgba(255,210,122,0.4); border-radius: 20px;
-      padding: 2px 9px; white-space: nowrap; }
-    .one { color: #fff; font-size: 14.5px; margin: 9px 0 0; }
-    .blurb { color: var(--muted); font-size: 13.5px; margin: 8px 0 0; flex: 1; }
-    .blurb code { background: #03040a; border: 1px solid var(--line); border-radius: 4px;
-      padding: 1px 5px; font-size: 0.92em; }
-    .url { font-family: ui-monospace, Consolas, monospace; font-size: 11.5px;
-      color: #5f6a93; word-break: break-all; margin: 14px 0 0; }
-    .play { display: inline-block; margin-top: 13px; align-self: flex-start;
-      font-weight: 800; text-decoration: none; letter-spacing: 2px; font-size: 14px;
-      padding: 11px 30px; border-radius: 8px;
-      background: var(--blue); color: #041028; box-shadow: 0 4px 0 #3f6cb5; }
-    .card.tool .play { background: var(--gold); box-shadow: 0 4px 0 #b38f45; }
-    .card.tool h2 { color: var(--gold); }
-    .card.classic { border-color: #3a3355; }
-    .card.classic .badge { font-family: ui-monospace, Consolas, monospace; letter-spacing: 0.5px; }
-    .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 34px; }
-    .foot a { color: var(--blue); }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      line-height: 1.6;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 44px 16px 72px; }
+
+    /* ---------- header ---------- */
+    header { text-align: center; margin-bottom: 38px; }
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 7vw, 50px);
+      font-weight: 800;
+      letter-spacing: clamp(2px, 1.4vw, 8px);
+      text-shadow: 0 0 30px rgba(127, 176, 255, 0.3);
+    }
+    .intro {
+      margin: 14px auto 0;
+      max-width: 54ch;
+      color: var(--muted);
+      font-size: clamp(14px, 3.4vw, 16px);
+    }
+    .byline { margin-top: 10px; color: var(--muted); font-size: 13px; opacity: 0.85; }
+
+    /* ---------- grid ---------- */
+    .grid {
+      display: grid;
+      gap: 22px;
+      grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+      align-items: stretch;
+    }
+
+    /* ---------- card ---------- */
+    .card {
+      display: flex;
+      flex-direction: column;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .card:hover { border-color: var(--line-hi); background: var(--panel-hi); }
+    @media (prefers-reduced-motion: no-preference) {
+      .card { transition: border-color 120ms ease, background-color 120ms ease; }
+    }
+
+    .shot {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      object-position: center;
+      background: #03040a;
+      border-bottom: 1px solid var(--line);
+    }
+    /* These two are taller than 16:9 with dead space low in the frame, so
+       anchor the crop to the top rather than letting it eat the header. */
+    .shot.top { object-position: top; }
+
+    .body { display: flex; flex-direction: column; flex: 1; padding: 16px 18px 18px; }
+
+    .labels { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; }
+    .label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+      border: 1px solid var(--line-hi);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .label.version { color: var(--gold); border-color: rgba(255, 210, 122, 0.45); }
+
+    h2 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: 0.8px; color: var(--blue); }
+
+    .desc { margin: 8px 0 0; color: var(--muted); font-size: 14.5px; flex: 1; }
+
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 16px; }
+
+    .play {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 34px;
+      border-radius: 9px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-decoration: none;
+      background: var(--blue);
+      color: #041028;
+      box-shadow: 0 4px 0 #3f6cb5;
+    }
+    .play:hover { background: #9ac2ff; }
+
+    .secondary {
+      color: var(--muted);
+      font-size: 13px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      padding: 8px 0;
+    }
+    .secondary:hover { color: var(--text); }
+
+    /* ---------- focus ---------- */
+    a:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+      border-radius: 6px;
+    }
+
+    /* ---------- footer ---------- */
+    .foot {
+      margin-top: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+    .foot a { color: var(--blue); padding: 6px 2px; display: inline-block; }
+    .sep { opacity: 0.5; padding: 0 4px; }
   </style>
 </head>
 <body>
   <div class="wrap">
+
     <header>
       <h1>THE ARCADE</h1>
-      <div class="tag">every game in this repository, one entry each</div>
-      <div class="byline">Yi-Tsai Liang — TIGP Basic Skills for Experimentalists (2026)</div>
+      <p class="intro">
+        Seven small games that run in any browser, phone included. No installs, no accounts —
+        pick one and press play.
+      </p>
+      <p class="byline">Yi-Tsai Liang — TIGP Basic Skills for Experimentalists (2026)</p>
     </header>
 
-    <div class="grid">
+    <main class="grid">
 
-      <div class="card">
-        <img class="shot" src="../images/sling-title.png" alt="A probe, a blue planet and a gold target ring against a dark starfield, with a curved dashed launch preview." />
+      <article class="card">
+        <img class="shot" src="../images/sling-ghosts.png"
+             alt="A probe at the left of a starfield, a blue planet in the middle and a gold target ring at the right, with four faint curved trails from earlier attempts bending around the planet." />
         <div class="body">
-          <div class="titlerow"><h2>SLINGSHOT</h2><span class="badge">current</span></div>
-          <p class="one">One push, and the planets do the rest.</p>
-          <p class="blurb">Drag back and let go — everything after that is Newtonian gravity with
-            nothing added. Seven levels; by the last one your engine is provably too weak to leave,
-            and the only way out is a gravity assist off a moving moon.</p>
-          <p class="url">/md-simulation/slingshot/</p>
-          <a class="play" href="../slingshot/">PLAY</a>
+          <div class="labels"><span class="label">Physics</span></div>
+          <h2>Slingshot</h2>
+          <p class="desc">Aim, release, and let the planets bend your path to the target.</p>
+          <div class="actions"><a class="play" href="../slingshot/">PLAY</a></div>
         </div>
-      </div>
+      </article>
 
-      <div class="card">
-        <img class="shot" src="../images/through-title.png" alt="A dark corridor in a pixel platformer, with a wall marked by its tunnelling percentage." />
+      <article class="card">
+        <img class="shot" src="../images/through-walls.png"
+             alt="A dark platformer corridor with two tall walls labelled 28% and 8%, a small glowing player beside one of them and a message reading bounced, 18% chance." />
         <div class="body">
-          <div class="titlerow"><h2>THROUGH</h2></div>
-          <p class="one">You can walk through walls. Sometimes.</p>
-          <p class="blurb">An ordinary platformer in which you are a quantum particle. Every wall
-            wears its real tunnelling odds, <code>T = exp(−2κd)</code>. A wall twice as thick is not
-            twice as hard — it squares the odds.</p>
-          <p class="url">/md-simulation/quantum/</p>
-          <a class="play" href="../quantum/">PLAY</a>
+          <div class="labels"><span class="label">Platformer</span></div>
+          <h2>Through</h2>
+          <p class="desc">A platformer where every wall gives you odds, not a promise.</p>
+          <div class="actions"><a class="play" href="../quantum/">PLAY</a></div>
         </div>
-      </div>
+      </article>
 
-      <div class="card">
-        <img class="shot" src="../images/shim-console.png" alt="An NMR console screen with shim controls and a lineshape readout." />
+      <article class="card">
+        <img class="shot" src="../images/moon-zone.png"
+             alt="A pixel platformer at night: the player arcs high above the ground on a long dotted jump trail, with coins and enemies below and a banner reading low gravity." />
         <div class="body">
-          <div class="titlerow"><h2>SHIM</h2></div>
-          <p class="one">A 500 MHz magnet you have to get to spec.</p>
-          <p class="blurb">A real instrument drill on a Bloch simulation: the lineshape tells you
-            which shim is wrong, and you work Z1, Z2 and Z3 until the peak is worth acquiring on.</p>
-          <p class="url">/md-simulation/spin/</p>
-          <a class="play" href="../spin/">PLAY</a>
+          <div class="labels">
+            <span class="label">Platformer</span>
+            <span class="label version">Physics edition</span>
+          </div>
+          <h2>Pixel Plumber</h2>
+          <p class="desc">The platformer evolved with low-gravity and ice zones that change the physics.</p>
+          <div class="actions">
+            <a class="play" href="../app/">PLAY</a>
+            <a class="secondary" href="mario-classic/">Play the original</a>
+          </div>
         </div>
-      </div>
+      </article>
 
-      <div class="card">
-        <img class="shot" src="../images/agree-echo.png" alt="Spin vectors fanned apart and refocusing into an echo." />
+      <article class="card">
+        <img class="shot" src="../images/screenshot.png"
+             alt="A bright pixel platformer under a blue sky: the player stands on a brick ledge with a coin above, grassy hills behind and an enemy approaching from the right." />
         <div class="body">
-          <div class="titlerow"><h2>AGREEMENT</h2></div>
-          <p class="one">A game about things that drift apart.</p>
-          <p class="blurb">Spins fan out because the field is uneven; a 180° pulse turns that drift
-            around and brings them back together. The spin echo, played rather than derived.</p>
-          <p class="url">/md-simulation/echo/</p>
-          <a class="play" href="../echo/">PLAY</a>
+          <div class="labels">
+            <span class="label">Platformer</span>
+            <span class="label version">Original</span>
+          </div>
+          <h2>Mario Classic</h2>
+          <p class="desc">The original Mario-style platformer with coins, enemies and a flag at the end.</p>
+          <div class="actions">
+            <a class="play" href="mario-classic/">PLAY</a>
+            <a class="secondary" href="../app/">Play the physics edition</a>
+          </div>
         </div>
-      </div>
+      </article>
 
-      <div class="card">
-        <img class="shot" src="../images/moon-zone.png" alt="The pixel platformer inside the low-gravity zone, with a moon marker and a long arcing jump trail." />
+      <article class="card">
+        <img class="shot top" src="../images/shim-z3.png"
+             alt="An instrument console showing a magnet, a badly split spectral peak and a lock level readout, with the sample labelled someone left it badly shimmed." />
         <div class="body">
-          <div class="titlerow"><h2>PIXEL PLUMBER</h2><span class="badge">current</span></div>
-          <p class="one">The platformer, with the physics turned on.</p>
-          <p class="blurb">The same run-jump-stomp game, plus a 🌙 low-gravity stretch at g = 650
-            against an Earth-normal 2200, a 🧊 no-friction stretch, a projectile trail while you are
-            airborne, and live numbers behind the 🔬 button.</p>
-          <p class="url">/md-simulation/app/</p>
-          <a class="play" href="../app/">PLAY</a>
+          <div class="labels"><span class="label">Puzzle</span></div>
+          <h2>Shim</h2>
+          <p class="desc">Tune a 500&nbsp;MHz magnet by reading the peak it gives you back.</p>
+          <div class="actions"><a class="play" href="../spin/">PLAY</a></div>
         </div>
-      </div>
+      </article>
 
-      <div class="card classic">
-        <img class="shot" src="../images/screenshot.png" alt="A blue-sky pixel platformer: a small character on brick blocks, coins above, a flag to the right." />
+      <article class="card">
+        <img class="shot top" src="../images/agree-echo.png"
+             alt="A round dial with teal needles gathered into a narrow fan behind a gold arrow, beside a rising line graph and a score reading 0.82 collected." />
         <div class="body">
-          <div class="titlerow"><h2>MARIO CLASSIC</h2><span class="badge">original, a147605</span></div>
-          <p class="one">Run, jump, stomp, reach the flag. Nothing else.</p>
-          <p class="blurb">Pixel Plumber exactly as it was first committed, before any physics was
-            added to it: touch controls, coins, goombas, a flagpole. No zones, no readout, no trail.
-            The three files are byte-identical to the original commit.</p>
-          <p class="url">/md-simulation/games/mario-classic/</p>
-          <a class="play" href="mario-classic/">PLAY</a>
+          <div class="labels"><span class="label">Puzzle</span></div>
+          <h2>Agreement</h2>
+          <p class="desc">Things drift apart. Time one move to bring them back together.</p>
+          <div class="actions"><a class="play" href="../echo/">PLAY</a></div>
         </div>
-      </div>
+      </article>
 
-      <div class="card tool">
-        <img class="shot" src="../images/spin-sandbox.png" alt="A Bloch sphere with a magnetization vector and pulse controls." />
+      <article class="card">
+        <img class="shot" src="../images/spin-sandbox.png"
+             alt="A sandbox screen with a sphere carrying a single vector, surrounded by pulse and delay controls and a signal trace." />
         <div class="body">
-          <div class="titlerow"><h2>BLOCH SANDBOX</h2><span class="badge">tool, not a game</span></div>
-          <p class="one">Free play on the engine underneath.</p>
-          <p class="blurb">No levels and no score — pulses, delays and a Bloch sphere, verified
-            against closed form (a Hahn echo peaks at 35.0 ms against a predicted 34.6).</p>
-          <p class="url">/md-simulation/spin/sandbox.html</p>
-          <a class="play" href="../spin/sandbox.html">OPEN</a>
+          <div class="labels"><span class="label">Sandbox</span></div>
+          <h2>Bloch Sandbox</h2>
+          <p class="desc">No levels and no score — just pulses, delays and somewhere to try them.</p>
+          <div class="actions"><a class="play" href="../spin/sandbox.html">PLAY</a></div>
         </div>
-      </div>
+      </article>
 
-    </div>
+    </main>
 
-    <div class="foot">
-      <a href="../">Slingshot project page</a> ·
-      <a href="https://tojestspacja.github.io/mr-simulation/">Resonance (separate repository)</a> ·
-      <a href="https://github.com/tojestspacja/md-simulation">Repository</a>
-    </div>
+    <p class="foot">
+      <a href="../">Project page</a><span class="sep">·</span>
+      <a href="https://tojestspacja.github.io/mr-simulation/">Resonance</a><span class="sep">·</span>
+      <a href="https://github.com/tojestspacja/md-simulation">Source</a>
+    </p>
+
   </div>
 </body>
 </html>
