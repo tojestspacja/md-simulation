@@ -1,11 +1,11 @@
 {
   "status": "CANDIDATE — NOT SHIPPED",
   "candidate": {
-    "id": "long-way-round",
+    "id": "long-way-round-r22",
     "name": "the long way round",
     "idIsProvisional": true,
     "geometry": {
-      "id": "long-way-round",
+      "id": "long-way-round-r22",
       "name": "the long way round",
       "hint": "short way or long way",
       "start": [
@@ -16,7 +16,7 @@
         510,
         130
       ],
-      "flagR": 28,
+      "flagR": 22,
       "bodies": [
         {
           "kind": "planet",
@@ -29,7 +29,7 @@
       "maxP": 280,
       "maxT": 12
     },
-    "fingerprint": "5787674455087730df4b57fbeda5914f7dc1e293314991abeac79998bf47de6a"
+    "fingerprint": "6db04ecc583dac83079464846b0ec19ee0c3a1e390ddc5deed2604435318f2e5"
   },
   "provenance": {
     "repositoryCommit": "e72899da7355ae0c5920b451097f7e5f00d7d323",
@@ -68,7 +68,7 @@
     "minAnyFamilyMedianDeg": 0.6
   },
   "measurements": {
-    "id": "long-way-round",
+    "id": "long-way-round-r22",
     "name": "the long way round",
     "maxPower": 280,
     "maxTime": 12,
@@ -79,46 +79,45 @@
       "successRate": 1,
       "failuresWithinBudget": 0,
       "budget": 2000,
-      "medianShots": 37,
-      "p75Shots": 85,
-      "p90Shots": 109,
+      "medianShots": 69,
+      "p75Shots": 93,
+      "p90Shots": 116,
       "minShots": 2,
-      "maxShots": 129
+      "maxShots": 133
     },
     "solutionSpace": {
       "samples": 43200,
-      "hits": 1090,
-      "hitRatePercent": 2.52,
-      "basinCount": 4,
-      "largestBasin": 830,
-      "largestBasinPercent": 1.92,
+      "hits": 876,
+      "hitRatePercent": 2.03,
+      "basinCount": 3,
+      "largestBasin": 666,
+      "largestBasinPercent": 1.54,
       "basinSizes": [
-        830,
-        257,
-        2,
+        666,
+        209,
         1
       ],
       "meaningfulRoutes": 2,
       "meaningfulSizes": [
-        830,
-        257
+        666,
+        209
       ]
     },
     "precision": {
       "representative": {
-        "angleDeg": 34,
-        "power": 111.1
+        "angleDeg": 66,
+        "power": 75.1
       },
-      "angleMinusDeg": 1.87,
-      "anglePlusDeg": 2.25,
-      "powerMinus": 4.7,
-      "powerPlus": 5.3
+      "angleMinusDeg": 6,
+      "anglePlusDeg": 12.37,
+      "powerMinus": 2.3,
+      "powerPlus": 2.3
     },
     "concept": {
       "class": "(candidate)",
       "note": "not yet classified"
     },
-    "seconds": 13.2
+    "seconds": 11.9
   },
   "robustness": {
     "metric": "distribution tolerance — supersedes representative-point tolerance",
@@ -128,180 +127,180 @@
       "maxAngleDeg": 40,
       "maxPowerFraction": 0.6
     },
-    "totalWins": 2172,
+    "totalWins": 1739,
     "sampledPerFamily": 250,
     "families": [
       {
-        "angleFromDeg": 236.5,
-        "angleToDeg": 333,
-        "wins": 1657,
-        "shareOfWins": 0.763,
+        "angleFromDeg": 237,
+        "angleToDeg": 332,
+        "wins": 1319,
+        "shareOfWins": 0.758,
         "sampled": 250,
         "angleLowerDeg": {
           "n": 250,
-          "p10": 0.67,
-          "median": 4.04,
-          "p90": 15.45,
-          "min": 0.01,
-          "max": 40
+          "p10": 0.47,
+          "median": 3.36,
+          "p90": 9.75,
+          "min": 0.04,
+          "max": 32.29
         },
         "angleUpperDeg": {
           "n": 250,
-          "p10": 1.07,
-          "median": 4.83,
-          "p90": 16.32,
-          "min": 0.02,
-          "max": 37.59
+          "p10": 1.01,
+          "median": 3.61,
+          "p90": 9.26,
+          "min": 0.01,
+          "max": 33.76
         },
         "angleWidthDeg": {
           "n": 250,
-          "p10": 7.05,
-          "median": 7.34,
-          "p90": 38.33,
-          "min": 7.04,
-          "max": 46.77
+          "p10": 5.53,
+          "median": 5.67,
+          "p90": 19.95,
+          "min": 5.53,
+          "max": 34.05
         },
         "powerLower": {
           "n": 250,
-          "p10": 2.01,
-          "median": 12.11,
-          "p90": 60.21,
-          "min": 0.08,
-          "max": 103.71
+          "p10": 1.51,
+          "median": 9.65,
+          "p90": 50.39,
+          "min": 0.12,
+          "max": 87.15
         },
         "powerUpper": {
           "n": 250,
-          "p10": 1.04,
-          "median": 12.58,
-          "p90": 58.55,
+          "p10": 1.24,
+          "median": 9.19,
+          "p90": 47.29,
           "min": 0,
-          "max": 94.59
+          "max": 81.61
         },
         "powerWidth": {
           "n": 250,
-          "p10": 7.28,
-          "median": 32.76,
-          "p90": 94.79,
-          "min": 1.08,
-          "max": 103.71
+          "p10": 5.69,
+          "median": 27.59,
+          "p90": 80.38,
+          "min": 0.53,
+          "max": 88.22
         }
       },
       {
-        "angleFromDeg": 28,
-        "angleToDeg": 105,
-        "wins": 515,
-        "shareOfWins": 0.237,
+        "angleFromDeg": 28.5,
+        "angleToDeg": 104.5,
+        "wins": 420,
+        "shareOfWins": 0.242,
         "sampled": 250,
         "angleLowerDeg": {
           "n": 250,
-          "p10": 0.87,
-          "median": 5.09,
-          "p90": 27.74,
-          "min": 0.06,
-          "max": 40
+          "p10": 0.47,
+          "median": 2.54,
+          "p90": 6.94,
+          "min": 0.01,
+          "max": 11.94
         },
         "angleUpperDeg": {
           "n": 250,
-          "p10": 0.83,
-          "median": 6.33,
-          "p90": 30.32,
-          "min": 0.01,
-          "max": 40
+          "p10": 0.5,
+          "median": 2.88,
+          "p90": 15.51,
+          "min": 0,
+          "max": 33.76
         },
         "angleWidthDeg": {
           "n": 250,
-          "p10": 4.27,
-          "median": 13.82,
-          "p90": 46.77,
-          "min": 0.29,
-          "max": 46.77
+          "p10": 3,
+          "median": 5.52,
+          "p90": 19.45,
+          "min": 0.51,
+          "max": 34.06
         },
         "powerLower": {
           "n": 250,
-          "p10": 1.11,
-          "median": 4.01,
-          "p90": 7.26,
-          "min": 0.04,
-          "max": 11.12
+          "p10": 0.63,
+          "median": 3.24,
+          "p90": 5.99,
+          "min": 0.01,
+          "max": 8.47
         },
         "powerUpper": {
           "n": 250,
-          "p10": 0.69,
-          "median": 3.76,
-          "p90": 6.64,
+          "p10": 0.72,
+          "median": 3.18,
+          "p90": 5.91,
           "min": 0,
-          "max": 10.69
+          "max": 8.2
         },
         "powerWidth": {
           "n": 250,
-          "p10": 7,
-          "median": 7.58,
-          "p90": 9.96,
-          "min": 1.67,
-          "max": 11.22
+          "p10": 5.49,
+          "median": 6.25,
+          "p90": 8.31,
+          "min": 2.01,
+          "max": 8.93
         }
       }
     ]
   },
   "supersededRepresentativePointTolerance": {
     "representative": {
-      "angleDeg": 34,
-      "power": 111.1
+      "angleDeg": 66,
+      "power": 75.1
     },
-    "angleMinusDeg": 1.87,
-    "anglePlusDeg": 2.25,
-    "powerMinus": 4.7,
-    "powerPlus": 5.3
+    "angleMinusDeg": 6,
+    "anglePlusDeg": 12.37,
+    "powerMinus": 2.3,
+    "powerPlus": 2.3
   },
   "routeFamilies": {
-    "wins": 2172,
+    "wins": 1739,
     "allBands": 2,
     "families": [
       {
-        "angleFromDeg": 236.5,
-        "angleToDeg": 333,
-        "angleWidthDeg": 96.5,
-        "wins": 1657,
-        "shareOfWins": 0.763,
+        "angleFromDeg": 237,
+        "angleToDeg": 332,
+        "angleWidthDeg": 95,
+        "wins": 1319,
+        "shareOfWins": 0.758,
         "powerFrom": 71,
         "powerTo": 280,
         "representative": {
-          "angleDeg": 318.5,
-          "power": 147.1,
+          "angleDeg": 318,
+          "power": 158.4,
           "outcome": "arrived",
-          "flightSeconds": 2.36,
-          "closestApproach": 186,
-          "apexY": 136,
+          "flightSeconds": 2.33,
+          "closestApproach": 194,
+          "apexY": 117,
           "endsOn": "above",
           "crossesSides": false
         },
         "flightSecondsAcrossBand": [
           11.96,
-          2.36,
+          2.33,
           1.35
         ]
       },
       {
-        "angleFromDeg": 28,
-        "angleToDeg": 105,
-        "angleWidthDeg": 77,
-        "wins": 515,
-        "shareOfWins": 0.237,
+        "angleFromDeg": 28.5,
+        "angleToDeg": 104.5,
+        "angleWidthDeg": 76,
+        "wins": 420,
+        "shareOfWins": 0.242,
         "powerFrom": 71,
-        "powerTo": 136,
+        "powerTo": 131,
         "representative": {
-          "angleDeg": 63,
-          "power": 72.8,
+          "angleDeg": 64.5,
+          "power": 75.1,
           "outcome": "arrived",
-          "flightSeconds": 5.36,
-          "closestApproach": 93,
+          "flightSeconds": 5.63,
+          "closestApproach": 104,
           "apexY": 151,
           "endsOn": "above",
           "crossesSides": true
         },
         "flightSecondsAcrossBand": [
-          3.02,
-          5.36,
+          3.03,
+          5.63,
           11.97
         ]
       }
@@ -311,8 +310,8 @@
     {
       "a": 0,
       "b": 1,
-      "flightTimeRatio": 2.27,
-      "closestApproachRatio": 2,
+      "flightTimeRatio": 2.42,
+      "closestApproachRatio": 1.87,
       "distinct": true
     }
   ],
@@ -418,17 +417,17 @@
     {
       "label": "basin in 1.5-2.6%",
       "pass": true,
-      "value": "2.52%"
+      "value": "2.03%"
     },
     {
       "label": "search median in 40-90",
-      "pass": false,
-      "value": "37"
+      "pass": true,
+      "value": "69"
     },
     {
       "label": "p90 under 130",
       "pass": true,
-      "value": "109"
+      "value": "116"
     },
     {
       "label": "no failed seeds",
@@ -438,12 +437,12 @@
     {
       "label": "dominant family median >= 1.4 deg",
       "pass": true,
-      "value": "4.04 deg"
+      "value": "3.36 deg"
     },
     {
       "label": "every family median >= 0.6 deg",
       "pass": true,
-      "value": "4.04, 5.09 deg"
+      "value": "3.36, 2.54 deg"
     },
     {
       "label": "at least 2 route families",
@@ -453,8 +452,8 @@
     {
       "label": "families are distinct journeys",
       "pass": true,
-      "value": "time x2.27, closest x2"
+      "value": "time x2.42, closest x1.87"
     }
   ],
-  "allGatesPassed": false
+  "allGatesPassed": true
 }

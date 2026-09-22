@@ -1,0 +1,791 @@
+{
+  "metric": "distribution tolerance (supersedes single representative-point tolerance)",
+  "note": "Not comparable with the representative-point tolerances in difficulty-baseline.json.",
+  "provenance": {
+    "repositoryCommit": "e72899da7355ae0c5920b451097f7e5f00d7d323",
+    "repositoryDirty": true,
+    "node": "v24.15.0"
+  },
+  "config": {
+    "route": {
+      "angleSamples": 720,
+      "powerSamples": 120,
+      "powerFloor": 12,
+      "bandGapDeg": 2,
+      "minShareOfWins": 0.03
+    },
+    "robustness": {
+      "perFamily": 250,
+      "bisectSteps": 12,
+      "maxAngleDeg": 40,
+      "maxPowerFraction": 0.6
+    }
+  },
+  "tightestShippedSideMedianDeg": 0.67,
+  "levels": [
+    {
+      "id": "push",
+      "totalWins": 696,
+      "sampledPerFamily": 250,
+      "families": [
+        {
+          "angleFromDeg": 358,
+          "angleToDeg": 2,
+          "wins": 696,
+          "shareOfWins": 1,
+          "sampled": 250,
+          "angleLowerDeg": {
+            "n": 250,
+            "p10": 0.42,
+            "median": 1.92,
+            "p90": 2.92,
+            "min": 0.2,
+            "max": 3.42
+          },
+          "angleUpperDeg": {
+            "n": 250,
+            "p10": 1.92,
+            "median": 2.92,
+            "p90": 4.42,
+            "min": 1.42,
+            "max": 4.42
+          },
+          "angleWidthDeg": {
+            "n": 250,
+            "p10": 4.84,
+            "median": 4.84,
+            "p90": 4.84,
+            "min": 4.4,
+            "max": 4.84
+          },
+          "powerLower": {
+            "n": 250,
+            "p10": 17.33,
+            "median": 87.83,
+            "p90": 167.28,
+            "min": 0.7,
+            "max": 180
+          },
+          "powerUpper": {
+            "n": 250,
+            "p10": 19.36,
+            "median": 99.23,
+            "p90": 169.41,
+            "min": 0,
+            "max": 180
+          },
+          "powerWidth": {
+            "n": 250,
+            "p10": 184.64,
+            "median": 186.32,
+            "p90": 186.74,
+            "min": 180,
+            "max": 186.74
+          }
+        }
+      ]
+    },
+    {
+      "id": "bend",
+      "totalWins": 1176,
+      "sampledPerFamily": 250,
+      "families": [
+        {
+          "angleFromDeg": 359.5,
+          "angleToDeg": 22,
+          "wins": 1099,
+          "shareOfWins": 0.935,
+          "sampled": 250,
+          "angleLowerDeg": {
+            "n": 250,
+            "p10": 0.49,
+            "median": 3.01,
+            "p90": 5.47,
+            "min": 0.01,
+            "max": 6.45
+          },
+          "angleUpperDeg": {
+            "n": 250,
+            "p10": 0.76,
+            "median": 3.23,
+            "p90": 5.53,
+            "min": 0.01,
+            "max": 6.48
+          },
+          "angleWidthDeg": {
+            "n": 250,
+            "p10": 5.76,
+            "median": 6.26,
+            "p90": 6.53,
+            "min": 5.6,
+            "max": 6.57
+          },
+          "powerLower": {
+            "n": 250,
+            "p10": 5.94,
+            "median": 41.52,
+            "p90": 104.45,
+            "min": 0.13,
+            "max": 150.88
+          },
+          "powerUpper": {
+            "n": 250,
+            "p10": 7.73,
+            "median": 41.14,
+            "p90": 101.65,
+            "min": 0,
+            "max": 145.21
+          },
+          "powerWidth": {
+            "n": 250,
+            "p10": 40.13,
+            "median": 100.16,
+            "p90": 145.59,
+            "min": 19.21,
+            "max": 150.88
+          }
+        },
+        {
+          "angleFromDeg": 311,
+          "angleToDeg": 321,
+          "wins": 77,
+          "shareOfWins": 0.065,
+          "sampled": 77,
+          "angleLowerDeg": {
+            "n": 77,
+            "p10": 0.16,
+            "median": 0.84,
+            "p90": 1.77,
+            "min": 0,
+            "max": 2.15
+          },
+          "angleUpperDeg": {
+            "n": 77,
+            "p10": 0.17,
+            "median": 0.79,
+            "p90": 1.76,
+            "min": 0.02,
+            "max": 2.28
+          },
+          "angleWidthDeg": {
+            "n": 77,
+            "p10": 1.1,
+            "median": 1.98,
+            "p90": 2.29,
+            "min": 0.36,
+            "max": 2.3
+          },
+          "powerLower": {
+            "n": 77,
+            "p10": 0.76,
+            "median": 4.2,
+            "p90": 8.28,
+            "min": 0.19,
+            "max": 11.26
+          },
+          "powerUpper": {
+            "n": 77,
+            "p10": 1.17,
+            "median": 4.39,
+            "p90": 8.62,
+            "min": 0,
+            "max": 10.71
+          },
+          "powerWidth": {
+            "n": 77,
+            "p10": 6.81,
+            "median": 9.51,
+            "p90": 11.68,
+            "min": 2.87,
+            "max": 12.13
+          }
+        }
+      ]
+    },
+    {
+      "id": "aim-away",
+      "totalWins": 1184,
+      "sampledPerFamily": 250,
+      "families": [
+        {
+          "angleFromDeg": 8,
+          "angleToDeg": 43.5,
+          "wins": 592,
+          "shareOfWins": 0.5,
+          "sampled": 250,
+          "angleLowerDeg": {
+            "n": 250,
+            "p10": 0.3,
+            "median": 1.48,
+            "p90": 2.65,
+            "min": 0,
+            "max": 3.03
+          },
+          "angleUpperDeg": {
+            "n": 250,
+            "p10": 0.36,
+            "median": 1.59,
+            "p90": 2.73,
+            "min": 0.01,
+            "max": 3.14
+          },
+          "angleWidthDeg": {
+            "n": 250,
+            "p10": 2.95,
+            "median": 2.99,
+            "p90": 3.15,
+            "min": 2.94,
+            "max": 3.27
+          },
+          "powerLower": {
+            "n": 250,
+            "p10": 2.86,
+            "median": 15.95,
+            "p90": 44.36,
+            "min": 0.06,
+            "max": 72.67
+          },
+          "powerUpper": {
+            "n": 250,
+            "p10": 3.19,
+            "median": 16.13,
+            "p90": 44.19,
+            "min": 0,
+            "max": 74.34
+          },
+          "powerWidth": {
+            "n": 250,
+            "p10": 14.95,
+            "median": 41.26,
+            "p90": 67.54,
+            "min": 11.05,
+            "max": 74.4
+          }
+        },
+        {
+          "angleFromDeg": 316.5,
+          "angleToDeg": 352,
+          "wins": 592,
+          "shareOfWins": 0.5,
+          "sampled": 250,
+          "angleLowerDeg": {
+            "n": 250,
+            "p10": 0.35,
+            "median": 1.45,
+            "p90": 2.8,
+            "min": 0,
+            "max": 3.64
+          },
+          "angleUpperDeg": {
+            "n": 250,
+            "p10": 0.38,
+            "median": 1.72,
+            "p90": 2.75,
+            "min": 0.01,
+            "max": 3.59
+          },
+          "angleWidthDeg": {
+            "n": 250,
+            "p10": 2.96,
+            "median": 3.03,
+            "p90": 3.45,
+            "min": 2.64,
+            "max": 3.74
+          },
+          "powerLower": {
+            "n": 250,
+            "p10": 1.76,
+            "median": 10.92,
+            "p90": 38.88,
+            "min": 0.13,
+            "max": 67.19
+          },
+          "powerUpper": {
+            "n": 250,
+            "p10": 2.1,
+            "median": 11.77,
+            "p90": 41.01,
+            "min": 0,
+            "max": 71.92
+          },
+          "powerWidth": {
+            "n": 250,
+            "p10": 7.7,
+            "median": 29.69,
+            "p90": 67.54,
+            "min": 3.53,
+            "max": 74.4
+          }
+        }
+      ]
+    },
+    {
+      "id": "orbit",
+      "totalWins": 2418,
+      "sampledPerFamily": 250,
+      "families": [
+        {
+          "angleFromDeg": 114.5,
+          "angleToDeg": 207.5,
+          "wins": 1209,
+          "shareOfWins": 0.5,
+          "sampled": 250,
+          "angleLowerDeg": {
+            "n": 250,
+            "p10": 0.81,
+            "median": 3.46,
+            "p90": 8.99,
+            "min": 0.01,
+            "max": 18.99
+          },
+          "angleUpperDeg": {
+            "n": 250,
+            "p10": 0.55,
+            "median": 3.58,
+            "p90": 14.22,
+            "min": 0.04,
+            "max": 38.36
+          },
+          "angleWidthDeg": {
+            "n": 250,
+            "p10": 4.93,
+            "median": 6.13,
+            "p90": 25.44,
+            "min": 4.81,
+            "max": 39.73
+          },
+          "powerLower": {
+            "n": 250,
+            "p10": 1.32,
+            "median": 5.72,
+            "p90": 16.26,
+            "min": 0.05,
+            "max": 26.69
+          },
+          "powerUpper": {
+            "n": 250,
+            "p10": 1.25,
+            "median": 5.71,
+            "p90": 15.52,
+            "min": 0,
+            "max": 26.65
+          },
+          "powerWidth": {
+            "n": 250,
+            "p10": 6.94,
+            "median": 12.87,
+            "p90": 25.63,
+            "min": 2.22,
+            "max": 28.96
+          }
+        },
+        {
+          "angleFromDeg": 332.5,
+          "angleToDeg": 65.5,
+          "wins": 1209,
+          "shareOfWins": 0.5,
+          "sampled": 250,
+          "angleLowerDeg": {
+            "n": 250,
+            "p10": 0.93,
+            "median": 4.88,
+            "p90": 18.73,
+            "min": 0.05,
+            "max": 38.36
+          },
+          "angleUpperDeg": {
+            "n": 250,
+            "p10": 0.87,
+            "median": 4.39,
+            "p90": 16.73,
+            "min": 0.04,
+            "max": 37.86
+          },
+          "angleWidthDeg": {
+            "n": 250,
+            "p10": 5.35,
+            "median": 8.96,
+            "p90": 39.73,
+            "min": 5.01,
+            "max": 39.73
+          },
+          "powerLower": {
+            "n": 250,
+            "p10": 1.15,
+            "median": 4.74,
+            "p90": 11.69,
+            "min": 0.08,
+            "max": 21.37
+          },
+          "powerUpper": {
+            "n": 250,
+            "p10": 1.1,
+            "median": 4.38,
+            "p90": 11.73,
+            "min": 0.07,
+            "max": 20.48
+          },
+          "powerWidth": {
+            "n": 250,
+            "p10": 6.79,
+            "median": 8.85,
+            "p90": 19.64,
+            "min": 1.14,
+            "max": 23.53
+          }
+        }
+      ]
+    },
+    {
+      "id": "round-the-back",
+      "totalWins": 1631,
+      "sampledPerFamily": 250,
+      "families": [
+        {
+          "angleFromDeg": 250,
+          "angleToDeg": 321,
+          "wins": 1079,
+          "shareOfWins": 0.662,
+          "sampled": 250,
+          "angleLowerDeg": {
+            "n": 250,
+            "p10": 0.58,
+            "median": 2.48,
+            "p90": 4.81,
+            "min": 0.02,
+            "max": 12.89
+          },
+          "angleUpperDeg": {
+            "n": 250,
+            "p10": 0.53,
+            "median": 2.84,
+            "p90": 5.06,
+            "min": 0.03,
+            "max": 12.71
+          },
+          "angleWidthDeg": {
+            "n": 250,
+            "p10": 4.54,
+            "median": 4.68,
+            "p90": 9.62,
+            "min": 4.54,
+            "max": 13.09
+          },
+          "powerLower": {
+            "n": 250,
+            "p10": 1.94,
+            "median": 10.48,
+            "p90": 50.64,
+            "min": 0.05,
+            "max": 86.67
+          },
+          "powerUpper": {
+            "n": 250,
+            "p10": 1.79,
+            "median": 10.8,
+            "p90": 47.29,
+            "min": 0,
+            "max": 81.07
+          },
+          "powerWidth": {
+            "n": 250,
+            "p10": 6.54,
+            "median": 29.11,
+            "p90": 79.95,
+            "min": 1.14,
+            "max": 86.67
+          }
+        },
+        {
+          "angleFromDeg": 345.5,
+          "angleToDeg": 51.5,
+          "wins": 552,
+          "shareOfWins": 0.338,
+          "sampled": 250,
+          "angleLowerDeg": {
+            "n": 250,
+            "p10": 0.25,
+            "median": 1.67,
+            "p90": 4.4,
+            "min": 0,
+            "max": 9
+          },
+          "angleUpperDeg": {
+            "n": 250,
+            "p10": 0.42,
+            "median": 1.9,
+            "p90": 5.25,
+            "min": 0.03,
+            "max": 11.76
+          },
+          "angleWidthDeg": {
+            "n": 250,
+            "p10": 2.28,
+            "median": 3.68,
+            "p90": 8.51,
+            "min": 0.22,
+            "max": 12.09
+          },
+          "powerLower": {
+            "n": 250,
+            "p10": 0.99,
+            "median": 5.35,
+            "p90": 15.07,
+            "min": 0,
+            "max": 28.54
+          },
+          "powerUpper": {
+            "n": 250,
+            "p10": 1.46,
+            "median": 5.65,
+            "p90": 16.49,
+            "min": 0.08,
+            "max": 29
+          },
+          "powerWidth": {
+            "n": 250,
+            "p10": 6.01,
+            "median": 12.19,
+            "p90": 25.61,
+            "min": 5.39,
+            "max": 30.51
+          }
+        }
+      ]
+    },
+    {
+      "id": "two-planets",
+      "totalWins": 879,
+      "sampledPerFamily": 250,
+      "families": [
+        {
+          "angleFromDeg": 1.5,
+          "angleToDeg": 59.5,
+          "wins": 672,
+          "shareOfWins": 0.765,
+          "sampled": 250,
+          "angleLowerDeg": {
+            "n": 250,
+            "p10": 0.18,
+            "median": 1.12,
+            "p90": 2.35,
+            "min": 0,
+            "max": 3.15
+          },
+          "angleUpperDeg": {
+            "n": 250,
+            "p10": 0.21,
+            "median": 1.21,
+            "p90": 2.35,
+            "min": 0,
+            "max": 3.11
+          },
+          "angleWidthDeg": {
+            "n": 250,
+            "p10": 1.76,
+            "median": 2.57,
+            "p90": 3.15,
+            "min": 0.14,
+            "max": 3.24
+          },
+          "powerLower": {
+            "n": 250,
+            "p10": 1.96,
+            "median": 16.9,
+            "p90": 62.67,
+            "min": 0,
+            "max": 96.84
+          },
+          "powerUpper": {
+            "n": 250,
+            "p10": 2.42,
+            "median": 16.94,
+            "p90": 62.25,
+            "min": 0,
+            "max": 99.53
+          },
+          "powerWidth": {
+            "n": 250,
+            "p10": 9.01,
+            "median": 53.62,
+            "p90": 96.14,
+            "min": 2.57,
+            "max": 99.56
+          }
+        },
+        {
+          "angleFromDeg": 290.5,
+          "angleToDeg": 328,
+          "wins": 207,
+          "shareOfWins": 0.235,
+          "sampled": 207,
+          "angleLowerDeg": {
+            "n": 207,
+            "p10": 0.11,
+            "median": 0.67,
+            "p90": 1.52,
+            "min": 0,
+            "max": 2.49
+          },
+          "angleUpperDeg": {
+            "n": 207,
+            "p10": 0.11,
+            "median": 0.68,
+            "p90": 1.57,
+            "min": 0,
+            "max": 2.35
+          },
+          "angleWidthDeg": {
+            "n": 207,
+            "p10": 0.91,
+            "median": 1.53,
+            "p90": 2.35,
+            "min": 0.18,
+            "max": 2.83
+          },
+          "powerLower": {
+            "n": 207,
+            "p10": 0.39,
+            "median": 2.44,
+            "p90": 7.55,
+            "min": 0.02,
+            "max": 13
+          },
+          "powerUpper": {
+            "n": 207,
+            "p10": 0.39,
+            "median": 2.47,
+            "p90": 7.79,
+            "min": 0,
+            "max": 14.07
+          },
+          "powerWidth": {
+            "n": 207,
+            "p10": 1.42,
+            "median": 5.91,
+            "p90": 12.36,
+            "min": 0.65,
+            "max": 14.09
+          }
+        }
+      ]
+    },
+    {
+      "id": "gravity-assist",
+      "totalWins": 7664,
+      "sampledPerFamily": 250,
+      "families": [
+        {
+          "angleFromDeg": 132,
+          "angleToDeg": 199.5,
+          "wins": 7060,
+          "shareOfWins": 0.921,
+          "sampled": 250,
+          "angleLowerDeg": {
+            "n": 250,
+            "p10": 2.57,
+            "median": 19.43,
+            "p90": 39.55,
+            "min": 0.01,
+            "max": 40
+          },
+          "angleUpperDeg": {
+            "n": 250,
+            "p10": 2.97,
+            "median": 20.23,
+            "p90": 39.46,
+            "min": 0.03,
+            "max": 40
+          },
+          "angleWidthDeg": {
+            "n": 250,
+            "p10": 23.42,
+            "median": 43.61,
+            "p90": 49.17,
+            "min": 0.14,
+            "max": 51.41
+          },
+          "powerLower": {
+            "n": 250,
+            "p10": 6.84,
+            "median": 39.51,
+            "p90": 91.26,
+            "min": 0.02,
+            "max": 109.41
+          },
+          "powerUpper": {
+            "n": 250,
+            "p10": 4.36,
+            "median": 37.8,
+            "p90": 90.13,
+            "min": 0.08,
+            "max": 109.03
+          },
+          "powerWidth": {
+            "n": 250,
+            "p10": 34.64,
+            "median": 105.47,
+            "p90": 113.02,
+            "min": 0.8,
+            "max": 118.87
+          }
+        },
+        {
+          "angleFromDeg": 31,
+          "angleToDeg": 56.5,
+          "wins": 466,
+          "shareOfWins": 0.061,
+          "sampled": 250,
+          "angleLowerDeg": {
+            "n": 250,
+            "p10": 0.73,
+            "median": 4.01,
+            "p90": 7.86,
+            "min": 0.01,
+            "max": 10.01
+          },
+          "angleUpperDeg": {
+            "n": 250,
+            "p10": 3.36,
+            "median": 12.63,
+            "p90": 20.69,
+            "min": 0,
+            "max": 25.79
+          },
+          "angleWidthDeg": {
+            "n": 250,
+            "p10": 7.43,
+            "median": 17.14,
+            "p90": 24.59,
+            "min": 0.43,
+            "max": 26.08
+          },
+          "powerLower": {
+            "n": 250,
+            "p10": 1.54,
+            "median": 9.17,
+            "p90": 18.4,
+            "min": 0.04,
+            "max": 22.76
+          },
+          "powerUpper": {
+            "n": 250,
+            "p10": 1.45,
+            "median": 8.72,
+            "p90": 17.45,
+            "min": 0,
+            "max": 21.81
+          },
+          "powerWidth": {
+            "n": 250,
+            "p10": 11.02,
+            "median": 19.89,
+            "p90": 22.49,
+            "min": 0.5,
+            "max": 25.28
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -15,6 +15,17 @@ current.
 | `orbit` angle tolerance ~ +/-2.4 deg | **+/-12.62 deg** | 30 power samples put the representative winning launch on a narrow ledge. The expert-slot argument in  turns on this number. |
 | `two-planets` has "32 strategies" | **3 meaningful regions of 37 components** | connected grid fragments were counted as routes; 34 of them are shards of a chaotic boundary, too small to aim at |
 | search medians from before 2026-09-23 | see the table below | seeds derived from a level's index in the array being measured, so the same level scored differently depending on what it was measured alongside. Seeds now derive from the level id. |
+| the `angle tolerance` column below, and every representative-point tolerance | `analysis/tolerance-calibration.json` | **superseded as an acceptance gate.** It walks outward from the single winning sample with the most winning neighbours, and that point jumps elsewhere in the basin under a small geometry change. Shrinking one candidate's flag from 28 to 22 moved its reported tolerance from −1.87/+2.25° to −6/+12.37° without the level becoming more forgiving. |
+
+The representative-point tolerance is still printed below, because it is what the
+older analyses quoted and removing it would make them unreadable. It is not a
+gate any more. Acceptance now uses the **distribution tolerance** in
+`tolerance-calibration.json`: every sampled winning launch measures its own four
+margins, and the result is reported per route family as p10 / median / p90. The
+two are **different metrics and must not be compared with each other** — one
+asks how much slack one chosen launch has, the other how much slack the
+population of winning launches has.
+
 
 The first two were found by re-measuring at higher density; the third by
 measuring one level twice in different company and getting 86 and 41.

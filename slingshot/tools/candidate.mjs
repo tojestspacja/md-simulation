@@ -23,7 +23,8 @@ import { createHash } from "node:crypto";
 
 import { LEVELS as SHIPPED } from "../src/levels/index.js";
 import { CONFIG, TOOL_VERSION, measure } from "./difficulty.mjs";
-import { routeFamilies, familiesAreDistinct, ROUTE_CONFIG, describe } from "./routes.mjs";
+import { routeFamilies, familiesAreDistinct, ROUTE_CONFIG } from "./routes.mjs";
+import { robustness, tightestSide, ROBUSTNESS_CONFIG } from "./robustness.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const argOf = (n) => { const i = process.argv.indexOf("--" + n); return i >= 0 ? process.argv[i + 1] : null; };
@@ -38,8 +39,14 @@ const GATES = {
   searchMedian: [40, 90],
   searchP90Max: 130,
   failedSeeds: 0,
-  minToleranceDeg: 1.5,
   minFamilies: 2,
+  // Distribution tolerance, median of the narrower side, per family. Derived
+  // from the shipped seven rather than invented: the tightest dominant family
+  // that ships is aim-away at 1.48 deg, and the tightest family of any kind is
+  // two-planets' secondary at 0.67. A gate above those would reject levels
+  // that are already in the game.
+  minDominantFamilyMedianDeg: 1.4,
+  minAnyFamilyMedianDeg: 0.6,
 };
 
 // ---------- provenance ----------
@@ -75,6 +82,7 @@ console.log("grid         " + CONFIG.angleSamples + " x " + CONFIG.powerSamples 
 
 const [m] = measure([CAND]);
 const routes = routeFamilies(CAND);
+const robust = robustness(CAND);
 
 // Compare the two largest families pairwise.
 const pairs = [];
@@ -99,8 +107,9 @@ const comparison = measure(compareIds.map((id) => byId[id])).map((r, k) => ({
 }));
 
 // ---------- gates ----------
-const tolMin = m.precision
-  ? Math.min(m.precision.angleMinusDeg, m.precision.anglePlusDeg) : 0;
+const famMedians = robust.families.map(tightestSide);
+const dominantMedian = famMedians[0] ?? 0;
+const weakestMedian = famMedians.length ? Math.min(...famMedians) : 0;
 const checks = [
   ["basin in " + GATES.basinPercent.join("-") + "%",
     m.solutionSpace.hitRatePercent >= GATES.basinPercent[0] &&
@@ -111,8 +120,10 @@ const checks = [
   ["p90 under " + GATES.searchP90Max, m.search.p90Shots < GATES.searchP90Max, m.search.p90Shots],
   ["no failed seeds", m.search.failuresWithinBudget === GATES.failedSeeds,
     m.search.failuresWithinBudget + "/" + m.search.trials],
-  ["tolerance at least +/-" + GATES.minToleranceDeg + " deg", tolMin >= GATES.minToleranceDeg,
-    "-" + m.precision.angleMinusDeg + " / +" + m.precision.anglePlusDeg],
+  ["dominant family median >= " + GATES.minDominantFamilyMedianDeg + " deg",
+    dominantMedian >= GATES.minDominantFamilyMedianDeg, dominantMedian + " deg"],
+  ["every family median >= " + GATES.minAnyFamilyMedianDeg + " deg",
+    weakestMedian >= GATES.minAnyFamilyMedianDeg, famMedians.join(", ") + " deg"],
   ["at least " + GATES.minFamilies + " route families", routes.families.length >= GATES.minFamilies,
     routes.families.length],
   ["families are distinct journeys", pairs.some((p) => p.distinct),
@@ -127,6 +138,17 @@ for (const f of routes.families) {
     "  power " + f.powerFrom + "-" + f.powerTo +
     "  flight " + r.flightSeconds + "s  closest " + r.closestApproach + "px" +
     (r.crossesSides ? "  crosses" : ""));
+}
+
+console.log("\nrobustness — distribution tolerance in degrees (p10 / median / p90)");
+console.log("  supersedes the representative-point tolerance; not comparable with it");
+for (const f of robust.families) {
+  console.log("  " + String(Math.round(f.angleFromDeg)).padStart(4) + "-" +
+    String(Math.round(f.angleToDeg)).padEnd(5) + " deg " +
+    String(Math.round(f.shareOfWins * 100)).padStart(3) + "%" +
+    "   lower " + [f.angleLowerDeg.p10, f.angleLowerDeg.median, f.angleLowerDeg.p90].join(" / ") +
+    "   upper " + [f.angleUpperDeg.p10, f.angleUpperDeg.median, f.angleUpperDeg.p90].join(" / ") +
+    "   power width med " + f.powerWidth.median);
 }
 
 console.log("\ngates");
@@ -151,6 +173,7 @@ if (process.argv.includes("--write")) {
       powerFloor: CONFIG.powerFloor, searchTrials: CONFIG.searchTrials,
       searchBudget: CONFIG.searchBudget, seedBase: CONFIG.seedBase,
       toleranceSteps: CONFIG.toleranceSteps,
+      robustnessPerFamily: ROBUSTNESS_CONFIG.perFamily,
       routeBandGapDeg: ROUTE_CONFIG.bandGapDeg,
       routeMinShareOfWins: ROUTE_CONFIG.minShareOfWins,
       routeGrid: ROUTE_CONFIG.angleSamples + "x" + ROUTE_CONFIG.powerSamples,
@@ -158,6 +181,12 @@ if (process.argv.includes("--write")) {
     },
     gates: GATES,
     measurements: m,
+    robustness: {
+      metric: "distribution tolerance — supersedes representative-point tolerance",
+      config: ROBUSTNESS_CONFIG,
+      ...robust,
+    },
+    supersededRepresentativePointTolerance: m.precision,
     routeFamilies: routes,
     familyDistinctness: pairs,
     comparison,

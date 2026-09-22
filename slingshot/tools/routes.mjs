@@ -56,6 +56,44 @@ export function describe(lv, angle, power) {
   };
 }
 
+/** Every winning launch on a dense grid, plus the grid itself, grouped into
+ *  contiguous bands of launch angle. Shared with tools/robustness.mjs so both
+ *  are talking about the same wins and the same bands. */
+export function winsAndBands(lv, cfg = ROUTE_CONFIG) {
+  const { angleSamples: NA, powerSamples: NP, powerFloor } = cfg;
+  const angleOf = (ai) => (ai / NA) * Math.PI * 2;
+  const powerOf = (pi) => powerFloor + ((lv.maxP - powerFloor) * pi) / (NP - 1);
+
+  const grid = [];
+  const wins = [];
+  for (let ai = 0; ai < NA; ai++) {
+    const row = [];
+    for (let pi = 0; pi < NP; pi++) {
+      const won = fly(lv, angleOf(ai), powerOf(pi)).won;
+      row.push(won);
+      if (won) wins.push({ ai, pi, deg: (ai * 360) / NA, angle: angleOf(ai), power: powerOf(pi) });
+    }
+    grid.push(row);
+  }
+  if (!wins.length) return { wins: [], bands: [], grid, angleOf, powerOf, NA, NP };
+
+  wins.sort((x, y) => x.deg - y.deg);
+  const bands = [];
+  for (const w of wins) {
+    const last = bands[bands.length - 1];
+    if (last && w.deg - last.hi <= cfg.bandGapDeg) { last.hi = w.deg; last.members.push(w); }
+    else bands.push({ lo: w.deg, hi: w.deg, members: [w] });
+  }
+  if (bands.length > 1 && bands[0].lo <= cfg.bandGapDeg &&
+      360 - bands[bands.length - 1].hi <= cfg.bandGapDeg) {
+    const first = bands.shift();
+    const last = bands[bands.length - 1];
+    last.hi = first.hi + 360;
+    last.members.push(...first.members);
+  }
+  return { wins, bands, grid, angleOf, powerOf, NA, NP };
+}
+
 /** Every winning (angle, power) on a dense grid, grouped into angle bands. */
 export function routeFamilies(lv, cfg = ROUTE_CONFIG) {
   const { angleSamples: NA, powerSamples: NP, powerFloor } = cfg;
